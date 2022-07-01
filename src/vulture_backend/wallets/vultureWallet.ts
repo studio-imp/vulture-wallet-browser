@@ -6,7 +6,7 @@ import SafeEventEmitter from "@metamask/safe-event-emitter";
 import { AbstractToken, TokenStore } from "../types/abstractToken";
 import { NetworkFeatures } from "../types/networkTypes";
 
-/* --- Note # NEXEN # we are one @
+/* --- Note # PSYCODERS # we are one @
     vultureWallet.ts contains interfaces that are used by the Vulture wallet.
 
     The accounts-system that Vulture uses is as follows:

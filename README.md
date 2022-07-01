@@ -17,7 +17,7 @@ ____
 ### Things to Note
 
 * Vulture is still early, you can see the roadmap at the [vulture website](https://vulturewallet.net).
-* Vulture is developed by nexen labs *(previously xavax)*
+* Vulture is developed by psycoders.club *(previously xavax)*
 * Vulture will support the Ledger hardware wallet in the near future, you will be able to use both non-hardware mnemonic accounts & Ledger accounts simultaneously.
 * Vulture currently only has a browser extension version, but a mobile wallet is in development.
 
@@ -46,7 +46,7 @@ Install vue cli: `npm i -g @vue/cli`
 
 ## Build Vulture
 
-After you've cloned `git clone https://github.com/nexenlabs/vulture-wallet` the repository into a directory, run `yarn install` in the directory to install all dependencies. 
+After you've cloned `git clone https://github.com/psycoders-club/vulture-wallet-browser` the repository into a directory, run `yarn install` in the directory to install all dependencies. 
 
 To build Vulture run `yarn build`
 
@@ -67,7 +67,7 @@ the latest scripts and place them in the `dist` directory.
 <h1 align="center"> ~ Licensing ~ </h1>
 
 Vulture is licensed under the permissive [MIT License](https://mit-license.org/). If you have any questions
-about licensing, feel free to ask on social media, github issues, or send an email to `info@nexenlabs.io`.
+about licensing, feel free to ask on social media, github issues, or send an email to `info@psycoders.club`.
 
 <h1 align="center"> ~ Info ~ </h1>
 
@@ -83,7 +83,4 @@ You can help out by tipping, forking the code and creating pull requests *(contr
 
 
 ### hope you have a great time, all the time!~
-*made with love <3 By [Ira](https://twitter/diinkitheimp) and [nexen labs](https://www.nexenlabs.io).*
-
-NOTE: xavax is "rebranding" to nexen labs, in this current dev-branch, everything is pre-nexen; links may
-be broken.
+*made with love <3 By [Ira](https://twitter/diinkitheimp) and [psycoders.club](https://psycoders.club).*
