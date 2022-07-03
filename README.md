@@ -1,4 +1,4 @@
-<h1 align="center">Vulture Wallet | Extension</h1>
+<h1 align="center">Vulture Wallet | Browser Version</h1>
 <p align='center'>
 <img src="./public/icons/VultureIcon2.png" alt="Example 1" width="8%"> 
 </p>

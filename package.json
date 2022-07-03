@@ -2,6 +2,7 @@
   "name": "vulture-wallet",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "serve": "yarn --cwd ./vulture_scripts build && vue-cli-service serve",
     "build": " yarn --cwd ./vulture_scripts build && vue-cli-service build",

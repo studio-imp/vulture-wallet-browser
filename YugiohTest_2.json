@@ -1,0 +1,17 @@
+{
+    "format": "Standard_NFT",
+
+    "name": "Dark Magician",
+    "description": "This is a test NFT, the main purpose of which is to see how well NFT wallet-integration works in Vulture Wallet.",
+    "image": "https://vignette1.wikia.nocookie.net/yugioh/images/b/b3/DarkMagician-SD6-EN-C-UE.png/revision/latest?cb=20160331211958",
+    "external_url": "https://vulturewallet.net",
+    "attributes": [
+        {
+            "trait_type" : "Kind",
+            "value": "Spellcaster"
+        },
+        {
+            "rarity": "0.1%"
+        }
+    ]
+}
