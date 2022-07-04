@@ -5,6 +5,7 @@ import { MnemonicWallet } from "./mnemonicWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
 import { AbstractToken, TokenStore } from "../types/abstractToken";
 import { NetworkFeatures } from "../types/networkTypes";
+import { TokenTypes } from "../types/tokenTypes";
 
 /* --- Note # PSYCODERS # we are one @
     vultureWallet.ts contains interfaces that are used by the Vulture wallet.
@@ -423,20 +424,26 @@ export class VultureWallet {
                 if(event.data.params.success == true) {
                     switch(event.data.params.tokenType) {
                         case 'ERC20': {
-                             if(this.tokenStore.tokenList.get(this.accountStore.currentlySelectedNetwork.networkUri) != null) {
-                                 this.tokenStore.tokenList
-                                 .get(this.accountStore.currentlySelectedNetwork.networkUri)!
-                                 .get(event.data.params.tokenAddress)!
-                                 .balance = event.data.params.balance;
+                             if(this.tokenStore.tokenList.has(this.accountStore.currentlySelectedNetwork.networkUri)) {
+                                let nftList = this.tokenStore.tokenList.get(this.accountStore.currentlySelectedNetwork.networkUri)!;
+                                if(nftList.has(event.data.params.tokenAddress)) {
+                                   this.tokenStore.tokenList
+                                   .get(this.accountStore.currentlySelectedNetwork.networkUri)!
+                                   .get(event.data.params.tokenAddress)!
+                                   .balance = event.data.params.balance;
+                                }
                              }
                             break;
                         }
                         case 'ERC721': {
-                             if(this.tokenStore.NFTList.get(this.accountStore.currentlySelectedNetwork.networkUri) != null) {
-                                 this.tokenStore.NFTList
-                                 .get(this.accountStore.currentlySelectedNetwork.networkUri)!
-                                 .get(event.data.params.tokenAddress)!
-                                 .balance = event.data.params.balance;
+                             if(this.tokenStore.NFTList.has(this.accountStore.currentlySelectedNetwork.networkUri)) {
+                                let nftList = this.tokenStore.NFTList.get(this.accountStore.currentlySelectedNetwork.networkUri)!;
+                                if(nftList.has(event.data.params.tokenAddress)) {
+                                   this.tokenStore.NFTList
+                                   .get(this.accountStore.currentlySelectedNetwork.networkUri)!
+                                   .get(event.data.params.tokenAddress)!
+                                   .balance = event.data.params.balance;
+                                }
                              }
                             break;
                         }
@@ -448,7 +455,7 @@ export class VultureWallet {
 
                 }else {
                     console.error("Error getting balance of token " + event.data.params.tokenAddress);
-                    if(this.tokenStore.tokenList.get(this.accountStore.currentlySelectedNetwork.networkUri) != null) {
+                    if(this.tokenStore.tokenList.has(this.accountStore.currentlySelectedNetwork.networkUri)) {
                         this.tokenStore.tokenList
                         .get(this.accountStore.currentlySelectedNetwork.networkUri)!
                         .get(event.data.params.tokenAddress)!
@@ -457,9 +464,27 @@ export class VultureWallet {
                 }
             }
        });
-
     }
-
+    async getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number) {
+        switch(tokenType) {
+            case TokenTypes.ERC20: {
+                console.error("ERC20 tokens do not contain a metadata method!");
+                break;
+            }
+            case TokenTypes.ERC721: {
+                this.currentWallet.infoWorker.postMessage({
+                    method: VultureMessage.GET_TOKEN_METADATA,
+                    tokenAddress: tokenAddress,
+                    tokenId: tokenId != null ? tokenId : null,
+                });
+                break;
+            }
+            default: {
+                console.error("Token Type: " + tokenType + " is invalid!");
+                break;
+            }
+        }
+    }
     async switchWallet(index: number) {
         // Reset the account balance to nothing which updates the UI, will change the way this works later.
         this.walletEvents.emit(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, {
@@ -701,11 +726,6 @@ export async function loadTokenStore(network: Network) {
     });
     return store;
 }
-
-export async function updateBalanceOfToken(network: Network, isNFT: boolean, token: AbstractToken) {
-
-}
-
 /** # addTokenToStore()
  *  Adds a token to the TokenStore of the current network. If the user has the token added it will show up
  *  on the front-end GUI.

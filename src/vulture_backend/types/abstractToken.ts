@@ -7,13 +7,19 @@ import { Network } from "../wallets/vultureWallet";
  * within blockchains, such as `Avalanche X-Chain`.
  * 
  * This interface is primarily used to represent tokens that an account has and can send.
+ * 
+ * This interface contains many optional values, some of which are only used for certain token-types.
+ * 
+ * This interface may become switched to a token-specific interface system should the need arrise.
  */
 export interface AbstractToken {
-    chainId?: number
+    chainId?: number       // Mainly used for EVM.
     chainName?: string
     network?: Network
 
-    metadataURI?: string
+    metadataURI?: string   // Mainly used for ERC721
+
+    allTokenIds?: number[] // Mainly used for ERC721
     
     address: string,
     decimals: number,

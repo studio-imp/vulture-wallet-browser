@@ -12,17 +12,15 @@
           class="flexBox" style="margin-top: 0px; align-items: center;">
             <div class="itemList" v-if="vultureWallet.tokenStore != null && Array.from(vultureWallet.tokenStore.NFTList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length > 0">
               <div style="margin-top: 10px; margin-bottom: 5px; font-size: 15px;">
-                <span style="color: var(--accent_color);">{{Array.from(vultureWallet.tokenStore.NFTList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length}}</span>
-                NFT/Collection
+
               </div>
 
-              <div class="flexBox" v-for="(token) in Array.from(vultureWallet.tokenStore.NFTList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token"
-              style="width: 100%; flex-wrap: wrap; flex-direction: row; justify-content: space-between; box-sizing: border-box;"> 
-              <!--
-
-                {{token.name}} {{index}} Balance: {{token.balance}}
-              -->   
-                <NFTModule :token="token"
+              <div class="flexBox" 
+              style="width: 100%; flex-wrap: wrap; flex-direction: row; justify-content: space-between; box-sizing: border-box;">  
+                <NFTModule
+                v-for="(token) in Array.from(vultureWallet.tokenStore.NFTList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token"
+                :token="token"
+                :vultureWallet="vultureWallet"
                 @module-click="openToken($event, 'ERC721')"/>
               </div>
               <DefaultButton @button-click="addToken('ERC721')" buttonText="Add NFT" buttonHeight="25px"  buttonWidth="100px" fontSize="16px" style="margin-bottom: 15px; margin-top: 10px"/>
@@ -38,10 +36,8 @@
           <div v-if="currentTab == 'Assets'"
           class="flexBox" style="margin-top: 0px; align-items: center;">
             <div class="itemList"  v-if="vultureWallet.tokenStore != null && Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length > 0">
-              <div style="margin-top: 10px; margin-bottom: 5px; font-size: 15px;">
-                <span style="color: var(--accent_color);">{{Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length}}</span> tokens
-              </div>
-              <span v-for="(token) in Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token">
+
+              <span v-for="(token) in Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token" style="margin-top: 20px;">
                 <TokenModule :token="token"
                 @module-click="openToken($event, 'ERC20')"/>
               </span>

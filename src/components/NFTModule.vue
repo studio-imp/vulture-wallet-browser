@@ -14,13 +14,20 @@
 
 <script lang="ts">
 import { AbstractToken } from "../vulture_backend/types/abstractToken";
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, ref } from 'vue';
+import { VultureWallet } from "@/vulture_backend/wallets/vultureWallet";
+import { VultureMessage } from "@/vulture_backend/vultureMessage";
+import { TokenTypes } from "@/vulture_backend/types/tokenTypes";
 
 export default defineComponent({
   name: "NFTModule",
   props: {
     token: {
         type: Object as PropType<AbstractToken>,
+        required: true,
+    },
+    vultureWallet: {
+        type: Object as PropType<VultureWallet>,
         required: true,
     },
     selected: Boolean,
@@ -32,7 +39,7 @@ export default defineComponent({
   },
   setup(props, emit) {
     return {
-
+      
     }
   }
 });

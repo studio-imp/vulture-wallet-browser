@@ -11,10 +11,11 @@ import { AccountData, Network } from '../../../../src/vulture_backend/wallets/vu
 import { AbstractToken } from '../../../../src/vulture_backend/types/abstractToken';
 import { erc20Abi } from './ink_contract_abis/erc20Abi';
 import { erc721Abi } from './ink_contract_abis/erc721Abi';
-import { getERC20Info, getERC20Balance, getERC721Info, getERC721Balance } from './contractFunctions';
+import { getERC20Info, getERC20Balance, getERC721Info, getERC721Balance, getERC721Metadata } from './contractFunctions';
 
 const { ContractPromise } = require('@polkadot/api-contract');
 import { AccountInfoHandler } from "../InetworkAPI";
+import { TokenTypes } from '../../../../src/vulture_backend/types/tokenTypes';
 
 
 export class SubstrateInfo implements AccountInfoHandler {
@@ -62,6 +63,19 @@ export class SubstrateInfo implements AccountInfoHandler {
                 }
             ));
         });
+    }
+    async getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number){
+        switch(tokenType) {
+            case TokenTypes.ERC721: {
+                let erc721contract = new ContractPromise(this.networkAPI!, erc721Abi, tokenAddress);
+                await getERC721Metadata(tokenAddress, erc721contract, this.address, tokenId!);
+                break;
+            }
+            default: {
+                console.log("Token Type: " + tokenType + " doesn't contain a metadata method! (At least one that is supported by vulture)");
+                break;
+            }
+        }
     }
     async validateAddress(address: string) {
         if(this.isCryptoReady) {
@@ -187,8 +201,10 @@ export class SubstrateInfo implements AccountInfoHandler {
                     case 'ERC721': {
                         let erc721Contract = new ContractPromise(this.networkAPI!, erc721Abi, tokenAddress);
                         await getERC721Info(tokenAddress, erc721Contract, this.address);
-                        //console.error("NFT's are currently not supported! (ERC721)");
                         break;
+                    }
+                    default: {
+                        console.error("TokenType: " + tokenType + " is invalid for this method!");
                     }
                 }
             }catch(error) {

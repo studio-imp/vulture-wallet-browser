@@ -30,7 +30,8 @@ the wallet may even be in an unfinished state here; crazy things happen in this 
 * `Nightly` - The nightly branch contains a release candidate version of the next Vulture update, it might be *(probably is)* buggy .
 * `Master` - The master branch contains the version of Vulture as you can find in the Chrome Web Store or any web extension store.
 
-Other branches for very feature-specific things may arrise, which will likely be temporary.
+The `Dev` branch is the default branch as all the high-octane developin' happens there.
+Other branches for very feature-specific things may likely arrise with time and will be merged with `Dev`.
 
 <h1 align="center"> ~ For The Devs ~ </h1>
 

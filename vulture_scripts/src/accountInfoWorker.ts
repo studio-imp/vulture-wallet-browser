@@ -47,6 +47,11 @@ self.addEventListener("message", async (event) => {
                 await keylessWallet?.getTokenData(event.data.params.tokenAddress, event.data.params.tokenType);
                 break;
             }
+            // Calls many methods related to the tokenType to retrieve information about a token (smart contract methods).
+            case VultureMessage.GET_TOKEN_METADATA: {
+                await keylessWallet?.getTokenMetadata(event.data.params.tokenAddress, event.data.params.tokenType, event.data.tokenId);
+                break;
+            }
             // Calls necessary method to get balance of a given token (smart contract methods).
             case VultureMessage.GET_TOKEN_BALANCE: {
                 await keylessWallet?.getBalanceOfToken(event.data.params.tokenAddress, event.data.params.tokenType);

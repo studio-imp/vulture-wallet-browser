@@ -1,0 +1,16 @@
+{
+
+    "name": "Utopic Draco Future",
+    "description": "This is a test NFT, the main purpose of which is to see how well NFT wallet-integration works in Vulture Wallet.",
+    "image": "https://ms.yugipedia.com/4/42/NumberF0UtopicDracoFuture-KICO-EN-UR-1E.png",
+    "external_url": "https://vulturewallet.net",
+    "attributes": [
+        {
+            "trait_type" : "Kind",
+            "value": "Warrior/Xyz/Effect"
+        },
+        {
+            "rarity": "0.1%"
+        }
+    ]
+}

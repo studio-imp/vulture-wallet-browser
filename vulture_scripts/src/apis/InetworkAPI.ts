@@ -1,4 +1,5 @@
 import { AbstractToken } from "../../../src/vulture_backend/types/abstractToken";
+import { TokenTypes } from "../../../src/vulture_backend/types/tokenTypes";
 import { AccountData, Network } from "../../../src/vulture_backend/wallets/vultureWallet";
 
 export class MethodResponse {
@@ -45,6 +46,7 @@ export interface AccountInfoHandler {
     subscribeToAddressEvents(): Promise<void>;
     addTokenToSubscription(tokenAddress: string, tokenType: string): Promise<void>;
     getBalanceOfToken(tokenAddress: string, tokenType: string): Promise<void>;
+    getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number): Promise<void>;
     validateAddress(address: string): Promise<void>;
     getTokenData(tokenAddress: string, tokenType: string): Promise<void>;
     setAddress(address: string): Promise<void>;

@@ -353,7 +353,9 @@ html {
   transition-duration: 140ms;
   filter: opacity(0);
 }
-
+.accentColored {
+  color: var(--accent_color);
+}
 .showLoader {
   visibility: visible;
   transition-duration: 180ms;
