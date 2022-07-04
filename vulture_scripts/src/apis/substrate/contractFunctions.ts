@@ -333,7 +333,7 @@ export async function getERC721Info(tokenAddress: string, contract: any, senderA
     if(Number(token.balance) > 0) {
         for(let i = 0; i < Number(token.balance); i++) {
             try{
-                let tokenId = await contract.query.tokenByIndex(senderAddress, {value: 0, gasLimit: -1}, i);
+                let tokenId = await contract.query.tokenOwnerByIndex(senderAddress, {value: 0, gasLimit: -1}, senderAddress, i);
                 if(tokenId.result.isOk) {
                     token.allTokenIds?.push(tokenId.output.toHuman());
                 }else {

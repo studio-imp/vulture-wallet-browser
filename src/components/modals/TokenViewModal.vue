@@ -4,14 +4,14 @@
     <div class="flexBox" style="height: 100%; width: 100%;">
         
         <!--  ERC20   -->
-        <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
-        flex-direction: column; align-items: center; margin-top: 10px; box-sizing: border-box; font-size: 18px;
+        <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
+        flex-direction: column; align-items: center;  box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;"
          v-if="vultureWallet.tokenStore != null && tokenType == 'ERC20'">
 
             <div class="outline">
 
-                <div style="width: 100%; margin-bottom: 5px; margin-top: 10px;">
+                <div style="width: 100%; margin-bottom: auto;">
                     <div style="font-size: 26px;">Token: 
                         {{token.name}}
                     </div>
@@ -46,11 +46,11 @@
                         <br>
                     </div>
                 </div>
-                
-                <div class="infoSection red">
+
+                <div class="infoSection" style="margin-bottom: auto;">
                     <DefaultButton buttonHeight="25px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
                     <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
-                        Remove this NFT from the NFT token list. You will have to re-add it to see it again in the wallet!
+                        Remove this token from the token token list. You will have to re-add it to see it again in the wallet!
                     </i>
                 </div>
 
@@ -59,13 +59,12 @@
         </div>
 
         <!--    ERC721    -->
-        <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
-        flex-direction: column; align-items: center; margin-top: 10px; box-sizing: border-box; font-size: 18px;
+        <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
+        flex-direction: column; align-items: center; box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;"
          v-if="vultureWallet.tokenStore != null && tokenType == 'ERC721'">
 
         <div class="outline">
-            <div class="flexBox">
                 <div style="width: 100%; margin-bottom: 5px;">
                     <div style="font-size: 26px;">
                         <span class="accentColored">$</span>{{token.symbol}} &nbsp;-&nbsp;
@@ -74,14 +73,13 @@
                     <hr>
                 </div>
 
-            <div class="infoSection red">
+            <div class="infoSection">
                 <DefaultButton buttonHeight="25px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
                 <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
                     Remove this NFT from the NFT token list. You will have to re-add it to see it again in the wallet!
                 </i>
             </div>
 
-            </div>
         </div>
 
          <!--
@@ -124,7 +122,7 @@
 
         </div>
 
-        <div class="flexBox" style="flex-grow: 0; margin-bottom: 15px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
+        <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Back" @button-click="previousToken()"
             v-if="tokenType == 'ERC721'"/>
             <DefaultButton buttonHeight="40px" buttonWidth="120px" buttonText="Return" @button-click="quitModal()"/>
@@ -166,7 +164,7 @@ export default defineComponent({
   setup(props, context) {
 
     // For NFTs with unique token Id's 
-    let selectedTokenIndex = ref(0);
+    let selectedTokenIndex = ref(1);
 
     let token: AbstractToken = reactive({
       address: '',
@@ -179,59 +177,7 @@ export default defineComponent({
 
     let tokenMetadata: any;
 
-    // Lots of ! here, too many, I know.
-    switch(props.tokenType) {
-        case "ERC20": {
-            token = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
-            break;
-        }
-        case "ERC721": {
-            token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
-
-            // Fetch more detailed data about the NFT other than the balance. Needed to get metadata to display for the user.
-            props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
-                if(event.data.method == VultureMessage.GET_TOKEN_DATA) {
-                    if(event.data.params.success == true) {
-                        if(event.data.params.tokenData.address == token.address) {
-                            token.allTokenIds = event.data.params.tokenData.allTokenIds;
-
-                            // Get the metadata for the token now that we've gotten more details about the NFT.
-                            props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
-                                if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
-                                    if(event.data.params.success == true) {
-                                        console.log(event.data);
-                                    }else {
-                                        console.error("Failed getting token metadata!");
-                                    }
-                                };
-                            };
-                            props.vultureWallet.currentWallet!.infoWorker.postMessage({
-                                method: VultureMessage.GET_TOKEN_METADATA,
-                                params: {
-                                    tokenAddress: token.address,
-                                    tokenType: TokenTypes.ERC721,
-                                    tokenId: token.allTokenIds![selectedTokenIndex.value],
-                                }
-                            });
-                        }
-                    }else {
-                        console.error("Failed getting token data for NFT!");
-                    }
-                };
-            };
-            props.vultureWallet.currentWallet!.infoWorker.postMessage({
-                method: VultureMessage.GET_TOKEN_DATA,
-                params: {
-                    tokenAddress: token.address,
-                    tokenType: TokenTypes.ERC721,
-                }
-            });
-            break;
-        }
-        default: {
-            console.log("Token Type: " + props.tokenType + " is not available!");
-        }
-    }
+    updateToken();
 
     function quitModal() {
         context.emit("quit-modal");
@@ -242,14 +188,73 @@ export default defineComponent({
         quitModal();
     }
 
+    function updateToken() {
+        // Lots of ! here, too many, I know.
+        switch(props.tokenType) {
+            case "ERC20": {
+                token = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
+                break;
+            }
+            case "ERC721": {
+                token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
+
+                // Fetch more detailed data about the NFT other than the balance. Needed to get metadata to display for the user.
+                props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
+                    if(event.data.method == VultureMessage.GET_TOKEN_DATA) {
+                        if(event.data.params.success == true) {
+                            if(event.data.params.tokenData.address == token.address) {
+                                token.allTokenIds = event.data.params.tokenData.allTokenIds;
+                                console.log(token.allTokenIds);
+                                // Get the metadata for the token now that we've gotten more details about the NFT.
+                                props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
+                                    if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
+                                        if(event.data.params.success == true) {
+                                            console.log(event.data);
+                                        }else {
+                                            console.error("Failed getting token metadata!");
+                                        }
+                                    };
+                                };
+                                console.log(token.allTokenIds![selectedTokenIndex.value - 1]);
+                                props.vultureWallet.currentWallet!.infoWorker.postMessage({
+                                    method: VultureMessage.GET_TOKEN_METADATA,
+                                    params: {
+                                        tokenAddress: token.address,
+                                        tokenType: TokenTypes.ERC721,
+                                        tokenId: token.allTokenIds![selectedTokenIndex.value - 1],
+                                    }
+                                });
+                            }
+                        }else {
+                            console.error("Failed getting token data for NFT!");
+                        }
+                    };
+                };
+                props.vultureWallet.currentWallet!.infoWorker.postMessage({
+                    method: VultureMessage.GET_TOKEN_DATA,
+                    params: {
+                        tokenAddress: token.address,
+                        tokenType: TokenTypes.ERC721,
+                    }
+                });
+                break;
+            }
+            default: {
+                console.log("Token Type: " + props.tokenType + " is not available!");
+            }
+        }
+    }
+
     function nextToken() {
         if(selectedTokenIndex.value < Number(token.balance)) {
             selectedTokenIndex.value++;
+            updateToken();
         }
     }
     function previousToken() {
-        if(selectedTokenIndex.value > 0) {
+        if(selectedTokenIndex.value > 1) {
             selectedTokenIndex.value--;
+            updateToken();
         }
     }
 
@@ -259,6 +264,7 @@ export default defineComponent({
         removeTokenFromList: removeTokenFromList,
         previousToken: previousToken,
         nextToken: nextToken,
+        updateToken: updateToken,
         quitModal: quitModal,
         token: token,
     }
@@ -280,25 +286,24 @@ hr {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border-width: 1px;
-    border-style: solid;
+    border-width: 2px;
+    border-style: none;
+    border-bottom-style: solid;
     border-color: var(--bg_color_2);
-    padding: 12px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin: 10px;
-    margin-top: 0px;
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 0px;
 
 
-    min-height: 454px;
-    max-height: 454px;
+    min-height: 475px;
+    max-height: 475px;
 
-    width: 302px;
+    width: 100%;
     
     overflow: hidden;
     overflow-y: auto;
 
-    border-radius: 4px;
+    border-radius: 0px;
 }
 .infoSection {
     display: flex;
@@ -342,8 +347,20 @@ hr {
     border-radius: 24px;
     z-index: 2;
 }
-.red {
-    outline-color: var(--incorrect_color);
-    box-shadow: 0px 0px 4px var(--incorrect_color);
+
+*::-webkit-scrollbar {
+  width: 3px;        
+ 
 }
+*::-webkit-scrollbar-track {
+  box-shadow: 0px 0px 0px rgba(0,0,0,1);
+  background: rgb(16,16,16);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--bg_color_2);
+  border-radius: 10px;
+}
+
 </style>
