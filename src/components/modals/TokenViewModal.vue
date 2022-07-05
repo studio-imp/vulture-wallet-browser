@@ -65,18 +65,17 @@
          v-if="vultureWallet.tokenStore != null && tokenType == 'ERC721'">
 
         <div class="outline">
-                <div style="width: 100%; margin-bottom: 5px;">
-                    <div style="font-size: 26px;">
-                        <span class="accentColored">$</span>{{token.symbol}} &nbsp;-&nbsp;
-                        <span class="accentColored">{{selectedTokenIndex}}</span> / <span class="accentColored">{{token.balance}}</span>
-                    </div>
-                    <hr>
+            <div style="width: 100%; margin-bottom: 5px;">
+                <div style="font-size: 26px;">
+                    <span class="accentColored">$</span>{{token.symbol}} &nbsp;-&nbsp;
+                    <span class="accentColored">{{selectedTokenIndex}}</span> / <span class="accentColored">{{token.balance}}</span>
                 </div>
-            
+                <hr>
+            </div>
+    
+            <img v-if="NFTMetadata.image != ''" class="NFTImage" :src="NFTMetadata.image" @click="openImage()"/>
 
-            <div class="infoSection" v-if="Number(token.balance) > 0">
-
-
+           <div class="infoSection" v-if="Number(token.balance) > 0">
                 <div class="sectionTitleContainer" style="flex-direction: row;">
                     <div class="sectionDescription">
                         Metadata
@@ -232,7 +231,9 @@ export default defineComponent({
         context.emit("reset-selected-token");
         quitModal();
     }
-
+    function openImage() {
+        window.open(NFTMetadata.image, '_blank');
+    }
     function updateToken() {
         // Lots of ! here, too many, I know.
         switch(props.tokenType) {
@@ -261,6 +262,8 @@ export default defineComponent({
                                                 NFTMetadata.attributes = (data as ERC721Metadata).attributes;
                                                 NFTMetadata.description = (data as ERC721Metadata).description;
                                                 NFTMetadata.external_url = (data as ERC721Metadata).external_url;
+                                                NFTMetadata.image = (data as ERC721Metadata).image;
+
                                                 isMetadataLoading.value = false;
                                             });
                                         }else {
@@ -321,9 +324,10 @@ export default defineComponent({
 
         removeTokenFromList: removeTokenFromList,
         previousToken: previousToken,
-        nextToken: nextToken,
         updateToken: updateToken,
         quitModal: quitModal,
+        nextToken: nextToken,
+        openImage: openImage,
         token: token,
     }
   }
@@ -367,6 +371,32 @@ hr {
     overflow-y: auto;
 
     border-radius: 0px;
+}
+.NFTImage {
+    width: 82%;
+    
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 12px;
+    border-color: var(--bg_color_2);
+
+    margin: 10px;
+
+    
+
+
+    user-select: none;
+    transition-duration: 180ms;
+
+    cursor: pointer;
+}
+.NFTImage:hover {
+    transition-duration: 180ms;
+    border-color: var(--accent_color);
+}
+.NFTImage:active {
+    filter: brightness(80%);
+    transition-duration: 180ms;
 }
 .infoSection {
     display: flex;

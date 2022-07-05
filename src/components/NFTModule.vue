@@ -1,5 +1,6 @@
 <template>
-  <div @click="moduleClick()" class="module" v-bind:class="selected == true ? 'selected' : ''">
+  <div @click="moduleClick()" class="module" v-bind:class="selected == true ? 'selected' : ''"
+  :style="imageURI != '' ? {backgroundImage: 'url(' + imageURI +')'} : {}">
 
       <div class="tokenNameBox">
         {{token.symbol}}
@@ -16,10 +17,11 @@
 
 <script lang="ts">
 import { AbstractToken } from "../vulture_backend/types/abstractToken";
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureWallet } from "@/vulture_backend/wallets/vultureWallet";
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { TokenTypes } from "@/vulture_backend/types/tokenTypes";
+import { ERC721Metadata, fetchMetadata } from "@/vulture_backend/utils/metadataFetch";
 
 export default defineComponent({
   name: "NFTModule",
@@ -41,6 +43,72 @@ export default defineComponent({
   },
   setup(props, emit) {
     let imageURI = ref('');
+
+    let token: AbstractToken = reactive({
+      address: '',
+      decimals: 0,
+      name: '!Error!',
+      symbol: '',
+      logoURI: '',
+      balance: '0',
+      allTokenIds: []
+    });
+
+    let NFTMetadata: ERC721Metadata = reactive({
+        name: '',
+        description: '',
+        external_url: '',
+        image: '',
+        attributes: [],
+    });
+  
+    token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.token.address!)!;
+
+    // Fetch more detailed data about the NFT other than the balance. Needed to get metadata to display for the user.
+    props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
+        if(event.data.method == VultureMessage.GET_TOKEN_DATA) {
+            if(event.data.params.success == true) {
+                if(event.data.params.tokenData.address == token.address) {
+                    // Set the tokenIds this account owns for the current NFT.
+                    token.allTokenIds = event.data.params.tokenData.allTokenIds;
+                    // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
+                    props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
+                        if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
+                            if(event.data.params.success == true) {
+                                // Fetch data from the metadata URI that we've received from the worker.
+                                fetchMetadata(event.data.params.metadataURI, TokenTypes.ERC721).then((data) => {
+                                    imageURI.value = (data as ERC721Metadata).image;
+                                    console.log(imageURI.value);
+                                });
+                            }else {
+                                console.error("Failed getting token metadata!");
+                            }
+                        };
+                    };
+                    props.vultureWallet.currentWallet!.infoWorker.postMessage({
+                        method: VultureMessage.GET_TOKEN_METADATA,
+                        params: {
+                            tokenAddress: token.address,
+                            tokenType: TokenTypes.ERC721,
+                            tokenId: token.allTokenIds![0],
+                        }
+                    });
+                    // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
+                }
+            }else {
+                console.error("Failed getting token data for NFT!");
+            }
+        };
+    };
+    // Tell the worker that we want token data.
+    props.vultureWallet.currentWallet!.infoWorker.postMessage({
+        method: VultureMessage.GET_TOKEN_DATA,
+        params: {
+            tokenAddress: token.address,
+            tokenType: TokenTypes.ERC721,
+        }
+    });
+
     return {
       imageURI
     }
@@ -79,21 +147,21 @@ export default defineComponent({
   align-self: left;
 }
 .tokenNameBox {
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.6);
     width: 100%;
     border-color: var(--bg_color_2);
     margin-bottom: auto;
 }
 .tokenBalanceBox {
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(5px);
     text-overflow: ellipsis;
     white-space: nowrap;
+    background-color: rgba(0,0,0,0.6);
     overflow: hidden;
-    background-color: rgba(0,0,0,0.5);
     margin-top: auto;
     width: 100%;
     border-color: var(--bg_color_2);
