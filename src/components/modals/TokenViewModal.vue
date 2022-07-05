@@ -48,7 +48,7 @@
                 </div>
 
                 <div class="infoSection" style="margin-bottom: auto;">
-                    <DefaultButton buttonHeight="25px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+                    <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
                     <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
                         Remove this token from the token token list. You will have to re-add it to see it again in the wallet!
                     </i>
@@ -74,7 +74,27 @@
                 </div>
 
             <div class="infoSection">
-                <DefaultButton buttonHeight="25px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+                <div class="metadataParagraph" v-if="isMetadataLoading == false">
+                    <span v-if="NFTMetadata.name != ''">
+                        Name: <span class="accentColored"> {{NFTMetadata.name}} </span>
+                        <hr>
+                    </span>
+                    <span v-if="token.allTokenIds != null && token.allTokenIds.length > selectedTokenIndex - 1">
+                        Token ID: <span class="accentColored"> {{token.allTokenIds[selectedTokenIndex - 1]}} </span>
+                        <hr>
+                    </span>
+                    <span v-if="NFTMetadata.description != ''">
+                        Description:
+                        <span class="accentColored description"> {{NFTMetadata.description}} </span>
+                    </span>
+                </div>
+                <div v-else>
+                    <div class="vultureLoader"> </div>
+                </div>
+            </div>
+
+            <div class="infoSection">
+                <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
                 <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
                     Remove this NFT from the NFT token list. You will have to re-add it to see it again in the wallet!
                 </i>
@@ -82,43 +102,6 @@
 
         </div>
 
-         <!--
-            <div style="width: 100%; margin-bottom: 5px;">
-                <div style="font-size: 26px;">
-                    {{token.name}}
-                </div>
-                <hr>
-            </div>
-            <div style="width: 100%; text-align: left; margin-top: 15px; font-size: 22px;">
-                Account
-                "<span style="color: var(--accent_color)">
-                    {{vultureWallet.currentWallet.accountData.accountName}}
-                </span>"
-                <br>
-                Has
-                
-                <span style="color: var(--accent_color);"> 
-                    {{token.balance}}
-                </span>
-                <span style="color: var(--accent_color);">
-                    &nbsp;{{token.symbol}}
-                </span>
-                <br>
-                On
-                <span style="color: var(--accent_color);">
-                    {{vultureWallet.accountStore.currentlySelectedNetwork.networkName}}
-                </span>
-            </div>
-            <div style="width: 100%; text-align: left; margin-top: 20px; font-size: 22px;">
-                Token Address:
-                <span style="color: var(--accent_color); font-size: 15px;">
-                    {{token.address}}
-                </span>
-                    {{token.metadataURI}}
-                <br>
-                <hr style="margin-top: 20px;">
-            </div>
-         -->
 
         </div>
 
@@ -129,9 +112,6 @@
 
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Next" @button-click="nextToken()"
             v-if="tokenType == 'ERC721'"/>
-            <!--
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Save" @button-click="saveAccount()"/>
-            -->
         </div>
     </div>
 </template>
@@ -145,6 +125,7 @@ import { defineComponent, PropType, reactive, ref } from 'vue';
 import { AbstractToken } from '@/vulture_backend/types/abstractToken';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { TokenTypes } from "@/vulture_backend/types/tokenTypes";
+import { fetchMetadata, ERC721Metadata} from "../../vulture_backend/utils/metadataFetch";
 
 export default defineComponent({
   name: "TokenViewModal",
@@ -172,10 +153,19 @@ export default defineComponent({
       name: '!Error!',
       symbol: '',
       logoURI: '',
-      balance: '0'
+      balance: '0',
+      allTokenIds: []
     });
 
-    let tokenMetadata: any;
+    let NFTMetadata: ERC721Metadata = reactive({
+        name: '',
+        description: '',
+        external_url: '',
+        image: '',
+        attributes: [],
+    });
+
+    let isMetadataLoading = ref(true);
 
     updateToken();
 
@@ -203,19 +193,26 @@ export default defineComponent({
                     if(event.data.method == VultureMessage.GET_TOKEN_DATA) {
                         if(event.data.params.success == true) {
                             if(event.data.params.tokenData.address == token.address) {
+                                // Set the tokenIds this account owns for the current NFT.
                                 token.allTokenIds = event.data.params.tokenData.allTokenIds;
-                                console.log(token.allTokenIds);
-                                // Get the metadata for the token now that we've gotten more details about the NFT.
+
+                                // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
                                 props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
                                     if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
                                         if(event.data.params.success == true) {
-                                            console.log(event.data);
+                                            // Fetch data from the metadata URI that we've received from the worker.
+                                            fetchMetadata(event.data.params.metadataURI, TokenTypes.ERC721).then((data) => {
+                                                NFTMetadata.name = (data as ERC721Metadata).name;
+                                                NFTMetadata.attributes = (data as ERC721Metadata).attributes;
+                                                NFTMetadata.description = (data as ERC721Metadata).description;
+                                                NFTMetadata.external_url = (data as ERC721Metadata).external_url;
+                                                isMetadataLoading.value = false;
+                                            });
                                         }else {
                                             console.error("Failed getting token metadata!");
                                         }
                                     };
                                 };
-                                console.log(token.allTokenIds![selectedTokenIndex.value - 1]);
                                 props.vultureWallet.currentWallet!.infoWorker.postMessage({
                                     method: VultureMessage.GET_TOKEN_METADATA,
                                     params: {
@@ -224,12 +221,14 @@ export default defineComponent({
                                         tokenId: token.allTokenIds![selectedTokenIndex.value - 1],
                                     }
                                 });
+                                // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
                             }
                         }else {
                             console.error("Failed getting token data for NFT!");
                         }
                     };
                 };
+                // Tell the worker that we want token data.
                 props.vultureWallet.currentWallet!.infoWorker.postMessage({
                     method: VultureMessage.GET_TOKEN_DATA,
                     params: {
@@ -248,18 +247,22 @@ export default defineComponent({
     function nextToken() {
         if(selectedTokenIndex.value < Number(token.balance)) {
             selectedTokenIndex.value++;
+            isMetadataLoading.value = true;
             updateToken();
         }
     }
     function previousToken() {
         if(selectedTokenIndex.value > 1) {
             selectedTokenIndex.value--;
+            isMetadataLoading.value = true;
             updateToken();
         }
     }
 
     return {
         selectedTokenIndex,
+        isMetadataLoading,
+        NFTMetadata,
 
         removeTokenFromList: removeTokenFromList,
         previousToken: previousToken,
@@ -290,7 +293,7 @@ hr {
     border-style: none;
     border-bottom-style: solid;
     border-color: var(--bg_color_2);
-    padding: 10px;
+    padding: 15px;
     box-sizing: border-box;
     margin: 0px;
 
@@ -325,6 +328,14 @@ hr {
     width: 100%;
     text-align: left;
     font-size: 22px;
+}
+.metadataParagraph {
+    width: 100%;
+    text-align: left;
+    font-size: 20px;
+}
+.description {
+    font-size: 16px;
 }
 .vultureLogo {
     fill: var(--bg_color);

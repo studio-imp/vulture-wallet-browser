@@ -235,7 +235,7 @@ export async function getERC20Info(tokenAddress: string, contract: any, senderAd
 }
 
 export async function getERC721Metadata(tokenAddress: string, contract: any, senderAddress: string, tokenId: number) {
-    let tokenMetadata: string;
+    let tokenMetadataURI: string = "";
     let success: boolean = true;
     let error: string = "";
 
@@ -243,7 +243,7 @@ export async function getERC721Metadata(tokenAddress: string, contract: any, sen
     try{
         let tokenURI = await contract.query.tokenUri(senderAddress, {value: 0, gasLimit: -1}, tokenId);
         if(tokenURI.result.isOk) {
-            console.log(tokenURI.output.toHuman());
+            tokenMetadataURI = tokenURI.output.toHuman()
 
         }else {
             console.log("Error: Failed getting tokenURI!");
@@ -257,6 +257,23 @@ export async function getERC721Metadata(tokenAddress: string, contract: any, sen
         success = false;
         error = "Invalid Contract.";
         console.log("Contract '" + tokenAddress + "'" + " Doesn't have balanceOf() - this is catastrophic for ERC721");
+    }
+    if(success) {
+        postMessage(new MethodResponse(
+            VultureMessage.GET_TOKEN_METADATA,
+            {
+                metadataURI: tokenMetadataURI,
+                success: true,
+            }
+        ));
+    }else {
+        postMessage(new MethodResponse(
+            VultureMessage.GET_TOKEN_METADATA,
+            {
+                error: error,
+                success: false,
+            }
+        ));
     }
 }
 
