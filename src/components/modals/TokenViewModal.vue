@@ -72,24 +72,79 @@
                     </div>
                     <hr>
                 </div>
+            
 
-            <div class="infoSection">
+            <div class="infoSection" v-if="Number(token.balance) > 0">
+
+
+                <div class="sectionTitleContainer" style="flex-direction: row;">
+                    <div class="sectionDescription">
+                        Metadata
+                    </div>
+                </div>
+
+                <hr style="width: 100%">
+
                 <div class="metadataParagraph" v-if="isMetadataLoading == false">
                     <span v-if="NFTMetadata.name != ''">
                         Name: <span class="accentColored"> {{NFTMetadata.name}} </span>
-                        <hr>
+                        <hr class="smallerHr">
                     </span>
-                    <span v-if="token.allTokenIds != null && token.allTokenIds.length > selectedTokenIndex - 1">
-                        Token ID: <span class="accentColored"> {{token.allTokenIds[selectedTokenIndex - 1]}} </span>
-                        <hr>
-                    </span>
+
                     <span v-if="NFTMetadata.description != ''">
                         Description:
                         <span class="accentColored description"> {{NFTMetadata.description}} </span>
+                        <hr class="smallerHr">
+                    </span>
+                        <span v-if="token.allTokenIds != null && token.allTokenIds.length > selectedTokenIndex - 1">
+                        Token ID: <span class="accentColored"> {{token.allTokenIds[selectedTokenIndex - 1]}} </span>
                     </span>
                 </div>
                 <div v-else>
                     <div class="vultureLoader"> </div>
+                </div>
+            </div>
+            <div class="infoSection" v-if="Number(token.balance) > 0">
+
+                <div class="sectionTitleContainer" style="flex-direction: row;">
+                    <div class="sectionDescription">
+                        Token Info 
+                    </div>
+                </div>
+
+                <hr style="width: 100%">
+
+                <div class="metadataParagraph">
+                    NFT Name:
+                    <span class="accentColored">
+                        {{token.name}}
+                        <hr class="smallerHr">
+                    </span>
+                    Token Address: 
+                    <span class="accentColored" style="font-size: 15px;">
+                        {{token.address}}
+                    </span>
+                </div>
+            </div>
+
+            <div class="infoSection" v-if="Number(token.balance) <= 0">
+                <div style="text-align: center; font-size: 18px;">
+                    You currently don't own a "<span class="accentColored">{{token.name}}</span>" NFT/Token.
+                </div>
+            </div> 
+
+            <div class="infoSection" v-if="Number(token.balance) <= 0">
+                <div class="sectionDescription">Token Info <hr> </div>
+                <div class="metadataParagraph">
+                NFT Name:
+                <span class="accentColored">
+                    {{token.name}}
+                    <hr class="smallerHr">
+                </span>
+                    Token Address: 
+                    <span class="accentColored" style="font-size: 15px;">
+                        {{token.address}}
+                    </span>
                 </div>
             </div>
 
@@ -285,6 +340,11 @@ hr {
     border-radius: 5px;
     background-color: var(--fg_color_2);
 }
+.smallerHr {
+    background-color: var(--bg_color_2);
+    height: 1px;
+    width: 90%;
+}
 .outline {
     display: flex;
     flex-direction: column;
@@ -324,6 +384,19 @@ hr {
 
     width: 100%;
 }
+.sectionTitleContainer {
+    display: flex;
+    width: 100%;
+}
+.sectionDescription {
+    font-size: 22px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.infoIcon {
+    font-family: fonticonA;
+    font-size: 22px;
+}
 .infoParagraph {
     width: 100%;
     text-align: left;
@@ -332,7 +405,7 @@ hr {
 .metadataParagraph {
     width: 100%;
     text-align: left;
-    font-size: 20px;
+    font-size: 19px;
 }
 .description {
     font-size: 16px;
