@@ -4,10 +4,10 @@
       &#xe062;
     </div>
       <div class="left">
-        "{{token.name}}"
+        <span class="accentColored">$</span>{{token.symbol}}
       </div>
       <div class="right">
-        {{token.balance}}<span style="font-size: 13px; color: var(--accent_color); ">{{token.symbol}}</span>
+        {{Math.round(Number(token.balance) *  Math.pow(10, 2)) / Math.pow(10, 2)}}
       </div>
   </div>
 </template>
@@ -45,7 +45,7 @@ export default {
 
 .right {
   margin: 10px;
-  font-size: 17px;
+  font-size: 19px;
   flex-grow: 1;
   justify-self: flex-end;
   text-align: right;

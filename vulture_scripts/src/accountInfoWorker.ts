@@ -57,6 +57,11 @@ self.addEventListener("message", async (event) => {
                 await keylessWallet?.getBalanceOfToken(event.data.params.tokenAddress, event.data.params.tokenType);
                 break;
             }
+            // Gets balance of a specific address.
+            case VultureMessage.GET_BALANCE_OF_ADDRESS: {
+                await keylessWallet?.getBalanceOf(event.data.params.address);
+                break;
+            }
             // Subscribes token address to changes, used to know when we should attempt to update balance. Quite inefficient since
             // it doesn't support raw storage subscriptions, but when that is supported it will be added.
             case VultureMessage.ADD_TOKEN_TO_SUBSCRIPTION: {

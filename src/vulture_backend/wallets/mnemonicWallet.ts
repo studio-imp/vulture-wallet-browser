@@ -191,28 +191,11 @@ export class MnemonicWallet implements VultureAccount {
             }
         });
     }
-    //Subscribe to account state
-    async updateAccountState() {
-        this.infoWorker.postMessage({
-            method: VultureMessage.GET_ACCOUNT_STATE
-        });
-    }
+
 
     async subscribeToAccountEvents() {
         this.infoWorker.addEventListener("message", async(event) => {
             
-            if(event.data.method == VultureMessage.GET_ACCOUNT_STATE) {
-                if(event.data.params.success == true) {
-                    let amount = new BigNumber(event.data.params.result.data.free);
-                    let wholeAmount = amount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals));
-                    
-                    this.accountData.freeAmountWhole = wholeAmount.toNumber();
-                    this.accountData.freeAmountSmallestFraction = amount.toString();
-                    this.accountData.accountNonce = event.data.params.result.nonce;
-                }else {
-                    console.error("Error: Vulture worker failed to get wallet state!");
-                }
-            }
             //The event callback for SUB_TO_ACCOUNT_STATE
             if(event.data.method == VultureMessage.SUBSCRIBE_TO_ACC_EVENTS) {
                 if(event.data.params.success == true) {

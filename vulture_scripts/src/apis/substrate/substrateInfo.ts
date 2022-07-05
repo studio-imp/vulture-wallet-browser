@@ -110,15 +110,7 @@ export class SubstrateInfo implements AccountInfoHandler {
                     result: result.toJSON(),
                 }});
             });
-            
-            /*
-            this.networkAPI?.query.system.account(this.address, async (result: any) => {
-                postMessage({method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, params: {
-                    success: true,
-                    result: result.toJSON(),
-                }});
-            });
-            */
+
         }else {
             throw new Error("Cryptography WASM hasn't been initialized yet!");
         }
@@ -226,7 +218,23 @@ export class SubstrateInfo implements AccountInfoHandler {
     getAddress(): Promise<void> {
         throw new Error('Method not implemented.');
     }
-    getBalance(): Promise<void> {
-        throw new Error('Method not implemented.');
+    async getBalanceOf(address: string) {
+        if(this.isCryptoReady) {
+
+            this.networkAPI?.query.system.account(address).then((data) => {
+                postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                    success: true,
+                    data: data.toJSON(),
+                    address: address,
+                }});
+            });
+
+        }else {
+            postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                success: false,
+                address: address,
+            }});
+            throw new Error("Cryptography WASM hasn't been initialized yet!");
+        }
     }
 }

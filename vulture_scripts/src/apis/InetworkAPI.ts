@@ -49,7 +49,7 @@ export interface AccountInfoHandler {
     getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number): Promise<void>;
     validateAddress(address: string): Promise<void>;
     getTokenData(tokenAddress: string, tokenType: string): Promise<void>;
-    setAddress(address: string): Promise<void>;
+    getBalanceOf(address: string): Promise<void>;
     getAddress(): Promise<void>;
-    getBalance(): Promise<void>;
+    setAddress(address: string): Promise<void>;
 }

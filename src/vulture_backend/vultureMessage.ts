@@ -6,7 +6,7 @@ export const VultureMessage = {
     /* Wallet Management & Queries */
     "SET_CURRENT_WALLET": "SET_CURRENT_WALLET",
     "GET_ADDRESS_FROM_URI" : "GET_ADDRESS_FROM_URI",
-    "GET_ACCOUNT_STATE": "GET_ACCOUNT_STATE",
+    "GET_BALANCE_OF_ADDRESS": "GET_BALANCE_OF_ADDRESS",
     "SUBSCRIBE_TO_ACC_EVENTS": "SUBSCRIBE_TO_ACC_EVENTS",
     // This is necessary due to subscription to raw storage of contracts still being on-track.
     "ADD_TOKEN_TO_SUBSCRIPTION": "ADD_TOKEN_TO_SUBSCRIPTION",

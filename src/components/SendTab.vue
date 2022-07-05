@@ -17,7 +17,7 @@
                 <span v-if="vultureWallet.currentWallet && addressOfTokenToTransfer != 0 &&
                   vultureWallet.tokenStore != null &&
                   vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri) != null">                  
-                  {{vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.get(addressOfTokenToTransfer).name}}
+                  {{vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.get(addressOfTokenToTransfer).symbol}}
                 </span> <span style="font-family: fonticonA; font-size: 19px;"> &#xe3c9;</span>
 
               </div>

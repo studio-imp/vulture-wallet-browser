@@ -118,7 +118,7 @@ hr {
 
   justify-content: flex-start;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 .vultureLogo {
     fill: var(--bg_color);

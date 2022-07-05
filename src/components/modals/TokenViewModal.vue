@@ -25,10 +25,10 @@
 
                         Has:
                         <span style="color: var(--accent_color);"> 
-                            {{token.balance}}
+                            {{Math.round(Number(token.balance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}
                         </span>
-                        <span style="font-size: 16px; color: var(--accent_color);">
-                            ${{token.symbol}}
+                        <span style="color: var(--accent_color); font-size: 16px;">
+                            &nbsp; <span style="color: var(--fg_color)">$</span>{{token.symbol}}
                         </span>
                         <br>
                         On: 

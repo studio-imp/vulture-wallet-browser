@@ -12,7 +12,7 @@
                 About<br>
                 <hr>
                 <div style="font-size: 16px; color: var(--fg_color_2)">
-                    Vulture is an open-source non-custodial wallet developed by <a href="https://psycoders.club" target="_blank">psycoders.club</a>.<br> <br>
+                    Vulture is an open-source non-custodial wallet developed by <a href="https://psycoders.club" target="_blank">psycoders</a><br> <br>
                     <span style="color: var(--accent_color)">v0.1.6-beta</span>
                 </div> 
             </div>
@@ -108,7 +108,7 @@ hr {
 
   justify-content: flex-start;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 </style>

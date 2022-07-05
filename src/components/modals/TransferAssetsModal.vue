@@ -133,23 +133,19 @@ export default defineComponent({
         props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.TRANSFER_ASSETS);
         props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.TRANSFER_ASSETS, (params) => {
             if(params.status == false) {
-                props.vultureWallet.currentWallet.updateAccountState();
                 currentTxState.value = TxState.FAILED;
                 blockHash.value = params.blockHash;
                 clearInterval(timer);
             } else if(params.status == 'InBlock') {
                 if(params.method == 'ExtrinsicSuccess') {
-                    props.vultureWallet.currentWallet.updateAccountState();
                     currentTxState.value = TxState.SUCCESS;
                     blockHash.value = params.blockHash;
                     clearInterval(timer);
                 }else if(params.method == 'ExtrinsicFailed'){
-                    props.vultureWallet.currentWallet.updateAccountState();
                     currentTxState.value = TxState.FAILED;
                     blockHash.value = params.blockHash;
                     clearInterval(timer);
                 }else {
-                    props.vultureWallet.currentWallet.updateAccountState();
                     currentTxState.value = TxState.FAILED;
                     blockHash.value = "Not included in block.";
                     clearInterval(timer);

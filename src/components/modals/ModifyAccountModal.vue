@@ -1,22 +1,56 @@
 <template>
     <div class="flexBox" style="height: 100%; width: 100%;">
-        <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
-        flex-direction: column; align-items: center; margin-top: 30px; box-sizing: border-box; font-size: 18px;
+        <div class="flexBox" style="flex-grow: 1; width: 100%;
+        flex-direction: column; align-items: center; box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;">
 
+
+        <div class="outline">
+
+
+
             <DefaultInput :startValue="accountName" @on-enter="setName($event)" inputWidth="100%" inputHeight="40px" fontSize="18px" inputName="Account Name" inputPlaceholder="Name"/>
-            <div style="width: 100%; text-align: left; margin-top: 15px;">
-                Account Index: <span style="color: var(--accent_color)">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex}}</span>
-            <hr>
-            </div>
-            <div style="width: 100%; text-align: left; margin-top: 20px;">
-                Deposit Address ({{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}):
-                <span style="color: var(--accent_color); font-size: 15px;">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].address}}</span> <br>
-                <i style="font-size: 13px;  color: var(--fg_color_2)">Address may vary depending on the selected network.</i>
+            
+            <div class="infoSection">
+                <div class="sectionTitleContainer" style="flex-direction: row;">
+                    <div class="sectionDescription">
+                        Account Info
+                    </div>
+                </div>
                 <hr>
+
+                <div class="infoParagraph">
+                    Account Index: <span class="accentColored">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex}}</span> <br>
+                    
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">The account will always be the same at the given index.</i>
+                    <hr class="smallerHr">
+                </div>
+
+                <div class="infoParagraph">
+                    Deposit Address
+                    
+                    <span style="font-size: 15px;">
+                    {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}:
+                    </span>
+                    <span style="color: var(--accent_color); font-size: 15px;">{{address}}</span>
+                    <br>
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">Address varies depending on the selected network.</i>
+                    <hr class="smallerHr">
+                </div>
+
+                <div class="infoParagraph">
+                    Balance: {{Math.round(Number(accountBalance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}
+                    $<span class="accentColored" style="font-size: 15px;">
+                        {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                    </span>
+
+                </div>
             </div>
+
         </div>
-        <div class="flexBox" style="flex-grow: 0; margin-bottom: 15px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
+
+        </div>
+        <div class="flexBox" style="flex-grow: 0; margin-bottom: 13px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Save" @button-click="saveAccount()"/>
         </div>
@@ -28,7 +62,9 @@ import DefaultButton from "../building_parts/DefaultButton.vue";
 import DefaultInput from "../building_parts/DefaultInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount, WalletType, DefaultNetworks} from "../../vulture_backend/wallets/vultureWallet";
-import { defineComponent, PropType, reactive } from 'vue';
+import { defineComponent, PropType, reactive, ref } from 'vue';
+import { VultureMessage } from "@/vulture_backend/vultureMessage";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "ModifyAccount",
@@ -51,6 +87,25 @@ export default defineComponent({
     const networks = new DefaultNetworks();
     let initialNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork;
 
+    let accountBalance = ref(0);
+
+    let address = ref(props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address);
+
+    props.vultureWallet.currentWallet.infoWorker.onmessage = (event) => {
+        if(event.data.method == VultureMessage.GET_BALANCE_OF_ADDRESS) {
+            if(event.data.params.address == address.value) {           //data.data, I know, hush.
+                accountBalance.value = new BigNumber(event.data.params.data.data.free)
+                .div(new BigNumber(10).pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals)).toNumber();
+            }
+        }
+    };
+    props.vultureWallet.currentWallet.infoWorker.postMessage({
+        method: VultureMessage.GET_BALANCE_OF_ADDRESS,
+        params: {
+            address: props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address
+        }
+    })
+
     function quitModal() {
         context.emit("quit-modal");
     }
@@ -67,9 +122,10 @@ export default defineComponent({
     
 
     return {
+        accountBalance,
         accountName,
         networks,
-
+        address,
         quitModal: quitModal,
         setName: setName,
         saveAccount: saveAccount,
@@ -86,6 +142,72 @@ hr {
     border: none;
     height: 1px;
     background-color: var(--fg_color_2);
+    width: 100%;
+}
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    align-items: center;
+    margin: 8px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 10px;
+    outline: solid;
+    outline-width: 1px;
+    border-radius: 4px;
+    outline-color: var(--bg_color_2);
+
+    font-size: 20px;
+
+    width: 100%;
+}
+.sectionTitleContainer {
+    display: flex;
+    width: 100%;
+}
+.sectionDescription {
+    font-size: 22px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.infoIcon {
+    font-family: fonticonA;
+    font-size: 22px;
+}
+.infoParagraph {
+    width: 100%;
+    text-align: left;
+    font-size: 19px;
+    margin-bottom: 5px;
+}
+.smallerHr {
+    background-color: var(--bg_color_2);
+    height: 1px;
+    width: 100%;
+}
+.outline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-width: 2px;
+    border-style: none;
+    border-bottom-style: solid;
+    border-color: var(--bg_color_2);
+    padding: 15px;
+    box-sizing: border-box;
+    margin: 0px;
+
+
+    min-height: 475px;
+    max-height: 475px;
+
+    width: 100%;
+    
+    overflow: hidden;
+    overflow-y: auto;
+
+    border-radius: 0px;
 }
 .vultureLogo {
     fill: var(--bg_color);

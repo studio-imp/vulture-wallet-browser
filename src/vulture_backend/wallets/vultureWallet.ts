@@ -183,12 +183,8 @@ export interface VultureAccount {
      * docs: Todo
      */
     estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<void>;
-    /** ## updateAccountState();
-     * docs: Todo
-     */
-    /** ## updateAccountState();
-     * docs: Todo
-     */
+
+    
     isAddressValid(address: string): Promise<void>;
     /** ## getTokenInformation();
      * Returns information about a token, the tokenAddress could point to an ERC20 or ERC721 token, or
@@ -205,7 +201,6 @@ export interface VultureAccount {
     getTokenInformation(tokenAddress: string, tokenType: string): Promise<void>;
 
     terminateWallet(): Promise<void>;
-    updateAccountState(): Promise<void>;   
 }
 
 /** # VultureAccountStore

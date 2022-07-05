@@ -104,7 +104,7 @@ hr {
     max-height: 380px;
     
     overflow: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 
     border-radius: 4px;
 }

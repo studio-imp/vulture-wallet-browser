@@ -35,9 +35,9 @@
           <!-- Fungible Tokens -->
           <div v-if="currentTab == 'Assets'"
           class="flexBox" style="margin-top: 0px; align-items: center;">
-            <div class="itemList"  v-if="vultureWallet.tokenStore != null && Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length > 0">
-
-              <span v-for="(token) in Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token" style="margin-top: 20px;">
+            <div class="itemList" v-if="vultureWallet.tokenStore != null && Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri)?.values()).length > 0">
+              <div style="margin-bottom: 20px;"></div>
+              <span v-for="(token) in Array.from(vultureWallet.tokenStore.tokenList.get(vultureWallet.accountStore.currentlySelectedNetwork.networkUri).values())" v-bind:key="token" >
                 <TokenModule :token="token"
                 @module-click="openToken($event, 'ERC20')"/>
               </span>
