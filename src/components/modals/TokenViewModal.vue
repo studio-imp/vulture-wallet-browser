@@ -67,13 +67,16 @@
         <div class="outline">
             <div style="width: 100%; margin-bottom: 5px;">
                 <div style="font-size: 26px;">
-                    <span class="accentColored">$</span>{{token.symbol}} &nbsp;-&nbsp;
-                    <span class="accentColored">{{selectedTokenIndex}}</span> / <span class="accentColored">{{token.balance}}</span>
+                    <span class="accentColored">$</span>{{token.symbol}}
+                    <span v-if="Number(token.balance) > 0">
+                        &nbsp;-&nbsp;
+                        <span class="accentColored">{{selectedTokenIndex}}</span> / <span class="accentColored">{{token.balance}}</span>
+                    </span>
                 </div>
                 <hr>
             </div>
     
-            <img v-if="NFTMetadata.image != ''" class="NFTImage" :src="NFTMetadata.image" @click="openImage()"/>
+            <img v-if="NFTMetadata.image != '' && Number(token.balance) > 0" class="NFTImage" :src="NFTMetadata.image" @click="openImage()"/>
 
            <div class="infoSection" v-if="Number(token.balance) > 0">
                 <div class="sectionTitleContainer" style="flex-direction: row;">
@@ -243,7 +246,7 @@ export default defineComponent({
             }
             case "ERC721": {
                 token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
-
+                
                 // Fetch more detailed data about the NFT other than the balance. Needed to get metadata to display for the user.
                 props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
                     if(event.data.method == VultureMessage.GET_TOKEN_DATA) {
@@ -252,34 +255,37 @@ export default defineComponent({
                                 // Set the tokenIds this account owns for the current NFT.
                                 token.allTokenIds = event.data.params.tokenData.allTokenIds;
 
-                                // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
-                                props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
-                                    if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
-                                        if(event.data.params.success == true) {
-                                            // Fetch data from the metadata URI that we've received from the worker.
-                                            fetchMetadata(event.data.params.metadataURI, TokenTypes.ERC721).then((data) => {
-                                                NFTMetadata.name = (data as ERC721Metadata).name;
-                                                NFTMetadata.attributes = (data as ERC721Metadata).attributes;
-                                                NFTMetadata.description = (data as ERC721Metadata).description;
-                                                NFTMetadata.external_url = (data as ERC721Metadata).external_url;
-                                                NFTMetadata.image = (data as ERC721Metadata).image;
-
-                                                isMetadataLoading.value = false;
-                                            });
-                                        }else {
-                                            console.error("Failed getting token metadata!");
-                                        }
+                                // If the user has the NFT, we try to get metadata.
+                                if(Number(token.balance) > 0) {
+                                    // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
+                                    props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
+                                        if(event.data.method == VultureMessage.GET_TOKEN_METADATA) {
+                                            if(event.data.params.success == true) {
+                                                // Fetch data from the metadata URI that we've received from the worker.
+                                                fetchMetadata(event.data.params.metadataURI, TokenTypes.ERC721).then((data) => {
+                                                    NFTMetadata.name = (data as ERC721Metadata).name;
+                                                    NFTMetadata.attributes = (data as ERC721Metadata).attributes;
+                                                    NFTMetadata.description = (data as ERC721Metadata).description;
+                                                    NFTMetadata.external_url = (data as ERC721Metadata).external_url;
+                                                    NFTMetadata.image = (data as ERC721Metadata).image;
+    
+                                                    isMetadataLoading.value = false;
+                                                });
+                                            }else {
+                                                console.error("Failed getting token metadata!");
+                                            }
+                                        };
                                     };
-                                };
-                                props.vultureWallet.currentWallet!.infoWorker.postMessage({
-                                    method: VultureMessage.GET_TOKEN_METADATA,
-                                    params: {
-                                        tokenAddress: token.address,
-                                        tokenType: TokenTypes.ERC721,
-                                        tokenId: token.allTokenIds![selectedTokenIndex.value - 1],
-                                    }
-                                });
-                                // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
+                                    props.vultureWallet.currentWallet!.infoWorker.postMessage({
+                                        method: VultureMessage.GET_TOKEN_METADATA,
+                                        params: {
+                                            tokenAddress: token.address,
+                                            tokenType: TokenTypes.ERC721,
+                                            tokenId: token.allTokenIds![selectedTokenIndex.value - 1],
+                                        }
+                                    });
+                                    // -- Get the metadata for the token now that we've gotten more details about the NFT tokenIDs.
+                                }
                             }
                         }else {
                             console.error("Failed getting token data for NFT!");
