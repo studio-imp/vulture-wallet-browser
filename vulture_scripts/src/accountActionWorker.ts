@@ -5,6 +5,8 @@ import { NetworkType } from "../../src/vulture_backend/wallets/vultureWallet";
 import { AccountActionHandler } from './apis/InetworkAPI';
 import { SubstrateActions } from './apis/substrate/substrateActions';
 
+
+
 /* -- Doc Note
  * accountActionWorker.ts is a worker which is initialized with an private key as well as info
  * of the current network; Afterwords the wallet may post requests for transactions which this
@@ -17,6 +19,7 @@ import { SubstrateActions } from './apis/substrate/substrateActions';
 var wallet: AccountActionHandler | null = null;
 
 self.addEventListener("message", async (event) => {
+
     if(event.data && event.data.method) {
         switch(event.data.method as string) {
             // Set the current active wallet/account/network. Called once on start, and when switching wallet/network.

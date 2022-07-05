@@ -480,6 +480,20 @@ export class VultureWallet {
             }
         }
     }
+    getTokens(): AbstractToken[] {
+        let r: AbstractToken[] = [];
+        if(this.tokenStore.tokenList.has(this.accountStore.currentlySelectedNetwork.networkUri)) {
+            r = Array.from(this.tokenStore.tokenList.get(this.accountStore.currentlySelectedNetwork.networkUri)!.values());
+        }
+        return r;
+    }
+    getNFTs(): AbstractToken[] {
+        let r: AbstractToken[] = [];
+        if(this.tokenStore.NFTList.has(this.accountStore.currentlySelectedNetwork.networkUri)) {
+            r = Array.from(this.tokenStore.NFTList.get(this.accountStore.currentlySelectedNetwork.networkUri)!.values());
+        }
+        return r;
+    }
     async switchWallet(index: number) {
         // Reset the account balance to nothing which updates the UI, will change the way this works later.
         this.walletEvents.emit(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, {
@@ -645,12 +659,10 @@ export class VultureWallet {
             this.currentWallet.actionWorker.postMessage({ // TODO: UPDATE TO METHOD
                 method: VultureMessage.GET_ADDRESS_FROM_URI,
                 params: {
-                    keyring: {
-                        accountIndex: this.accountStore.allAccounts.length,
-                        addressURI: '//' + account.accountIndex,
-                        index: account.accountIndex,
-                        seed: this.vault.seed,
-                    }
+                    accountIndex: this.accountStore.allAccounts.length,
+                    addressURI: '//' + account.accountIndex,
+                    //index: account.accountIndex,
+                    index: this.accountStore.allAccounts.length,
                 }
             });
         });
