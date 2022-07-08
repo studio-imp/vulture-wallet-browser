@@ -1,6 +1,6 @@
 <template>
     <div class="flexBox" style="height: 100%; width: 100%;">
-        <div class="flexBox" style="flex-grow: 1; width: 100%;
+        <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
         flex-direction: column; align-items: center; box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;">
 
@@ -22,12 +22,20 @@
                 <div class="infoParagraph">
                     Account Index: <span class="accentColored">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex}}</span> <br>
                     
-                    <i style="font-size: 13px;  color: var(--fg_color_2)">The account will always be the same at the given index.</i>
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">Accounts will always be the same at each given index.</i>
                     <hr class="smallerHr">
                 </div>
 
                 <div class="infoParagraph">
-                    Deposit Address
+                    Balance: <span class="accentColored">{{Math.round(Number(accountBalance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}</span>
+                    <span class="accentColored" style="font-size: 15px;">
+                        &nbsp;{{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                    </span>
+                    <hr class="smallerHr">
+                </div>
+
+                <div class="infoParagraph">
+                    Deposit Address |
                     
                     <span style="font-size: 15px;">
                     {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}:
@@ -35,22 +43,24 @@
                     <span style="color: var(--accent_color); font-size: 15px;">{{address}}</span>
                     <br>
                     <i style="font-size: 13px;  color: var(--fg_color_2)">Address varies depending on the selected network.</i>
-                    <hr class="smallerHr">
                 </div>
 
-                <div class="infoParagraph">
-                    Balance: {{Math.round(Number(accountBalance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}
-                    $<span class="accentColored" style="font-size: 15px;">
-                        {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
-                    </span>
+            </div>
 
+            <div class="infoSection">
+                <div class="sectionTitleContainer" style="flex-direction: row;">
+                    <div class="sectionDescription">
+                        Staking
+                    </div>
                 </div>
+                <hr>
+
             </div>
 
         </div>
 
         </div>
-        <div class="flexBox" style="flex-grow: 0; margin-bottom: 13px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
+        <div class="flexBox" style="flex-grow: 0; margin-bottom: 8px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Save" @button-click="saveAccount()"/>
         </div>
