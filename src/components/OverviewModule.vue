@@ -23,7 +23,7 @@
 
       <div class="flexBox" style="width: 100%; justify-content: flex-end; align-items: center;">
         <div style="margin: 6px; margin-left: 20px; align-self: flex-start; font-size 16px;">
-        <div class="workPlease" style="font-size 16px;">Account: "{{accountName}}"</div>
+        <div class="accountName" style="font-size 16px;">Account: <span class="accentColored">{{accountName}}</span></div>
         </div>
         <div class="addressText" v-if="isWalletReady == true">
           {{ address }}
@@ -65,8 +65,14 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.workPlease {
+.accountName {
   font-size: 16px;
+  min-width: 250px;
+  max-width: 250px;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .selectAccountButton {
   font-family: fonticonA;

@@ -3,8 +3,8 @@
     <div class="icon">
       &#xe853;
     </div>
-      <div class="left">
-        "{{accountName}}"
+      <div class="flexBox left" style="flex-direction: row;">
+        "<div class="overflowEllipsis">{{accountName}}</div>"
       </div>
       <div class="right">
         <span v-if="accountType == 2">Trezor</span>
@@ -54,7 +54,14 @@ export default {
 .left {
   margin: 5px;
   font-size: 17px;
+  max-width: 45%;
   text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.overflowEllipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .underline {
   background-color: var(--fg_color);

@@ -1,14 +1,14 @@
 <template>
     <div class="flexBox box">
         <div class="itemList" style="top: 5px;">
-          <div class="flexBox" style="width: 100%; align-items: center;" >
+          <div class="flexBox" style="width: 95%; align-items: center;" >
             
             <AccountModule v-for="(item, index) in allAccounts" v-bind:key="item"
             :accountIndex="index + 1"
             :accountType="item.walletType"
             :accountName="item.accountName"
             :selected="vultureWallet.selectedWalletIndex == (index + 1) ? true : false"
-            @module-click="modifyAccount($event)"/>
+            @module-click="modifyAccount($event)" style="margin-bottom: 10px;"/>
 
             <div class="flexBox" style="flex-grow: 0; margin-bottom: 15px; width: 70%; flex-direction: row; align-self: center; justify-content: space-evenly;">
               <DefaultButton :buttonDisabled="vultureWallet.accountStore.allAccounts.length > 1 ? false : true " @button-click="removeAccount()" style="margin-top: 5px; margin-bottom: 15px;"
@@ -96,24 +96,6 @@ export default defineComponent({
 
   justify-content: flex-start;
   overflow: hidden;
-  overflow-y: scroll;
-}
-* {
-  scrollbar-width: 0px;
-  scrollbar-color: rgba(34, 34, 34, 0) rgba(34, 34, 34, 0);
-}
-*::-webkit-scrollbar {
-  width: 0px;         
-}
-
-*::-webkit-scrollbar-track {
-  background: rgba(34, 34, 34, 0);
-  border-radius: 0px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: rgba(34, 34, 34, 0);
-  border-radius: 0px;
-  border: 0px solid rgba(34, 34, 34, 0);
+  overflow-y: auto;
 }
 </style>
