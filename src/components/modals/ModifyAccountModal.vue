@@ -22,14 +22,14 @@
                 <div class="infoParagraph">
                     Account Index: <span class="accentColored">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex}}</span> <br>
                     
-                    <i style="font-size: 13px;  color: var(--fg_color_2)">Accounts will always be the same at each given index.</i>
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">Accounts will always be the same at the given index.</i>
                     <hr class="smallerHr">
                 </div>
 
                 <div class="infoParagraph">
                     Balance: <span class="accentColored">{{Math.round(Number(accountBalance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}</span>
-                    <span class="accentColored" style="font-size: 15px;">
-                        &nbsp;{{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                    <span class="accentColored" style="font-size: 14px;">
+                        {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
                     </span>
                     <hr class="smallerHr">
                 </div>
@@ -47,13 +47,23 @@
 
             </div>
 
-            <div class="infoSection">
+            <div class="infoSection" v-if="stakingSupport == true">
                 <div class="sectionTitleContainer" style="flex-direction: row;">
                     <div class="sectionDescription">
-                        Staking
+                        Staking Info
                     </div>
                 </div>
                 <hr>
+
+                <div class="infoParagraph">
+                    Staking Address:
+                    <span style="color: var(--accent_color); font-size: 15px;">{{stakingAddress}}</span>
+                    <br>
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">You can stake in the Wallet Tab. Read more
+                        <a href="https://docs.vulturewallet.net/staking" target="_blank">here.</a>
+                    </i>
+                    <hr class="smallerHr">
+                </div>
 
             </div>
 
@@ -75,6 +85,7 @@ import { VultureWallet, createNewAccount, WalletType, DefaultNetworks} from "../
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import BigNumber from "bignumber.js";
+import { NetworkFeatures } from "@/vulture_backend/types/networkTypes";
 
 export default defineComponent({
   name: "ModifyAccount",
@@ -94,12 +105,16 @@ export default defineComponent({
 
 
     let accountName: string = props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountName;
+
     const networks = new DefaultNetworks();
-    let initialNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork;
+    let currentNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork;
 
     let accountBalance = ref(0);
 
     let address = ref(props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address);
+    let stakingAddress = ref('');
+
+    let stakingSupport = ref(props.vultureWallet.supportsFeature(NetworkFeatures.STAKING));
 
     props.vultureWallet.currentWallet.infoWorker.onmessage = (event) => {
         if(event.data.method == VultureMessage.GET_BALANCE_OF_ADDRESS) {
@@ -114,7 +129,12 @@ export default defineComponent({
         params: {
             address: props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address
         }
-    })
+    });
+    if(stakingSupport.value == true) {
+        props.vultureWallet.generateAddress("//staking_" + props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountIndex).then((data) => {
+            stakingAddress.value = data.params.address;
+        });
+    }
 
     function quitModal() {
         context.emit("quit-modal");
@@ -133,9 +153,13 @@ export default defineComponent({
 
     return {
         accountBalance,
+        currentNetwork,
+        stakingSupport,
+        stakingAddress,
         accountName,
         networks,
         address,
+
         quitModal: quitModal,
         setName: setName,
         saveAccount: saveAccount,
@@ -148,7 +172,7 @@ export default defineComponent({
 <style scoped>
 hr {
     margin-top: 5px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     border: none;
     height: 1px;
     background-color: var(--fg_color_2);
@@ -194,6 +218,8 @@ hr {
 .smallerHr {
     background-color: var(--bg_color_2);
     height: 1px;
+    margin-top: 5px;
+    margin-bottom: 5px;
     width: 100%;
 }
 .outline {

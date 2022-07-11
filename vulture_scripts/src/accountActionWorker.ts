@@ -43,7 +43,7 @@ self.addEventListener("message", async (event) => {
             // Generates and Returns an address with a given derivation path and returns it
             // along with a provided array index.
             case VultureMessage.GET_ADDRESS_FROM_URI: {
-                await wallet?.generateAddress(event.data.params.addressURI, event.data.params.index);
+                await wallet?.generateAddress(event.data.params.addressURI, event.data.params.accountIndex);
                 break;
             };
             // Translates a list of accounts to a different specified encoding (currently only substrate related)

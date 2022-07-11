@@ -44,6 +44,7 @@ export default defineComponent({
 
     let accountName: string;
     const networks = new DefaultNetworks();
+    let nextAccountIndex: number = props.vultureWallet.nextDerivIndex;
 
     function quitModal() {
         context.emit("quit-modal");
@@ -52,19 +53,19 @@ export default defineComponent({
         accountName = name;
     }
 
-    function createAccount() {       /*Easiest way to get object from proxy...*/
-        props.vultureWallet.createAccount(accountName,
-        WalletType.MnemonicPhrase);
+    function createAccount() {
+        props.vultureWallet.createAccount(accountName, WalletType.MnemonicPhrase);
         quitModal();
     }
 
     return {
+        nextAccountIndex,
         networks,
 
+        getRandomAccountName: getRandomAccountName,
+        createAccount: createAccount,
         quitModal: quitModal,
         setName: setName,
-        createAccount: createAccount,
-        getRandomAccountName: getRandomAccountName
     }
   }
 });

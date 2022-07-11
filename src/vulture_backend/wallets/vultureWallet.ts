@@ -6,6 +6,7 @@ import SafeEventEmitter from "@metamask/safe-event-emitter";
 import { AbstractToken, TokenStore } from "../types/abstractToken";
 import { NetworkFeatures } from "../types/networkTypes";
 import { TokenTypes } from "../types/tokenTypes";
+import { VultureRequest } from "../vultureRPC";
 
 /* --- Note # PSYCODERS # we are one @
     vultureWallet.ts contains interfaces that are used by the Vulture wallet.
@@ -173,7 +174,13 @@ export interface VultureAccount {
     /** ## accountData
     * The relevant Data each VultureAccount has, for example the address, derivation path, name, assetAmount, etc.
     */
-    accountData: AccountData
+    accountData: AccountData;
+
+    /** ## isReady
+     *  if the wallet is now able to read/send data.
+     * 
+     */
+     isReady: boolean;
 
     /** ## transferAssets();
      * docs: Todo
@@ -349,6 +356,8 @@ export class VultureWallet {
 
     public walletEvents: SafeEventEmitter = new SafeEventEmitter();
 
+    public isWalletReady: boolean = false;
+
     constructor(vault?: Vault, accountStore?: VultureAccountStore) {
         this.walletEvents.setMaxListeners(50);
         if(vault && accountStore)
@@ -405,6 +414,7 @@ export class VultureWallet {
         }
         // Start polling token balances instantly when the info worker is ready.s
         this.currentWallet.accountEvents.on("infoWorkerReady", async () => {
+            this.walletEvents.emit('IsWalletReady', this.currentWallet.isReady);
             await this.startTokenBalancePolling();
         })
 
@@ -495,11 +505,6 @@ export class VultureWallet {
         return r;
     }
     async switchWallet(index: number) {
-        // Reset the account balance to nothing which updates the UI, will change the way this works later.
-        this.walletEvents.emit(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, {
-            amount: Number.NaN,
-            address: "LOADING",
-        });
         this.accountStore.currentlySelectedAccount = index;
         this.saveAccounts();
         this.initWallet(this.vault, this.accountStore);
@@ -530,17 +535,12 @@ export class VultureWallet {
             });
         }
     }
+    
     switchNetwork(networkName: string) {
         const networks = new DefaultNetworks();
         //Switch the network
         if(networks.allNetworks.get(networkName)) {
             this.accountStore.currentlySelectedNetwork = networks.allNetworks.get(networkName) as Network;
-
-            // Emit empty values which will set the UI frontend to loading mode, will introduce seperate system for this later.
-            this.walletEvents.emit(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, {
-                amount: Number.NaN,
-                address: "LOADING",
-            });
 
             this.saveAccounts();
             this.updateAccountAddresses(true);
@@ -639,6 +639,53 @@ export class VultureWallet {
             console.error(err);
         });
     }
+
+    /** ## supportsFeature()
+     * Checks if the **current network** supports the feature passed into the
+     * `feature` parameter.
+     */
+    supportsFeature(feature: NetworkFeatures): boolean {
+        if(this.accountStore != null && this.accountStore.currentlySelectedNetwork != null) {
+            return this.accountStore.currentlySelectedNetwork.networkFeatures & feature ? true : false;
+        }else {
+            return false;
+        }
+    }
+    /** ## generateAddress
+     * Generates an address with the current seed the account has. Optional
+     * derivation path parameter if you want to derive a specific account.
+     * Derivation paths have to correspond to the current network formats.
+     * 
+     * the optional accountIndex parameter is an array-index, this parameter
+     * will be returned by the worker after generation in order to know which
+     * account in the array the address belongs to.
+     */
+    async generateAddress(derivationPath?: string, accountIndex?: number): Promise<any> {
+        let wallet = this.currentWallet;
+        return new Promise(function(resolve, reject) {
+
+            wallet.actionWorker.onmessage = (event: any) => {
+                if(event.data.method == VultureMessage.GET_ADDRESS_FROM_URI) {
+                    if(event.data.params.success == true) {
+                        resolve(event.data);
+                    }else {
+                        reject(new VultureRequest(VultureMessage.GET_ADDRESS_FROM_URI, {
+                            success: false,
+                            error: "Failed generating address!"
+                        }));
+                    }
+                }
+            };
+
+            wallet.actionWorker.postMessage({
+                method: VultureMessage.GET_ADDRESS_FROM_URI,
+                params: {
+                    addressURI: derivationPath,
+                    accountIndex: accountIndex
+                }
+            });
+        });
+    }
     createAccount(accountName: string, walletType: WalletType) {
         createNewAccount(accountName, walletType).then((account) => {
             this.currentWallet.actionWorker.onmessage = (event) => { // TODO: UPDATE TO METHOD
@@ -655,14 +702,12 @@ export class VultureWallet {
             //js sr25519 package (no audited ones exist...).
 
             this.accountStore.allAccounts.push(account);
-
             this.currentWallet.actionWorker.postMessage({ // TODO: UPDATE TO METHOD
                 method: VultureMessage.GET_ADDRESS_FROM_URI,
                 params: {
                     accountIndex: this.accountStore.allAccounts.length,
-                    addressURI: '//' + account.accountIndex,
-                    //index: account.accountIndex,
-                    index: this.accountStore.allAccounts.length,
+                    addressURI: account.derivationPath,
+                    //index: this.accountStore.allAccounts.length,
                 }
             });
         });

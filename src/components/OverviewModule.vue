@@ -3,7 +3,7 @@
     <div class="flexBox" style="width: 100%;">
       <div class="flexBox" style="width: 100%; flex-direction: row;">
 
-        <div class="amountText" v-if="Number(assetAmount).toFixed(4) != 'NaN'">
+        <div class="amountText" v-if="isWalletReady == true">
           {{ Number(assetAmount).toFixed(4) }}<span class="assetName">{{ assetPrefix }}</span>
             <div class="underline"/>
         </div>
@@ -25,8 +25,11 @@
         <div style="margin: 6px; margin-left: 20px; align-self: flex-start; font-size 16px;">
         <div class="workPlease" style="font-size 16px;">Account: "{{accountName}}"</div>
         </div>
-        <div class="addressText" style="">
+        <div class="addressText" v-if="isWalletReady == true">
           {{ address }}
+        </div>
+        <div class="addressText" v-else>
+          ~~~ Loading ~~~
         </div>
       </div>
     </div>
@@ -42,7 +45,8 @@ export default defineComponent({
     address: String,
     accountName: String,
     assetPrefix: String,
-    assetAmount: String
+    assetAmount: String,
+    isWalletReady: Boolean,
   },
   setup(props, context) {
     function selectAccount() {

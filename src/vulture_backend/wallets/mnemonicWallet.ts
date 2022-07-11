@@ -20,7 +20,7 @@ export class MnemonicWallet implements VultureAccount {
     public accountData: AccountData;
     public currentNetwork: Network;
     public updateTokenBalance: any;
-    isWalletActive: boolean = false;
+    public isReady: boolean = false;
 
     constructor(seedPhrase: string, accountData: AccountData, network: Network) {
         this.accountEvents.setMaxListeners(50);
@@ -42,7 +42,6 @@ export class MnemonicWallet implements VultureAccount {
 
             if(event.data.method == VultureMessage.SET_CURRENT_WALLET) {
                 if(event.data.params.success == true) {
-                    this.isWalletActive = true;
                     this.accountData.address = event.data.params.address;
 
                     // Emit ready events when the worker is ready.
@@ -66,6 +65,8 @@ export class MnemonicWallet implements VultureAccount {
             if(event.data.method == VultureMessage.SET_CURRENT_WALLET) {
                 if(event.data.params.success == true) {
                     console.info("Information worker initialized.");
+
+                    this.isReady = true;
 
                     // Emit ready events when the worker is ready.
                     this.accountEvents.emit('infoWorkerReady');

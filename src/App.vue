@@ -5,19 +5,21 @@
     :assetPrefix="assetPrefix"
     :assetAmount="assetAmount"
     :accountName="vultureWallet.currentWallet.accountData.accountName"
+    :isWalletReady="vultureWallet.currentWallet.isReady"
     @select-account="setModal(modals.SELECT_NEW_ACCOUNT)"
     @select-network="setModal(modals.SELECT_NEW_NETWORK)"
   />
   <Navbar @switch-tab="setTab($event)"/>
 
-  <SendTab style="position: absolute; width: 360px;" v-bind:class="currentTab == 'send' ? 'show' : 'hide'"
+  <SendTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'send' ? 'show' : 'hide'"
   @send-button-click="transferAssets($event)"
   @select-new-asset="setModal(modals.SELECT_NEW_ASSET)"
   :addressOfTokenToTransfer="addressOfTokenToTransfer"
   :vultureWallet="vultureWallet"/>
 
-  <WalletTab style="position: absolute; width: 360px;" v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
+  <WalletTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
   :vultureWallet="vultureWallet"
+  :isWalletReady="vultureWallet.currentWallet.isReady"
   @add-custom-token="addToken($event)"
   @token-view-modal="tokenViewModal($event.address, $event.type)"/>
 
@@ -367,10 +369,30 @@ html {
   filter: opacity(0);
 }
 
+.vultureLoaderBig {
+  display: inline-block;
+  width: 100px;
+  height: 100px;
+}
+.vultureLoaderBig:after {
+  content: " ";
+  display: block;
+  width: 100px;
+  height: 100px;
+  margin: 0px;
+  border-radius: 50%;
+  border: 3px solid;
+
+  border-color: var(--accent_color) var(--bg_color_2) var(--accent_color) var(--bg_color_2);
+  
+  animation: vultureLoaderFrames 0.87s infinite;
+  box-shadow: 0px 0px 8px black inset;
+}
+
 .vultureLoader {
   display: inline-block;
-  width: 80px;
-  height: 80px;
+  width: 62px;
+  height: 62px;
 }
 .vultureLoader:after {
   content: " ";

@@ -94,7 +94,7 @@ export class SubstrateActions implements AccountActionHandler {
         });
     }
 
-    async generateAddress(derivationPath: string, accountIndex: number) {
+    async generateAddress(derivationPath: string, accountIndex?: number) {
         if(this.isCryptoWasmReady){
             let kp = this.keyring!.addFromUri(this.seed + derivationPath);
             postMessage(new MethodResponse(
