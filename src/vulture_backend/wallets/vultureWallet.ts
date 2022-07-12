@@ -4,9 +4,11 @@ import { encrypt } from "@metamask/browser-passworder";
 import { MnemonicWallet } from "./mnemonicWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
 import { AbstractToken, TokenStore } from "../types/abstractToken";
-import { NetworkFeatures } from "../types/networkTypes";
+import { Network, NetworkFeatures } from "../types/networks/networkTypes";
 import { TokenTypes } from "../types/tokenTypes";
 import { VultureRequest } from "../vultureRPC";
+import { StakingInfo } from "../types/stakingInfo";
+import { DefaultNetworks } from "../types/networks/network";
 
 /* --- Note # PSYCODERS # we are one @
     vultureWallet.ts contains interfaces that are used by the Vulture wallet.
@@ -38,6 +40,23 @@ export interface AccountData {
     * The address of this account.
     */
     address: string,
+
+
+    /** ## stakingAddress
+     *  Each vultureAccount will come with two addresses, a main address and
+     *  a staking address, due to the fact that not all networks support staking
+     *  we'll  assing this address on account-generation manually. Each network
+     *  has a corresponding worker method to retrieve staking addresses.
+     */
+    stakingAddress?: string
+
+    /** stakingInfo
+     * Some networks may have an additional staking info. Vulture handles staking
+     * by having two different addresses per account, one specific for staking and one
+     * for other usecases.
+     */
+    stakingInfo: Map<StakingInfo, any>,
+
     /** ## derivationPath 
     * the Derivation path of this account, vulture uses
     * `//hard-value/soft-value`, where we increment the hard-value
@@ -82,56 +101,6 @@ export interface AccountData {
 export enum WalletType {
     MnemonicPhrase,
     Ledger,
-}
-/** ## NetworkType
- * The network type of a network, the value in this enum represents how the wallet handles the data/accounts/cryptography
- * of the network. If the user adds a custom network (with a custom RPC), it is important that they select a network type
- * that's corret.
- * 
- * There may also be additional specific network types, such as `SubstrateNetworks`; this is due to the fact that substrate
- * networks may have different properties which are unique, and cannot be general.
- */
-export enum NetworkType {
-    Substrate,
-    Solana,
-    AVM, //Avalanche virtual machine
-    PVM, //Platform virtual machine (also on avalanche)
-    EVM,
-}
-
-export interface Network {
-    /** ## networkUri
-     * The Websocket URI to the network node. 
-     */
-    networkUri: string;
-    networkAssetPrefix: string;
-    networkName: string;
-    networkAssetDecimals: number;
-    /** ## networkColor
-    * A hex value of the color-theme of the network (mainly here for front-end visual purposes)...
-    */
-    networkColor: string;
-    networkLogoUri?: string;
-    networkType: NetworkType;
-    /** # addressFormat
-     * Some networks which are multi-chain, or use certain SDKs such as Substrate may
-     * have multiple address encoding/formats to differentiate between the different
-     * chains. In the case of Substrate, this is true with the `ss58` format.
-     * 
-     * ## Substrate:
-     * If the networkType is substrate, the address format should be the `ss58` prefix
-     * number, if left undefined, this will default to the default substrate address format.
-     * A list of ss58 prefixes can be found in the [ss58 registry](https://github.com/paritytech/ss58-registry/blob/main/ss58-registry.json)
-     * 
-     */
-    addressFormat?: string
-    isTestnet: boolean,
-
-    /** ## networkFeatures
-     * An enum bitfield representing the features a network has. Interact with this enum as a **bitfield**!
-     */
-    networkFeatures: NetworkFeatures
-
 }
 
 /** ## VultureAccount
@@ -223,126 +192,6 @@ export interface VultureAccountStore {
 
 /*@---------------------------------Wallet Classes-------------------------------@*/
 
-export class DefaultNetworks {
-    /* -- Main Networks -- */
-    public AlephZero: Network = {
-        networkUri: 'wss://ws.azero.dev',
-        networkAssetPrefix: 'AZERO',
-        networkName: 'Aleph Zero',
-        networkAssetDecimals: 12,
-        networkColor: '#00EAC7',
-        networkType: NetworkType.Substrate,
-        isTestnet: false,
-        networkFeatures: (NetworkFeatures.STAKING),
-    }
-    public Kusama: Network = {
-        networkUri: 'wss://kusama-rpc.polkadot.io',
-        networkAssetPrefix: 'KSM',
-        networkName: 'Kusama',
-        networkAssetDecimals: 12,
-        networkColor: '#e8026d',
-        networkType: NetworkType.Substrate,
-        networkFeatures: (NetworkFeatures.NONE),
-        addressFormat: '2',
-        isTestnet: false,
-    }
-    public Polkadot: Network = {
-        networkUri: 'wss://kusama-rpc.polkadot.io',
-        networkAssetPrefix: 'DOT',
-        networkName: 'Polkadot',
-        networkAssetDecimals: 10,
-        networkColor: '#e6007a',
-        networkType: NetworkType.Substrate,
-        networkFeatures: (NetworkFeatures.NONE),
-        addressFormat: '0',
-        isTestnet: false,
-    }
-    /* 
-    public AvalancheCChain: Network = {
-        networkUri: 'https://api.avax.network:443',
-        networkAssetPrefix: 'AVAX',
-        networkName: 'Avax C-Chain',
-        networkAssetDecimals: 18,
-        networkColor: '#ff0043',
-        networkType: NetworkType.EVM,
-        isTestnet: false,
-    }
-     */
-    /* -- Test Networks -- */
-    public AlephZeroTestNet: Network = {
-        networkUri: 'wss://ws.test.azero.dev',
-        networkAssetPrefix: 'TZERO',
-        networkName: 'Aleph Zero Testnet',
-        networkAssetDecimals: 12,
-        networkColor: '#4dff97',
-        networkType: NetworkType.Substrate,
-        networkFeatures: (NetworkFeatures.STAKING | NetworkFeatures.SMART_CONTRACTS),
-        isTestnet: true,
-    }
-    public AlephZeroSmartnet: Network = {
-        networkUri: 'wss://ws-smartnet.test.azero.dev',
-        networkAssetPrefix: 'SZERO',
-        networkName: 'Aleph Zero Smartnet',
-        networkAssetDecimals: 12,
-        networkColor: '#4dff97',
-        networkType: NetworkType.Substrate,
-        networkFeatures: (NetworkFeatures.SMART_CONTRACTS),
-        isTestnet: true,
-    }
-    public allNetworks: Map<string, Network> = new Map([
-        [
-            this.AlephZero.networkName,
-            this.AlephZero
-        ],
-        [
-            this.Kusama.networkName,
-            this.Kusama
-        ],
-        [
-            this.Polkadot.networkName,
-            this.Polkadot
-        ],
-        /*
-        [
-            this.AvalancheCChain.networkName,
-            this.AvalancheCChain
-        ],
-         */
-        [
-            this.AlephZeroTestNet.networkName,
-            this.AlephZeroTestNet
-        ],
-        [
-            this.AlephZeroSmartnet.networkName,
-            this.AlephZeroSmartnet
-        ],
-    ]);
-    public mainNets: Map<string, Network> = new Map([
-        [
-            this.AlephZero.networkName,
-            this.AlephZero
-        ],
-        [
-            this.Kusama.networkName,
-            this.Kusama
-        ],
-        [
-            this.Polkadot.networkName,
-            this.Polkadot
-        ],
-    ]);
-    public testNets: Map<string, Network> = new Map([
-        [
-            this.AlephZeroTestNet.networkName,
-            this.AlephZeroTestNet
-        ],
-        [
-            this.AlephZeroSmartnet.networkName,
-            this.AlephZeroSmartnet
-        ],
-    ]);
-}
-
 export class VultureWallet {
 
     public currentWallet!: VultureAccount;
@@ -415,6 +264,14 @@ export class VultureWallet {
         // Start polling token balances instantly when the info worker is ready.s
         this.currentWallet.accountEvents.on("infoWorkerReady", async () => {
             this.walletEvents.emit('IsWalletReady', this.currentWallet.isReady);
+
+            // If the current network supports staking, we will get the staking address and assing it to the account data. 
+            if(this.supportsFeature(NetworkFeatures.STAKING)) {
+                this.generateAddress("//staking_" + this.currentWallet.accountData.accountIndex).then((data) => {
+                    this.currentWallet.accountData.stakingAddress = data.params.address;
+                });
+            }
+
             await this.startTokenBalancePolling();
         })
 
@@ -541,7 +398,6 @@ export class VultureWallet {
         //Switch the network
         if(networks.allNetworks.get(networkName)) {
             this.accountStore.currentlySelectedNetwork = networks.allNetworks.get(networkName) as Network;
-
             this.saveAccounts();
             this.updateAccountAddresses(true);
         }else {
@@ -616,6 +472,14 @@ export class VultureWallet {
             if(event.data.method == VultureMessage.UPDATE_ACCOUNTS_TO_NETWORK) {
                 if(event.data.params.success == true) {
                     this.accountStore.allAccounts = event.data.params.updatedAccounts;
+
+                    // Also update the current wallets' staking address, if the network supports staking.
+                    if(this.supportsFeature(NetworkFeatures.STAKING)) {
+                        this.generateAddress("//staking_" + this.currentWallet.accountData.accountIndex).then((data) => {
+                            this.currentWallet.accountData.stakingAddress = data.params.address;
+                        });
+                    }
+
                     this.saveAccounts();
                 }else {
                     console.log("Failed updating accounts to use new network format!");
@@ -685,6 +549,43 @@ export class VultureWallet {
                 }
             });
         });
+    }
+    /** ## getStakingInfo
+     * Calls a worker method which retrieves staking/nomination information, this is abstract due to
+     * the fact that staking works differently depending on each network, but for now we are focusing on
+     * substrate.
+     */
+    async getStakingInfo(): Promise<any> {
+        if(this.supportsFeature(NetworkFeatures.STAKING)) {
+            let wallet = this.currentWallet;
+            return new Promise(function(resolve, reject) {
+    
+                wallet.infoWorker.onmessage = (event: any) => {
+                    if(event.data.method == VultureMessage.GET_STAKING_INFO) {
+                        if(event.data.params.success == true) {
+                            console.log(event.data);
+                            resolve(event.data);
+                        }else {
+                            console.error("Failed getting staking info!");
+                            reject(new VultureRequest(VultureMessage.GET_STAKING_INFO, {
+                                success: false,
+                                error: "Failed getting staking info!"
+                            }));
+                        }
+                    }
+                };
+    
+                wallet.infoWorker.postMessage({
+                    method: VultureMessage.GET_STAKING_INFO,
+                    params: {
+                        address: wallet.accountData.address,
+                        stakingAddress: wallet.accountData.stakingAddress!,
+                    }
+                });
+            });
+        }else {
+            console.error("Current network does not support staking!");
+        }
     }
     createAccount(accountName: string, walletType: WalletType) {
         createNewAccount(accountName, walletType).then((account) => {
@@ -958,6 +859,7 @@ export async function createNewAccount(accountName: string, walletType: WalletTy
             val.allAccounts.push({
                 accountName: accountName,
                 address: "",
+                stakingInfo: new Map<StakingInfo, any>(),
                 derivationPath: "//" + val.nextAccountDerivIndex,
                 accountIndex: val.nextAccountDerivIndex,
                 freeAmountWhole: 0,
@@ -979,6 +881,7 @@ export async function createNewAccount(accountName: string, walletType: WalletTy
                     derivationPath: "//0",
                     accountIndex: 0,
                     freeAmountWhole: 0,
+                    stakingInfo: new Map<StakingInfo, any>(),
                     accountNonce: 0,
                     freeAmountSmallestFraction: "0",
                     walletType: walletType

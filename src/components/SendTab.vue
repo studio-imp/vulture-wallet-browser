@@ -50,7 +50,7 @@ import DefaultButton from "./building_parts/DefaultButton.vue";
 import MinimalInput from "./building_parts/MinimalInput.vue";
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
 import { AbstractToken } from '@/vulture_backend/types/abstractToken';
-import { NetworkFeatures } from "../vulture_backend/types/networkTypes";
+import { NetworkFeatures } from "../vulture_backend/types/networks/networkTypes";
 
 export default defineComponent({
   name: "SendTab",

@@ -166,11 +166,12 @@ import DefaultInput from "../building_parts/DefaultInput.vue";
 import SeedWordBox from "../webAppSpecific/SeedWordBox.vue";
 import SeedPhraseInput from "./SeedPhraseInput.vue";
 import { generateMnemonic } from 'bip39';
-import { createVault, Vault, createNewAccount, Network, WalletType, deleteWallet, NetworkType, DefaultNetworks } from "../../vulture_backend/wallets/vultureWallet"
+import { createVault, Vault, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet"
 import { ref } from 'vue';
 
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import Polkadot from "@ledgerhq/hw-app-polkadot";
+import { DefaultNetworks } from '@/vulture_backend/types/networks/network';
 
 
 

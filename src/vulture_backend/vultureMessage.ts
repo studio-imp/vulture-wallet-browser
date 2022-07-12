@@ -12,6 +12,9 @@ export const VultureMessage = {
     "ADD_TOKEN_TO_SUBSCRIPTION": "ADD_TOKEN_TO_SUBSCRIPTION",
     "TRANSFER_ASSETS": "TRANSFER_ASSETS",
 
+    /* Staking And Nominating */
+    "GET_STAKING_INFO": "GET_STAKING_INFO",
+
     // Will update the passed in key-pairs to be encoded in the correct cryptography & address format,
     // This method is used primarily when the user switches network (all accounts will need to be updated accordingally).
     "UPDATE_ACCOUNTS_TO_NETWORK": "UPDATE_ACCOUNTS_TO_NETWORK",

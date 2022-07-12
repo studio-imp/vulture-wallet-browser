@@ -7,7 +7,8 @@ import { KeyringPair } from '@polkadot/keyring/types';
 
 import { VultureNetwork, MethodResponse } from '../InetworkAPI';
 import { VultureMessage } from '../../../../src/vulture_backend/vultureMessage';
-import { AccountData, Network } from '../../../../src/vulture_backend/wallets/vultureWallet';
+import { AccountData } from '../../../../src/vulture_backend/wallets/vultureWallet';
+import { SubstrateStakingInfo } from '../../../../src/vulture_backend/types/stakingInfo';
 import { AbstractToken } from '../../../../src/vulture_backend/types/abstractToken';
 import { erc20Abi } from './ink_contract_abis/erc20Abi';
 import { erc721Abi } from './ink_contract_abis/erc721Abi';
@@ -63,6 +64,77 @@ export class SubstrateInfo implements AccountInfoHandler {
                 }
             ));
         });
+    }
+    async getStakingInfo(address: string, stakingAddress: string) {
+        if(this.isCryptoReady) {
+            let stakingInfo: SubstrateStakingInfo = {
+                stakingAddress: '',
+                controllerAddress: '',
+                isStashAccountBonded: false,
+                frozenBalance: '',
+                stakedBalance: '',
+                unlocking: [],
+                currentEra: ''
+            };
+            let success: boolean = true;
+
+            // Get the current Era.
+            this.networkAPI?.query.staking.currentEra().then((data) => {
+                if(data.toHuman() != null) {
+                    stakingInfo.currentEra = data.toHuman() as string;
+                }else {
+                    console.error("Failed to get era!");
+                    success = false;
+                }
+            });
+
+            // Check if the controller account is bonding the stash account.
+            this.networkAPI?.query.staking.bonded(stakingAddress).then((data) => {
+                if(data.toHuman() == null) {
+                    stakingInfo.isStashAccountBonded = false;
+                }else if (data.toHuman() == stakingAddress) {
+                    stakingInfo.isStashAccountBonded = true;
+                }else {
+                    success = false;
+                    console.error("Staking account is bonded to an incorrect controller address!");
+                }
+            });
+
+            // Get the staking information for the stakingAddress, by the controller address.
+            this.networkAPI?.query.staking.ledger(address).then((data) => {
+                console.log(data.toJSON());
+                if(data.toJSON() == null) {
+                    stakingInfo.stakedBalance = '0';
+                }
+                /*                
+                if(data.toJSON()) {
+                    stakingInfo.isStashAccountBonded = false;
+                }else if (data.toHuman() == stakingAddress) {
+                    stakingInfo.isStashAccountBonded = true;
+                }else {
+                    success = false;
+                    console.error("Failed getting staking information!");
+                }
+                */
+            });
+
+            console.log(stakingInfo);
+
+
+            if(success == true) {
+                postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                    success: true,
+                    stakingInfo: stakingInfo,
+                }});
+            }else {
+                postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                    success: false,
+                }});
+            }
+
+        }else {
+            throw new Error("Cryptography WASM hasn't been initialized yet!");
+        }
     }
     async getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number){
         switch(tokenType) {
@@ -211,12 +283,6 @@ export class SubstrateInfo implements AccountInfoHandler {
                 ));
             }
         }
-    }
-    estimateFee(): Promise<void> {
-        throw new Error('Method not implemented.');
-    }
-    getAddress(): Promise<void> {
-        throw new Error('Method not implemented.');
     }
     async getBalanceOf(address: string) {
         if(this.isCryptoReady) {

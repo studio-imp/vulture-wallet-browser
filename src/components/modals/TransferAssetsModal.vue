@@ -57,11 +57,12 @@ import DefaultInput from "../building_parts/DefaultInput.vue";
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import AccountModule from "../AccountModule.vue"
 
-import { VultureWallet, createNewAccount, WalletType, DefaultNetworks, Network, NetworkType} from "../../vulture_backend/wallets/vultureWallet";
+import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
 import { TxState } from '@/uiTypes';
 import { AbstractToken } from '@/vulture_backend/types/abstractToken';
+import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
 
 export default defineComponent({
   name: "TransferAssetsModal",

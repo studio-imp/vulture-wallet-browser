@@ -55,7 +55,8 @@
 </template>
 
 <script lang="ts">
-import { NetworkType } from "../vulture_backend/wallets/vultureWallet";
+import { NetworkType } from '@/vulture_backend/types/networks/networkTypes';
+
 export default {
   name: "NetworkModule",
   props: {

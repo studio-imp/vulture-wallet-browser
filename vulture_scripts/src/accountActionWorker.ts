@@ -1,6 +1,6 @@
 
+import { NetworkType } from "../../src/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "../../src/vulture_backend/vultureMessage";
-import { NetworkType } from "../../src/vulture_backend/wallets/vultureWallet";
 
 import { AccountActionHandler } from './apis/InetworkAPI';
 import { SubstrateActions } from './apis/substrate/substrateActions';

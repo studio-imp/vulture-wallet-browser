@@ -12,7 +12,6 @@
 </template>
 
 <script lang="ts">
-import { Network } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, ref } from 'vue';
 
 export default defineComponent({

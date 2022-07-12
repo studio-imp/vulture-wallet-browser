@@ -5,7 +5,7 @@
       <div class="itemBox" style="top: 0px; height: 335px; width: 90%;">
         <div class="flexBox" style="width: 100%; align-items: center;" v-if="isWalletReady == true">
 
-        <div v-if="supportsSmartContracts() == true && vultureWallet.accountStore != null && vultureWallet.tokenStore != null">
+        <div v-if="supportsSmartContracts() == true && vultureWallet.accountStore != null && vultureWallet.tokenStore != null && currentTab != 'Staking'">
           <!-- NFTs -->
           <div v-if="currentTab == 'NFTs'"
           class="flexBox" style="margin-top: 0px; align-items: center;">
@@ -50,8 +50,8 @@
   
           </div>
         </div>
-        <div v-else-if="supportsStaking() == true && currentTab == 'Staking'">
-          <StakingTab :vultureWallet="vultureWallet"/>
+        <div class="flexBox" style="width: 100%;" v-else-if="supportsStaking() == true && currentTab == 'Staking'">
+          <StakingTab :vultureWallet="vultureWallet" :isWalletReady="isWalletReady"/>
         </div>
         <div v-else class="flexBox" style="margin-top: 50px; align-items: center;">
           <div class="flexBox" style="margin-bottom: 10px; align-items: center;">
@@ -102,7 +102,7 @@ import NFTModule from "./NFTModule.vue";
 
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
 
-import { NetworkFeatures } from "../vulture_backend/types/networkTypes"
+import { NetworkFeatures } from "../vulture_backend/types/networks/networkTypes"
 
 export default defineComponent({
   name: "WalletTab",

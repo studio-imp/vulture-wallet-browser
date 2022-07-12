@@ -81,11 +81,12 @@
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import DefaultInput from "../building_parts/DefaultInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
-import { VultureWallet, createNewAccount, WalletType, DefaultNetworks} from "../../vulture_backend/wallets/vultureWallet";
+import { VultureWallet, createNewAccount, WalletType} from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import BigNumber from "bignumber.js";
-import { NetworkFeatures } from "@/vulture_backend/types/networkTypes";
+import { NetworkFeatures } from "@/vulture_backend/types/networks/networkTypes";
+import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
 
 export default defineComponent({
   name: "ModifyAccount",
@@ -131,6 +132,7 @@ export default defineComponent({
         }
     });
     if(stakingSupport.value == true) {
+        // Temporary since its not efficient and ugly, but until refactoring we'll get the staking address per account by generating it in real-time.
         props.vultureWallet.generateAddress("//staking_" + props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountIndex).then((data) => {
             stakingAddress.value = data.params.address;
         });

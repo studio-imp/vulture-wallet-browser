@@ -1,7 +1,7 @@
 
 <template>
     <div class="flexBox box">
-
+      <DefaultButton buttonWidth="200px" buttonHeight="60px" buttonText="Get Staking Info (Console)" @click="getStakingInfoTEST()"/>
     </div>
 </template>
 
@@ -27,8 +27,11 @@ export default defineComponent({
 
   },
   setup(props, context) {
+    function getStakingInfoTEST() {
+      props.vultureWallet.getStakingInfo();
+    }
     return {
-
+      getStakingInfoTEST: getStakingInfoTEST,
     }
   }
 });
@@ -44,11 +47,12 @@ hr {
     background-color: var(--fg_color_2);
 }
 .box {
+  box-sizing: border-box;
   justify-content: center;
+  align-items: center;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: red;
 }
 *::-webkit-scrollbar {
   border-radius: 10px;

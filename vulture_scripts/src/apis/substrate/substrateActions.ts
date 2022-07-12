@@ -8,13 +8,14 @@ import { KeyringPair } from '@polkadot/keyring/types';
 
 import { VultureNetwork, MethodResponse } from '../InetworkAPI';
 import { VultureMessage } from '../../../../src/vulture_backend/vultureMessage';
-import { AccountData, Network } from '../../../../src/vulture_backend/wallets/vultureWallet';
+import { AccountData } from '../../../../src/vulture_backend/wallets/vultureWallet';
 import { AbstractToken } from '../../../../src/vulture_backend/types/abstractToken';
 import { erc20Abi } from './ink_contract_abis/erc20Abi';
 import { getERC20Info, getERC20Balance } from './contractFunctions';
 
 const { ContractPromise } = require('@polkadot/api-contract');
 import { AccountActionHandler } from "../InetworkAPI";
+import { Network } from '../../../../src/vulture_backend/types/networks/networkTypes';
 
 
 export class SubstrateInitData {

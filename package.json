@@ -24,6 +24,7 @@
     "bignumber.js": "^9.0.2",
     "bip39": "^3.0.4",
     "buffer": "^6.0.3",
+    "caniuse-lite": "^1.0.30001365",
     "core-js": "^3.8.3",
     "crypto-browserify": "^3.12.0",
     "ipfs": "^0.63.5",

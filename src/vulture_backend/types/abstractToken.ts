@@ -1,4 +1,4 @@
-import { Network } from "../wallets/vultureWallet";
+import { Network } from "./networks/networkTypes";
 
 
 /** ## AbstractToken

@@ -1,4 +1,4 @@
-import { WalletType, VultureAccount, Network, AccountData } from "./vultureWallet";
+import { WalletType, VultureAccount, AccountData } from "./vultureWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
 
 //import { KeyringPair } from "@polkadot/keyring/types";
@@ -8,6 +8,7 @@ import { BigNumber } from "bignumber.js";
 import { VultureMessage } from "../vultureMessage";
 import { AbstractToken } from "../types/abstractToken";
 import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/substrateActions";
+import { Network } from "../types/networks/networkTypes";
 
 
 

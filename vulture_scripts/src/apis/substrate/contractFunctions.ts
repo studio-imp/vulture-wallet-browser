@@ -1,19 +1,7 @@
-import { cryptoWaitReady } from '@polkadot/util-crypto';
-
-import { WsProvider, Keyring, ApiPromise} from '@polkadot/api';
-
-import { decodeAddress, encodeAddress } from "@polkadot/keyring";
-import { hexToU8a, isHex } from "@polkadot/util";
-import { KeyringPair } from '@polkadot/keyring/types';
-
-import { VultureNetwork, MethodResponse } from '../InetworkAPI';
+import { MethodResponse } from '../InetworkAPI';
 import { VultureMessage } from '../../../../src/vulture_backend/vultureMessage';
-import { AccountData, Network } from '../../../../src/vulture_backend/wallets/vultureWallet';
 import { AbstractToken } from '../../../../src/vulture_backend/types/abstractToken';
-import { erc20Abi } from './ink_contract_abis/erc20Abi';
 import BigNumber from 'bignumber.js';
-
-const { ContractPromise } = require('@polkadot/api-contract');
 
 
 

@@ -1,6 +1,7 @@
 
+import { NetworkType } from "../../src/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "../../src/vulture_backend/vultureMessage";
-import { NetworkType, VultureWallet } from "../../src/vulture_backend/wallets/vultureWallet";
+import { VultureWallet } from "../../src/vulture_backend/wallets/vultureWallet";
 
 import { AccountInfoHandler } from './apis/InetworkAPI';
 import { SubstrateInfo } from './apis/substrate/substrateInfo';
@@ -60,6 +61,11 @@ self.addEventListener("message", async (event) => {
             // Gets balance of a specific address.
             case VultureMessage.GET_BALANCE_OF_ADDRESS: {
                 await keylessWallet?.getBalanceOf(event.data.params.address);
+                break;
+            }
+            // Gets staking information for the passed in addresses.
+            case VultureMessage.GET_STAKING_INFO: {
+                await keylessWallet?.getStakingInfo(event.data.params.address, event.data.params.stakingAddress);
                 break;
             }
             // Subscribes token address to changes, used to know when we should attempt to update balance. Quite inefficient since

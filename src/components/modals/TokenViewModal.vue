@@ -177,7 +177,7 @@
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import DefaultInput from "../building_parts/DefaultInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
-import { VultureWallet, createNewAccount, WalletType, DefaultNetworks} from "../../vulture_backend/wallets/vultureWallet";
+import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { AbstractToken } from '@/vulture_backend/types/abstractToken';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
