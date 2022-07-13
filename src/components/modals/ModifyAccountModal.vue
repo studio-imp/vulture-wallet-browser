@@ -7,8 +7,6 @@
 
         <div class="outline">
 
-
-
             <DefaultInput :startValue="accountName" @on-enter="setName($event)" inputWidth="100%" inputHeight="40px" fontSize="18px" inputName="Account Name" inputPlaceholder="Name"/>
             
             <div class="infoSection">
@@ -87,6 +85,7 @@ import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import BigNumber from "bignumber.js";
 import { NetworkFeatures } from "@/vulture_backend/types/networks/networkTypes";
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { ModalEventSystem, ModifyAccountData } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "ModifyAccount",
@@ -96,23 +95,27 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
     },
-    selectedAccount: Number
   },
   setup(props, context) {
 
+    let selectedAccount = (props.modalSystem.getModalData() as ModifyAccountData).arrayIndexOfAccount;
 
-    let accountName: string = props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountName;
+    let accountName: string = props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountName;
 
     const networks = new DefaultNetworks();
     let currentNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork;
 
     let accountBalance = ref(0);
 
-    let address = ref(props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address);
+    let address = ref(props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].address);
     let stakingAddress = ref('');
 
     let stakingSupport = ref(props.vultureWallet.supportsFeature(NetworkFeatures.STAKING));
@@ -128,32 +131,30 @@ export default defineComponent({
     props.vultureWallet.currentWallet.infoWorker.postMessage({
         method: VultureMessage.GET_BALANCE_OF_ADDRESS,
         params: {
-            address: props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].address
+            address: props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].address
         }
     });
     if(stakingSupport.value == true) {
         // Temporary since its not efficient and ugly, but until refactoring we'll get the staking address per account by generating it in real-time.
-        props.vultureWallet.generateAddress("//staking_" + props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountIndex).then((data) => {
+        props.vultureWallet.generateAddress("//staking_" + props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex).then((data) => {
             stakingAddress.value = data.params.address;
         });
     }
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function setName(name: string) {
         accountName = name;
-        props.vultureWallet.accountStore.allAccounts[props.selectedAccount! - 1].accountName = accountName;
     }
     function saveAccount() {
-
+        props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountName = accountName;
         props.vultureWallet.saveAccounts();
         quitModal();
     }
 
-    
-
     return {
+        selectedAccount,
         accountBalance,
         currentNetwork,
         stakingSupport,

@@ -148,6 +148,7 @@ import { AbstractToken } from "../../vulture_backend/types/abstractToken";
 import { VultureMessage } from "../../vulture_backend/vultureMessage";
 import { defineComponent, PropType, reactive, ref, Ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { AddTokenData, ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "AddTokenModal",
@@ -157,17 +158,22 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
     },
-    tokenTypeToAdd: String,
   },
   setup(props, context) {
     let currentAddress = ref("");
     let tokenDiscoveryStatus = ref("EnterAddress");
     
     let showLoader = ref(false);
+
+    let tokenTypeToAdd = ref((props.modalSystem.getModalData() as AddTokenData).tokenType);
 
     let token: AbstractToken = {
       network: new DefaultNetworks().AlephZero,
@@ -183,7 +189,7 @@ export default defineComponent({
     let currentToken = ref(token);
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function setAddress(address: string) {
         currentAddress.value = address;
@@ -221,7 +227,7 @@ export default defineComponent({
                         error.value = data.params.error;
                     }
                 });
-                props.vultureWallet.currentWallet.getTokenInformation(address, props.tokenTypeToAdd!);
+                props.vultureWallet.currentWallet.getTokenInformation(address, tokenTypeToAdd.value);
                 
             }else {
                 tokenDiscoveryStatus.value = "InvalidAddress";
@@ -232,12 +238,13 @@ export default defineComponent({
     }
     function addToken() {
         if(tokenDiscoveryStatus.value == "TokenFound") {
-            props.vultureWallet.addTokenToList(currentToken.value, props.tokenTypeToAdd!);
+            props.vultureWallet.addTokenToList(currentToken.value, tokenTypeToAdd.value);
         }
-        quitModal();
+        props.modalSystem.closeModal();
     }
     return {
         tokenDiscoveryStatus,
+        tokenTypeToAdd,
         showLoader,
         currentToken,
         error,

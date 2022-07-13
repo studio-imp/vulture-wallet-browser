@@ -15,7 +15,7 @@
                buttonWidth="100px" buttonHeight="30px" buttonText="Remove" fontSize="16px"/>
   
               <DefaultButton @button-click="createNewAccount()" style="margin-top: 5px; margin-bottom: 15px;"
-               buttonWidth="100px" buttonHeight="30px" buttonText="Add" fontSize="16px"/>
+               buttonWidth="100px" buttonHeight="30px" buttonText="Create" fontSize="16px"/>
             </div>
           </div>
 
@@ -34,6 +34,7 @@ import AccountModule from "../components/AccountModule.vue"
 import { AccountData, VultureWallet } from '../vulture_backend/wallets/vultureWallet'
 import { defineComponent, PropType } from '@vue/runtime-core';
 import { ref } from 'vue';
+import { ModalEvents, ModalEventSystem, ModifyAccountData } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "AccountsTab",
@@ -43,6 +44,10 @@ export default defineComponent({
     DefaultInput
   },
   props: {
+    modalSystem: {
+      type: Object as PropType<ModalEventSystem>,
+      required: true,
+    },
     allAccounts: {
       type: Array as PropType<AccountData[]>,
     },
@@ -52,14 +57,18 @@ export default defineComponent({
     }
   },
   methods: {
-    createNewAccount() {
-        this.$emit('create-new-account');
-    }
   },
   setup(props, context) {
 
+    function createNewAccount() {
+      props.modalSystem.openModal(ModalEvents.CREATE_NEW_ACCOUNT, null);
+    }
+
     function modifyAccount(index: number) {
-      context.emit('modify-account', index);
+      let data: ModifyAccountData = {
+        arrayIndexOfAccount: index,
+      }
+      props.modalSystem.openModal(ModalEvents.MODIFY_ACCOUNT, data);
     }
 
     function removeAccount() {
@@ -67,6 +76,7 @@ export default defineComponent({
     }
 
     return {
+      createNewAccount: createNewAccount,
       removeAccount: removeAccount,
       modifyAccount: modifyAccount,
     }

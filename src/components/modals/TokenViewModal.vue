@@ -7,7 +7,7 @@
         <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
         flex-direction: column; align-items: center;  box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;"
-         v-if="vultureWallet.tokenStore != null && tokenType == 'ERC20'">
+         v-if="vultureWallet.tokenStore != null && tokenData.tokenType == tokenTypes.ERC20">
 
             <div class="outline">
 
@@ -62,7 +62,7 @@
         <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
         flex-direction: column; align-items: center; box-sizing: border-box; font-size: 18px;
         overflow-wrap: break-word;"
-         v-if="vultureWallet.tokenStore != null && tokenType == 'ERC721'">
+         v-if="vultureWallet.tokenStore != null && tokenData.tokenType == tokenTypes.ERC721">
 
         <div class="outline">
             <div style="width: 100%; margin-bottom: 5px;">
@@ -164,11 +164,11 @@
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Back" @button-click="previousToken()"
-            v-if="tokenType == 'ERC721'"/>
+            v-if="tokenData.tokenType == tokenTypes.ERC721"/>
             <DefaultButton buttonHeight="40px" buttonWidth="120px" buttonText="Return" @button-click="quitModal()"/>
 
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Next" @button-click="nextToken()"
-            v-if="tokenType == 'ERC721'"/>
+            v-if="tokenData.tokenType == tokenTypes.ERC721"/>
         </div>
     </div>
 </template>
@@ -183,6 +183,7 @@ import { AbstractToken } from '@/vulture_backend/types/abstractToken';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { TokenTypes } from "@/vulture_backend/types/tokenTypes";
 import { fetchMetadata, ERC721Metadata} from "../../vulture_backend/utils/metadataFetch";
+import { ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "TokenViewModal",
@@ -192,17 +193,22 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
     },
-    tokenAddress: String,
-    tokenType: String,
   },
   setup(props, context) {
 
     // For NFTs with unique token Id's 
     let selectedTokenIndex = ref(1);
+
+    let tokenData: ViewTokenInfoData = props.modalSystem.getModalData() as ViewTokenInfoData;
+    let tokenTypes = TokenTypes;
 
     let token: AbstractToken = reactive({
       address: '',
@@ -227,10 +233,10 @@ export default defineComponent({
     updateToken();
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function removeTokenFromList() {
-        (props.vultureWallet as VultureWallet).removeTokenFromList(props.tokenAddress!, props.tokenType!);
+        (props.vultureWallet as VultureWallet).removeTokenFromList(tokenData.tokenAddress, tokenData.tokenType);
         context.emit("reset-selected-token");
         quitModal();
     }
@@ -239,13 +245,13 @@ export default defineComponent({
     }
     function updateToken() {
         // Lots of ! here, too many, I know.
-        switch(props.tokenType) {
+        switch(tokenData.tokenType) {
             case "ERC20": {
-                token = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
+                token = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(tokenData.tokenAddress)!;
                 break;
             }
             case "ERC721": {
-                token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(props.tokenAddress!)!;
+                token = props.vultureWallet.tokenStore.NFTList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri)!.get(tokenData.tokenAddress)!;
                 
                 // Fetch more detailed data about the NFT other than the balance. Needed to get metadata to display for the user.
                 props.vultureWallet.currentWallet!.infoWorker.onmessage = async (event) => {
@@ -303,7 +309,7 @@ export default defineComponent({
                 break;
             }
             default: {
-                console.log("Token Type: " + props.tokenType + " is not available!");
+                console.log("Token Type: " + tokenData.tokenType + " is not available!");
             }
         }
     }
@@ -327,6 +333,8 @@ export default defineComponent({
         selectedTokenIndex,
         isMetadataLoading,
         NFTMetadata,
+        tokenData,
+        tokenTypes,
 
         removeTokenFromList: removeTokenFromList,
         previousToken: previousToken,

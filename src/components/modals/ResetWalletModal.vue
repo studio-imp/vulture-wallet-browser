@@ -39,7 +39,7 @@ import AccountModule from "../AccountModule.vue"
 import { VultureWallet, createNewAccount, WalletType, hardWalletReset} from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
-import { TxState } from '@/uiTypes';
+import { TxState } from '@/types/uiTypes';
 
 export default defineComponent({
   name: "ResetWalletModal",

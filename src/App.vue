@@ -20,15 +20,16 @@
   <WalletTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
   :vultureWallet="vultureWallet"
   :isWalletReady="vultureWallet.currentWallet.isReady"
-  @add-custom-token="addToken($event)"
+  :modalSystem="modalSystem"
   @token-view-modal="tokenViewModal($event.address, $event.type)"/>
 
   <AccountsTab v-if="vultureWallet.accountStore != null" v-bind:class="currentTab == 'accounts' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
   :allAccounts="vultureWallet.accountStore.allAccounts"
   :vultureWallet="vultureWallet"
+
+  :modalSystem="modalSystem"
   
-  @create-new-account="setModal(modals.CREATE_NEW_ACCOUNT)"
-  @modify-account="modifyAccount($event)"/>
+  @create-new-account="setModal(modals.CREATE_NEW_ACCOUNT)"/>
 
   <SettingsTab v-bind:class="currentTab == 'settings' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
   :vultureWallet="vultureWallet"
@@ -44,9 +45,10 @@
   :recipentAddress="recipentAddress"
   :amountToSend="amountToSend"
   :tokenTypeToAdd="tokenTypeToAdd"
+  :modalSystem="modalSystem"
+  :currentModal="currentModal"
   :addressOfTokenToView="addressOfTokenToView"
   :addressOfTokenToTransfer="addressOfTokenToTransfer"
-  @quit-modal="quitModal()"
   @on-wallet-reset="onWalletReset()"
   @select-token="selectToken($event)"
   @reset-selected-token="resetSelectedToken()"/>
@@ -81,7 +83,8 @@ import { provide } from 'vue';
 
 import { doesWalletExist, VultureWallet, loadVault, Vault, loadAccounts,
          deleteWallet, VultureAccountStore, AccountData} from "./vulture_backend/wallets/vultureWallet";
-import { Modals, WalletStates } from "./uiTypes";
+import { Modals, WalletStates } from "./types/uiTypes";
+import { ModalEvents, ModalEventSystem } from "./modalEventSystem";
 import { reactive, ref } from '@vue/reactivity';
 import { useWalletInfo } from "./store/useWalletInfo";
 import { VultureMessage } from './vulture_backend/vultureMessage';
@@ -109,10 +112,17 @@ export default {
 
       let vultureWallet = reactive(new VultureWallet());
       let walletState = ref(WalletStates.LOADING);
-      let currentModal  = ref(Modals.NONE);
       let vault = ref('');
 
-      let modals = Modals;
+
+      // ----- Modal system ----- 
+      let currentModal  = ref(ModalEvents.NONE);
+      let modalSystem = reactive(new ModalEventSystem());
+      modalSystem.modalEvents.on("OpenModal", (data) => {
+          currentModal.value = data.modal;
+      });      
+
+      let modals = ModalEvents;
       let state = WalletStates;
 
 
@@ -144,7 +154,7 @@ export default {
         recipentAddress.value = data.recipent;
         amountToSend.value = String(data.amount);
         addressOfTokenToView.value = data.tokenAddress;
-        setModal(modals.TRANSFER_ASSETS);
+        //setModal(modals.TRANSFER_ASSETS);
         //vultureWallet.currentWallet.transferAssets(recipentAddress.value, Number(amountToSend.value));
       }
       /* --- Transfer Asset Variables & Functions --- */
@@ -188,30 +198,17 @@ export default {
 
       /* --- Modal functions --- */
       function setModal(modal: Modals) {
-        currentModal.value = modal;
-      }
-      function modifyAccount(accountIndex: number) {
-        addressOfTokenToTransfer.value = ""
-        selectedAccountIndex.value = accountIndex;
-        currentModal.value = modals.MODIFY_ACCOUNT;
-      }
-      function quitModal() {
-        currentModal.value = Modals.NONE;
-        currentAccentColor.value = vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
+        //currentModal.value = modal;
       }
 
       function resetWallet() {
-        currentModal.value = modals.RESET_WALLET
+        //currentModal.value = modals.RESET_WALLET
       }
       function onWalletReset() {
-        currentModal.value = modals.NONE;
+        //currentModal.value = modals.NONE;
         walletState.value = WalletStates.ONBOARDING;
       }
 
-      function addToken(tokenType: string) {
-        setModal(Modals.ADD_CUSTOM_TOKEN);
-        tokenTypeToAdd.value = tokenType;
-      }
       function tokenViewModal(tokenAddress: string, tokenType: string) {
         addressOfTokenToView.value = tokenAddress;
         tokenTypeToAdd.value = tokenType;
@@ -242,6 +239,8 @@ export default {
         addressOfTokenToView,
         tokenTypeToAdd,
 
+        modalSystem,
+
         recipentAddress,
         amountToSend,
 
@@ -256,11 +255,8 @@ export default {
         setTransferValues: setTransferValues,
         setModal: setModal,
         tokenViewModal: tokenViewModal,
-        quitModal: quitModal,
         resetWallet: resetWallet,
-        modifyAccount: modifyAccount,
         onWalletReset: onWalletReset,
-        addToken: addToken,
         selectToken: selectToken,
         resetSelectedToken: resetSelectedToken,
       }
@@ -388,7 +384,10 @@ html {
   animation: vultureLoaderFrames 0.87s infinite;
   box-shadow: 0px 0px 8px black inset;
 }
-
+.fonticon {
+  font-family: fonticonA;
+  font-size: 24px;
+}
 .vultureLoader {
   display: inline-block;
   width: 62px;

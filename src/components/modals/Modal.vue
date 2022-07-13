@@ -1,14 +1,14 @@
 <template>
     <div class="flexBox box" style="position: absolute; height: 550px; width: 350px; top: 5px; left: 5px;">
-        <CreateAccountModal v-if="modalType == modals.CREATE_NEW_ACCOUNT"
-        @quit-modal="quitModal()" 
+        <CreateAccountModal v-if="currentModal == modalEvents.CREATE_NEW_ACCOUNT"
+        :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"
         :nextAccountIndex="vultureWallet.nextDerivIndex"/>
 
-        <ModifyAccountModal v-if="modalType == modals.MODIFY_ACCOUNT"
-        @quit-modal="quitModal()" 
-        :vultureWallet="vultureWallet"
-        :selectedAccount="selectedAccountIndex"/>
+        <ModifyAccountModal v-if="currentModal == modalEvents.MODIFY_ACCOUNT"
+        @quit-modal="quitModal()"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
 
         <SelectAccountModal v-if="modalType == modals.SELECT_NEW_ACCOUNT"
         @quit-modal="quitModal()" 
@@ -33,17 +33,13 @@
         :vultureWallet="vultureWallet"/>
 
 
-        <AddTokenModal v-if="modalType == modals.ADD_CUSTOM_TOKEN"
-        @quit-modal="quitModal()" 
-        :vultureWallet="vultureWallet"
-        :tokenTypeToAdd="tokenTypeToAdd"/>
+        <AddTokenModal v-if="currentModal == modalEvents.ADD_TOKEN"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
 
-        <TokenViewModal v-if="modalType == modals.TOKEN_VIEW"
-        @quit-modal="quitModal()"
-        @reset-selected-token="resetSelectedToken()"
-        :vultureWallet="vultureWallet"
-        :tokenType="tokenTypeToAdd"
-        :tokenAddress="addressOfTokenToView"/>
+        <TokenViewModal v-if="currentModal == modalEvents.VIEW_TOKEN_INFO"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
 
         <SelectAssetModal v-if="modalType == modals.SELECT_NEW_ASSET"
         @quit-modal="quitModal()"
@@ -67,9 +63,11 @@ import SelectAssetModal from './SelectAssetModal.vue';
 
 import AddTokenModal from "./AddTokenModal.vue"
 
-import { Modals } from "../../uiTypes";
+import { Modals } from "../../types/uiTypes";
 import { defineComponent, PropType } from "@vue/runtime-core";
 import { VultureWallet } from "../../vulture_backend/wallets/vultureWallet";
+import { AddTokenData, ModalEvents, ModalEventSystem } from "@/modalEventSystem";
+import { reactive, ref } from "vue";
 
 
 export default defineComponent({
@@ -87,6 +85,15 @@ export default defineComponent({
     AddTokenModal,
   },
   props: {
+      modalSystem: {
+          type: Object as PropType<ModalEventSystem>,
+          required: true,
+      },
+      currentModal: {
+          type: String as PropType<ModalEvents>,
+          required: true,
+      },
+      // TODO: remove after new modal system is implemented.
       modalType: {
           type: Number as PropType<Modals>,
           required: true,
@@ -107,6 +114,8 @@ export default defineComponent({
   setup(props, context) {
     let modals = Modals;
 
+    let modalEvents = ModalEvents;
+
     function quitModal() {
         context.emit("quit-modal");
     }
@@ -121,7 +130,12 @@ export default defineComponent({
     }
 
     return {
+        // new modal system
+        modalEvents,
+
+        // deprecated, remove when done.
         modals,
+        
         quitModal: quitModal,
         hardWalletReset: hardWalletReset,
         resetSelectedToken: resetSelectedToken,

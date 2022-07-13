@@ -1,7 +1,7 @@
 <template>
     <div class="flexBox" style="height: 100%; width: 100%;">
         <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
-        flex-direction: column; align-items: center; margin-top: 30px; box-sizing: border-box; font-size: 18px;">
+        flex-direction: column; align-items: center; margin-top: 20px; box-sizing: border-box; font-size: 18px;">
             <DefaultInput @on-enter="setName($event)" inputWidth="100%" inputHeight="40px" fontSize="18px" inputName="Account Name" :inputPlaceholder='"\"" +getRandomAccountName() + "\""'/>
             
             <div style="width: 100%; text-align: left; margin-bottom: 18px; margin-top: 20px;">
@@ -12,7 +12,7 @@
         </div>
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 15px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Create" @button-click="createAccount()"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Add" @button-click="createAccount()"/>
         </div>
     </div>
 </template>
@@ -26,6 +26,7 @@ import { getRandomAccountName} from "../../randomNames";
 
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "CreateAccountModal",
@@ -35,6 +36,10 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true, 
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
@@ -48,7 +53,7 @@ export default defineComponent({
     let nextAccountIndex: number = props.vultureWallet.nextDerivIndex;
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function setName(name: string) {
         accountName = name;

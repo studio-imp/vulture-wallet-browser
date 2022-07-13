@@ -1,7 +1,14 @@
 
 <template>
-    <div class="flexBox box">
-      <DefaultButton buttonWidth="200px" buttonHeight="60px" buttonText="Get Staking Info (Console)" @click="getStakingInfoTEST()"/>
+    <div class="flexBox stakingBox">
+      <div style="width: 90%;">
+        This is a temporary testing-zone for staking, view info in console! :D
+      </div>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="View Staking Info" @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Nominate Validator"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="getStakingInfoTEST()"/>
     </div>
 </template>
 
@@ -46,9 +53,9 @@ hr {
     height: 1px;
     background-color: var(--fg_color_2);
 }
-.box {
+.stakingBox {
   box-sizing: border-box;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
   flex-direction: column;
   width: 100%;

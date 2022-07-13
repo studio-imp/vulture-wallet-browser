@@ -204,12 +204,18 @@ export class MnemonicWallet implements VultureAccount {
 
                     
                     //5 decimals is enuff (for this purpose of showing the amount)...
-                    let amount = new BigNumber(event.data.params.result.data.free);
+                    let free = new BigNumber(event.data.params.result.data.free);
+
+                    let feeFrozen = new BigNumber(event.data.params.result.data.feeFrozen);
+                    let miscFrozen = new BigNumber(event.data.params.result.data.miscFrozen);
+
+                    let liquidAmount = free.minus(BigNumber.max(feeFrozen, miscFrozen));
+
                     //Our Whole asset amount is the result divided by 10 to the power of the denomination/smallest fraction.
-                    let wholeAmount = amount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals));
+                    let wholeAmount = liquidAmount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals));
                     
                     this.accountData.freeAmountWhole = wholeAmount.toNumber();
-                    this.accountData.freeAmountSmallestFraction = amount.toString();
+                    this.accountData.freeAmountSmallestFraction = liquidAmount.toString();
                     this.accountData.accountNonce = event.data.params.result.nonce;
 
                     this.accountEvents.emit(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, {

@@ -17,6 +17,7 @@ import { getERC20Info, getERC20Balance, getERC721Info, getERC721Balance, getERC7
 const { ContractPromise } = require('@polkadot/api-contract');
 import { AccountInfoHandler } from "../InetworkAPI";
 import { TokenTypes } from '../../../../src/vulture_backend/types/tokenTypes';
+import BigNumber from 'bignumber.js';
 
 
 export class SubstrateInfo implements AccountInfoHandler {
@@ -73,38 +74,38 @@ export class SubstrateInfo implements AccountInfoHandler {
                 isStashAccountBonded: false,
                 frozenBalance: '',
                 stakedBalance: '',
+                liquidBalance: '',
                 unlocking: [],
                 currentEra: ''
             };
             let success: boolean = true;
 
-            // Get the current Era.
-            this.networkAPI?.query.staking.currentEra().then((data) => {
-                if(data.toHuman() != null) {
-                    stakingInfo.currentEra = data.toHuman() as string;
-                }else {
-                    console.error("Failed to get era!");
-                    success = false;
-                }
-            });
 
-            // Check if the controller account is bonding the stash account.
-            this.networkAPI?.query.staking.bonded(stakingAddress).then((data) => {
-                if(data.toHuman() == null) {
-                    stakingInfo.isStashAccountBonded = false;
-                }else if (data.toHuman() == stakingAddress) {
-                    stakingInfo.isStashAccountBonded = true;
-                }else {
-                    success = false;
-                    console.error("Staking account is bonded to an incorrect controller address!");
-                }
-            });
+            let era = await this.networkAPI?.query.staking.currentEra();
+            if(era != undefined && era.toHuman() != null) {
+                stakingInfo.currentEra = era.toHuman() as string;
+            }else {
+                console.error("Failed to get era!");
+                success = false;
+            }
+
+            let bonded = await this.networkAPI?.query.staking.bonded(stakingAddress);
+            if(bonded != undefined && bonded.toHuman() == null) {
+                stakingInfo.isStashAccountBonded = false;
+            }else if (bonded != undefined && bonded.toHuman() == stakingAddress) {
+                stakingInfo.isStashAccountBonded = true;
+            }else {
+                success = false;
+                console.error("Staking account is bonded to an incorrect controller address!");
+            }
 
             // Get the staking information for the stakingAddress, by the controller address.
             this.networkAPI?.query.staking.ledger(address).then((data) => {
                 console.log(data.toJSON());
                 if(data.toJSON() == null) {
                     stakingInfo.stakedBalance = '0';
+                }else {
+
                 }
                 /*                
                 if(data.toJSON()) {
@@ -118,16 +119,31 @@ export class SubstrateInfo implements AccountInfoHandler {
                 */
             });
 
-            console.log(stakingInfo);
 
+            let account = await this.networkAPI?.query.system.account(stakingAddress);
+            if(account != undefined) {
+
+                let free = new BigNumber((account.toJSON() as any).data.free);
+
+                let feeFrozen = new BigNumber((account.toJSON() as any).data.feeFrozen);
+                let miscFrozen = new BigNumber((account.toJSON() as any).data.miscFrozen);
+
+                let liquidAmount = free.minus(BigNumber.max(feeFrozen, miscFrozen));
+
+                stakingInfo.frozenBalance = BigNumber.max(feeFrozen, miscFrozen).toString();
+                stakingInfo.liquidBalance = liquidAmount.toString();
+
+            }else {
+                console.error("Failed getting info for account!");
+            }
 
             if(success == true) {
-                postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                postMessage({method: VultureMessage.GET_STAKING_INFO, params: {
                     success: true,
                     stakingInfo: stakingInfo,
                 }});
             }else {
-                postMessage({method: VultureMessage.GET_BALANCE_OF_ADDRESS, params: {
+                postMessage({method: VultureMessage.GET_STAKING_INFO, params: {
                     success: false,
                 }});
             }
