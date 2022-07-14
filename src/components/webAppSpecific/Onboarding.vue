@@ -149,7 +149,7 @@
                         - Done -<br>
                     </div>
                     <div style="font-size: 20px; color: var(--fg_color_2);">
-                        You can now use your Wallet with <span style="color: var(--accent_color)">Aleph Zero</span> and also other networks.<br>
+                        You can now use your Vulture with <span style="color: var(--accent_color)">Aleph Zero</span> as well as other networks it supports.<br>
                         <span style="color: var(--accent_color)">Never</span> share your seed-phrase with <span style="color: var(--accent_color)">Anyone.</span> <br> <br>
 
                         Keep your seed-phrase written down somewhere safe where you cannot lose it.<br>

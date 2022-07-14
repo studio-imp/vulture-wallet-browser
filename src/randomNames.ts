@@ -6,12 +6,12 @@ const accountNameExamples: string[] = [
     "Public Account",     "Private Account",
     "Charity Account",    "Savings Account",
     "Spending Account",   "Income Account",
-    "DAO Account",        "Experiment Account",
-    "uwu Account",        "Vulture by P5Y0D3RS",
+    "DA0 Account",        "Experiment Account",
+    "uwu Account",        "Vulture by Psycoders",
     "Rocketry Account",   "Staking Account",
     "Revolution Savings", "Mars Account",
     "Inssurance Money",   "HODL Account",
-    "Ape money",          
+    "Ape money",          "Monkey Money",
 ]
 
 export function getRandomAccountName(): string {
