@@ -40,6 +40,7 @@ import { VultureWallet, createNewAccount, WalletType, hardWalletReset} from "../
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
 import { TxState } from '@/types/uiTypes';
+import { ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "ResetWalletModal",
@@ -50,6 +51,10 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+          type: Object as PropType<ModalEventSystem>,
+          required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
@@ -58,7 +63,7 @@ export default defineComponent({
   setup(props, context) {
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function resetWallet() {
         hardWalletReset();

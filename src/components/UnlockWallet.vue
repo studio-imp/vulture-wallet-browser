@@ -72,14 +72,14 @@ export default {
 <style scoped>
 .vultureLogo {
     fill: var(--bg_color);
-    filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.5));
+    filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.6));
 }
 .styled {
     color: var(--accent_color);
 }
 .lockIcon {
     color: var(--bg_color);
-    text-shadow: 0px 0px 4px rgb(0,0,0,0.7);
+    text-shadow: 0px 0px 5px rgb(0,0,0,0.7);
     font-size: 50px;
 }
 .textSmol {

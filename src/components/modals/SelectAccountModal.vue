@@ -18,12 +18,8 @@
                 :accountName="item.accountName"
                 :selected="vultureWallet.selectedWalletIndex == (index + 1) ? true : false"
                 @module-click="selectAccount($event)"/>
-
                 <span style="font-size: 14px;  color: var(--fg_color_2); margin-bottom: 5px;">You can create new accounts in the<br> accounts tab.</span>
               </div>
-            <!--
-              <AccountModule accountIndex="2" accountType="Mnemonic" accountName="DeFi"/>
-            -->
             </div>
 
         </div>
@@ -42,6 +38,7 @@ import AccountModule from "../AccountModule.vue"
 import { VultureWallet, createNewAccount, WalletType, } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "SelectAccountModal",
@@ -52,6 +49,10 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
@@ -60,32 +61,24 @@ export default defineComponent({
   },
   setup(props, context) {
 
-    let accountName: string;
-    const networks = new DefaultNetworks();
 
     let accountAmount = ref(0);
     accountAmount.value = props.vultureWallet.accountStore.allAccounts.length;
-    let selectedNetwork = reactive({network: networks.AlephZero});
 
     function quitModal() {
-        context.emit("quit-modal");
+      props.modalSystem.closeModal();
     }
-    function setName(name: string) {
-        accountName = name;
-    }
+
     function selectAccount(index: number) {
         props.vultureWallet.switchWallet(index);
         quitModal();
     }
 
     return {
-        networks,
         accountAmount,
-        selectedNetwork,
 
         selectAccount: selectAccount,
         quitModal: quitModal,
-        setName: setName,
     }
   }
 });

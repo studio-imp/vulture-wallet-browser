@@ -30,13 +30,13 @@ export class ModalEventSystem {
 
 // All current modals
 export enum ModalEvents{
-    CREATE_NEW_ACCOUNT = "CREATE_NEW_ACCOUNT", // MIGRATION DONE
+    CREATE_NEW_ACCOUNT = "CREATE_NEW_ACCOUNT",
     SELECT_ACCOUNT = "SELECT_ACCOUNT",
-    MODIFY_ACCOUNT = "MODIFY_ACCOUNT", // MIGRATION DONE
+    MODIFY_ACCOUNT = "MODIFY_ACCOUNT",
 
-    VIEW_TOKEN_INFO = "VIEW_TOKEN_INFO", // MIGRATION DONE
+    VIEW_TOKEN_INFO = "VIEW_TOKEN_INFO", 
     SELECT_ASSET = "SELECT_ASSET",
-    ADD_TOKEN = "ADD_TOKEN", // MIGRATION DONE
+    ADD_TOKEN = "ADD_TOKEN",
 
     TRANSFER_ASSETS = "TRANSFER_ASSETS",
     SELECT_NETWORK = "SELECT_NETWORK",
@@ -44,8 +44,11 @@ export enum ModalEvents{
     RESET_WALLET = "RESET_WALLET",
     NONE = "NONE",
 }
-
-
+export interface TransferAssetsData {
+    amount: number,
+    recipent: string,
+    addressOfTokenToTransfer?: string
+}
 export interface ModifyAccountData {
     arrayIndexOfAccount: number
 }

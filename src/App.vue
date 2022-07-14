@@ -1,49 +1,43 @@
 <template>
 <span :style="'--accent_color: ' +  currentAccentColor">
   <div v-if="walletState == state.WALLET">
+
   <OverviewModule v-if="vultureWallet.accountStore != null" :address="address"
-    :assetPrefix="assetPrefix"
-    :assetAmount="assetAmount"
-    :accountName="vultureWallet.currentWallet.accountData.accountName"
-    :isWalletReady="vultureWallet.currentWallet.isReady"
-    @select-account="setModal(modals.SELECT_NEW_ACCOUNT)"
-    @select-network="setModal(modals.SELECT_NEW_NETWORK)"
-  />
+  :assetPrefix="assetPrefix"
+  :assetAmount="assetAmount"
+  :accountName="vultureWallet.currentWallet.accountData.accountName"
+  :isWalletReady="vultureWallet.currentWallet.isReady"
+  :modalSystem="modalSystem"/>
+    
   <Navbar @switch-tab="setTab($event)"/>
 
   <SendTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'send' ? 'show' : 'hide'"
   @send-button-click="transferAssets($event)"
-  @select-new-asset="setModal(modals.SELECT_NEW_ASSET)"
   :addressOfTokenToTransfer="addressOfTokenToTransfer"
-  :vultureWallet="vultureWallet"/>
+  :vultureWallet="vultureWallet"
+  :modalSystem="modalSystem"/>
 
   <WalletTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
   :vultureWallet="vultureWallet"
   :isWalletReady="vultureWallet.currentWallet.isReady"
-  :modalSystem="modalSystem"
-  @token-view-modal="tokenViewModal($event.address, $event.type)"/>
+  :modalSystem="modalSystem"/>
 
   <AccountsTab v-if="vultureWallet.accountStore != null" v-bind:class="currentTab == 'accounts' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
   :allAccounts="vultureWallet.accountStore.allAccounts"
   :vultureWallet="vultureWallet"
-
-  :modalSystem="modalSystem"
-  
-  @create-new-account="setModal(modals.CREATE_NEW_ACCOUNT)"/>
+  :modalSystem="modalSystem"/>
 
   <SettingsTab v-bind:class="currentTab == 'settings' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
   :vultureWallet="vultureWallet"
+  :modalSystem="modalSystem"
   @reset-wallet="resetWallet()"/>
 
   <!-- I know, this is pretty fking stupid because it's so confusing, but until the new modal-system is added this will
   have to do (v0.1.7 - v0.1.8 era will introduce a new modal system.) -->
 
   <Modal v-bind:class="currentModal == modals.NONE ? 'hide' : 'show'"
-  :modalType="currentModal"
   :vultureWallet="vultureWallet"
   :selectedAccountIndex="selectedAccountIndex"
-  :recipentAddress="recipentAddress"
-  :amountToSend="amountToSend"
   :tokenTypeToAdd="tokenTypeToAdd"
   :modalSystem="modalSystem"
   :currentModal="currentModal"
@@ -136,27 +130,12 @@ export default {
 
       /* --- Transfer Asset Variables & Functions --- */
 
-      let recipentAddress = ref('');
-      let amountToSend = ref('')
 
       let currentAccentColor = ref('#4dff97');
 
       let selectedAccountIndex = ref(0);
 
-      function setTransferValues(value: string, isAddress: boolean) {
-        if(isAddress) {
-          recipentAddress.value = value;
-        }else {
-          amountToSend.value = String(value);
-        }
-      }
-      function transferAssets(data: any) {
-        recipentAddress.value = data.recipent;
-        amountToSend.value = String(data.amount);
-        addressOfTokenToView.value = data.tokenAddress;
-        //setModal(modals.TRANSFER_ASSETS);
-        //vultureWallet.currentWallet.transferAssets(recipentAddress.value, Number(amountToSend.value));
-      }
+
       /* --- Transfer Asset Variables & Functions --- */
 
 
@@ -185,21 +164,17 @@ export default {
           await vultureWallet.initWallet(vaultE, accounts as VultureAccountStore);
           walletState.value = WalletStates.WALLET;
           
-          currentAccentColor.value = vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
 
           vultureWallet.walletEvents.on(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, (data) => {
             assetAmount.value = data.amount;
             assetPrefix.value = vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
-            
+            currentAccentColor.value = vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
             address.value = data.address;
           });
         });
       }
 
       /* --- Modal functions --- */
-      function setModal(modal: Modals) {
-        //currentModal.value = modal;
-      }
 
       function resetWallet() {
         //currentModal.value = modals.RESET_WALLET
@@ -207,12 +182,6 @@ export default {
       function onWalletReset() {
         //currentModal.value = modals.NONE;
         walletState.value = WalletStates.ONBOARDING;
-      }
-
-      function tokenViewModal(tokenAddress: string, tokenType: string) {
-        addressOfTokenToView.value = tokenAddress;
-        tokenTypeToAdd.value = tokenType;
-        setModal(Modals.TOKEN_VIEW);
       }
 
       function selectToken(tokenAddress: string) {
@@ -241,8 +210,6 @@ export default {
 
         modalSystem,
 
-        recipentAddress,
-        amountToSend,
 
         selectedAccountIndex,
 
@@ -251,10 +218,6 @@ export default {
         currentAccentColor,
 
         initWallet: initWallet,
-        transferAssets: transferAssets,
-        setTransferValues: setTransferValues,
-        setModal: setModal,
-        tokenViewModal: tokenViewModal,
         resetWallet: resetWallet,
         onWalletReset: onWalletReset,
         selectToken: selectToken,
@@ -392,13 +355,13 @@ html {
   display: inline-block;
   width: 62px;
   height: 62px;
+  margin: 5px;
 }
 .vultureLoader:after {
   content: " ";
   display: block;
   width: 62px;
   height: 62px;
-  margin: 10px;
   border-radius: 50%;
   border: 3px solid;
 

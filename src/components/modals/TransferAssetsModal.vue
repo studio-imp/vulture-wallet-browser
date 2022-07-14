@@ -1,46 +1,51 @@
 <template>
     <div class="flexBox" style="height: 100%; width: 100%;">
         <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
-        flex-direction: column; align-items: center; margin-top: 30px; box-sizing: border-box; font-size: 20px;
+        flex-direction: column; align-items: center; margin-top: 25px; box-sizing: border-box; font-size: 20px;
         overflow-wrap: break-word;">
             
-            <div style="width: 100%; text-align: center; margin-bottom: 0px; margin-top: 0px;  font-size: 24px;">
+            <div style="width: 100%; text-align: center; margin-bottom: 0px; margin-top: 0px;  font-size: 24px; margin-bottom: 15px;">
                 Transfer Assets<br>
                 <hr>
             </div>
 
-            <div style="width: 100%; text-align: left; margin-top: 20px;">
-                Recipent: <span style="color: var(--accent_color); font-size: 15px;">{{recipentAddress}}</span> <br>
-                <hr>
+            <div class="outline">
+                <div class="infoParagraph">
+                    Send: <span class="accentColored">{{assetTransferData.amount}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{asset}}</span></span>
+                </div>
+                <div class="infoParagraph recipentSection">
+                    To: <span class="accentColored addressBox" style="font-size: 15px;">{{assetTransferData.recipent}}</span>
+                </div>
+                <hr class="smallerHr">
+                <div class="infoParagraph">
+                    Tx Fee: <span style="color: var(--accent_color)">{{txFee.toFixed(8)}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{nativeAsset}}</span></span>  
+                </div>
             </div>
 
-            <div style="width: 100%; text-align: left; margin-top: 20px;">
-                Assets: <span style="color: var(--accent_color)">{{amountToSend}} <span style="font-size: 13px;">{{asset}} </span></span> <br>
-            </div>
+            <div v-bind:class="currentTxState != txStates.NONE ? 'show' : 'hide' " class="outline txState">
+                <div class="infoParagraph">
+                    Status:
+                    <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending <br></span>
+                    <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending <br></span>
+                    <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <br></span>
+                    <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <br></span>
+                </div>
 
-            <div style="width: 100%; text-align: left; margin-bottom: 20px;margin-top: 5px;">
-                Tx Fee: <span style="color: var(--accent_color)">{{txFee.toFixed(8)}} <span style="font-size: 13px;">{{nativeAsset}} </span></span> <br>
+                <div class="infoParagraph">
+                    Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
+                </div>
                 <hr>
-            </div>
-
-            <div v-bind:class="currentTxState != txStates.NONE ? 'show' : 'hide' " class="txState"  style="width: 95%; text-align: left;">
-                State:
-                <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending <br></span>
-                <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending <br></span>
-                <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <br></span>
-                <span v-if="currentTxState == txStates.FAILED" style="color: #ff0061">Failed <br></span>
-                Completed In: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
-                <hr>
-                <div v-if="currentTxState == txStates.SENDING" class="flexBox" style="align-items: center;">
-                    <div class="vultureLoader showLoader"></div>
+                <div class="flexBox" style="align-items: center; justify-content: center;">
+                    <div v-if="currentTxState == txStates.SENDING">
+                        <div class="vultureLoader showLoader"></div>
+                    </div>
+                    <div v-if="currentTxState == txStates.PENDING">
+                        <div class="vultureLoader showLoader"></div>
+                    </div>
                 </div>
-                <div v-if="currentTxState == txStates.PENDING" class="flexBox" style="align-items: center;">
-                    <div class="vultureLoader showLoader"></div>
+                <div v-bind:class="currentTxState == txStates.SUCCESS ? 'showBlockId' : 'hideBlockId' " class="infoParagraph">
+                    Block ID: <span style="color: var(--accent_color); font-size: 15px;">{{blockHash}}</span> <br>
                 </div>
-                <div v-bind:class="currentTxState == txStates.SUCCESS ? 'show' : 'hide' " style="font-size: 16px; margin-top: 15px;">
-                Block ID: <span style="color: var(--accent_color); font-size: 15px;">{{blockHash}}</span> <br>
-                </div>
-
             </div>
 
         </div>
@@ -63,6 +68,7 @@ import { VultureMessage } from '@/vulture_backend/vultureMessage';
 import { TxState } from '@/types/uiTypes';
 import { AbstractToken } from "@/vulture_backend/types/abstractToken";
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { ModalEventSystem, TransferAssetsData } from "@/modalEventSystem";
 
 export default defineComponent({
   components: {
@@ -72,42 +78,42 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
     },
-    recipentAddress: String,
-    amountToSend: String,
-    arrayIndexOfSelectedToken: Number,
-    addressOfTokenToTransfer: String,
   },
   setup(props, context) {
+
+    let assetTransferData: TransferAssetsData = props.modalSystem.getModalData() as TransferAssetsData;
 
     let currentTxState = ref(TxState.NONE);
     let blockHash = ref('');
     let txTimer = ref(0);
     let txStates = TxState;
 
-    let accountName: string;
     const networks = new DefaultNetworks();
 
     let token: AbstractToken | null = null;
-
 
     let asset = ref('');
     let nativeAsset = ref('');
     nativeAsset.value = asset.value = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
     // If we are sending a token, or native asset.
-    if(props.addressOfTokenToTransfer == "") {
+    if(assetTransferData.addressOfTokenToTransfer == "") {
         asset.value = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
     }else {
         let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
         if(tokenArray != undefined) {
-          if(tokenArray!.get(props.addressOfTokenToTransfer!) != null) {
-              asset.value = tokenArray!.get(props.addressOfTokenToTransfer!)!.symbol;
-              token = tokenArray!.get(props.addressOfTokenToTransfer!)!;
+          if(tokenArray!.get(assetTransferData.addressOfTokenToTransfer!) != null) {
+              asset.value = tokenArray!.get(assetTransferData.addressOfTokenToTransfer!)!.symbol;
+              token = tokenArray!.get(assetTransferData.addressOfTokenToTransfer!)!;
           }else {
-            console.error("Token not width address: " + props.addressOfTokenToTransfer + "found!");
+            console.error("Token not width address: " + assetTransferData.addressOfTokenToTransfer! + "found!");
             token = null;
             quitModal();
           }
@@ -122,7 +128,7 @@ export default defineComponent({
 
     function quitModal() {
         currentTxState.value = TxState.NONE;
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
 
     function send() {
@@ -159,13 +165,13 @@ export default defineComponent({
             }
         });
 
-        props.vultureWallet.currentWallet.transferAssets(props.recipentAddress!, Number(props.amountToSend), token == null ? undefined : token);
+        props.vultureWallet.currentWallet.transferAssets(assetTransferData.recipent, Number(assetTransferData.amount), token == null ? undefined : token);
     }
     let estimateFee = () => {
         props.vultureWallet.currentWallet.accountEvents.once(VultureMessage.ESTIMATE_TX_FEE, (fee) => {
             txFee.value = fee;
         });
-        props.vultureWallet.currentWallet.estimateTxFee(props.recipentAddress!, Number(props.amountToSend), token == null ? undefined : token);
+        props.vultureWallet.currentWallet.estimateTxFee(assetTransferData.recipent, Number(assetTransferData.amount), token == null ? undefined : token);
     }
     estimateFee();
 
@@ -180,6 +186,7 @@ export default defineComponent({
         accountAmount,
         currentTxState,
         selectedNetwork,
+        assetTransferData,
 
         quitModal: quitModal,
         send: send
@@ -190,22 +197,80 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 hr {
     margin-top: 5px;
     margin-bottom: 5px;
     border: none;
     height: 1px;
+    border-radius: 5px;
+    width: 100%;
     background-color: var(--fg_color_2);
 }
-.txState {
-    border-radius: 12px;
-    border-width: 1px;
+.smallerHr {
+    background-color: var(--bg_color_2);
+    height: 2px;
+    width: 100%;
+}
+.outline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-width: 2px;
     border-style: solid;
     border-color: var(--bg_color_2);
-    padding: 12px;
+    padding: 10px;
+    box-sizing: border-box;
+    border-radius: 12px;
+    margin: 0px;
+
+    width: 100%;
+    
+    overflow: hidden;
+    overflow-y: auto;
+}
+.sectionTitleContainer {
+    display: flex;
+    width: 100%;
+}
+.recipentSection {
+    word-break: break-all;
+}
+.addressBox {
+    box-sizing: border-box;
+    outline: none;
+    outline-color: var(--bg_color_2);
+
+    padding: 4px;
+    
+    outline-width: 2px;
+}
+.sectionDescription {
+    box-sizing: border-box;
+    font-size: 22px;
+    margin-right: auto;
+    margin-left: auto;
+}
+.infoIcon {
+    font-family: fonticonA;
+    font-size: 22px;
+}
+.infoParagraph {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 2px;
+    font-size: 22px;
+}
+.txState {
+    justify-content: flex-start;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    text-align: left;
+    border-radius: 12px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: var(--bg_color_2);
     margin: 12px;
-    height: 138px;
+    height: 181px;
     overflow: hidden;
 }
 .vultureLogo {
@@ -224,5 +289,14 @@ hr {
     border-style: solid;
     border-radius: 24px;
     z-index: 2;
+}
+
+.hideBlockId {
+    opacity: 0;
+    transition-duration: 180ms;
+}
+.showBlockId {
+    opacity: 1;
+    transition-duration: 180ms;
 }
 </style>

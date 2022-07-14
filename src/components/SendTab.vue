@@ -31,8 +31,8 @@
           </div>
             
           <span v-if="insufficientFunds" style="font-size: 14px;  color: var(--fg_color_2); margin-bottom: 5px;">Insufficient Funds!</span>
-          <span v-if="invalidAddress && currentAddress != ''" style="font-size: 14px;  color: var(--fg_color_2); margin-bottom: 5px;">Invalid Recipent Address!</span>
-          <span v-if="canSend()" style="font-size: 14px;  color: var(--fg_color_2); margin-bottom: 5px;">Estimated Fee: <span style="color: var(--accent_color">{{ estimatedFee.toFixed(7) }}</span></span>
+          <span v-if="invalidAddress && currentAddress != ''" style="font-size: 16px;  color: var(--fg_color_2); margin-bottom: 5px;">Invalid Recipent Address!</span>
+          <span v-if="canSend()" style="font-size: 16px;  color: var(--fg_color_2); margin-bottom: 5px;">Estimated Fee: <span style="color: var(--accent_color">{{ estimatedFee.toFixed(7) }}</span></span>
 
         </div>
         <div style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 25px; padding-right: 25px; top: 285px;">
@@ -51,6 +51,7 @@ import MinimalInput from "./building_parts/MinimalInput.vue";
 import { VultureMessage } from '@/vulture_backend/vultureMessage';
 import { AbstractToken } from '@/vulture_backend/types/abstractToken';
 import { NetworkFeatures } from "../vulture_backend/types/networks/networkTypes";
+import { ModalEvents, ModalEventSystem, TransferAssetsData } from '@/modalEventSystem';
 
 export default defineComponent({
   name: "SendTab",
@@ -59,7 +60,11 @@ export default defineComponent({
     MinimalInput
   },
   props: {
-      vultureWallet: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
+    vultureWallet: {
       type: Object as PropType<VultureWallet>,
       required: true,
     },
@@ -124,13 +129,17 @@ export default defineComponent({
       if(invalidAddress.value == false) {
         // If we are sending native assets.
         if(props.addressOfTokenToTransfer == "") {
-          props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value);
+          if(currentAmount.value > 0) {
+            props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value);
+          }
         }else {
         // If we are sending some token. This is quite messy, will have to refactor to something easier on the eyes later.
           let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
           if(tokenArray != undefined) {
             if(tokenArray!.get(props.addressOfTokenToTransfer!) != null) {
-              props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value, tokenArray!.get(props.addressOfTokenToTransfer!)!);
+              if(currentAmount.value > 0) {
+                props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value, tokenArray!.get(props.addressOfTokenToTransfer!)!);
+              }
             }else {
               console.error("Token not found!");
             }
@@ -139,7 +148,12 @@ export default defineComponent({
       }
     }
     function sendButton() {
-      context.emit('send-button-click', {amount: currentAmount.value, recipent: currentAddress.value, addressOfTokenToTransfer: props.addressOfTokenToTransfer});
+      let data: TransferAssetsData = {
+        amount: currentAmount.value,
+        recipent: currentAddress.value,
+        addressOfTokenToTransfer: props.addressOfTokenToTransfer
+      }
+      props.modalSystem.openModal(ModalEvents.TRANSFER_ASSETS, data);
       amount(0);
       updateKey.value++;
     }
@@ -150,7 +164,7 @@ export default defineComponent({
       return false;
     }
     function selectAsset() {
-      context.emit("select-new-asset");
+      props.modalSystem.openModal(ModalEvents.SELECT_ASSET, null);
     }
     return {
       insufficientFunds,

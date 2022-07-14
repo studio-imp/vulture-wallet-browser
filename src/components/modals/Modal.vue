@@ -10,28 +10,24 @@
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"/>
 
-        <SelectAccountModal v-if="modalType == modals.SELECT_NEW_ACCOUNT"
+        <SelectAccountModal v-if="currentModal == modalEvents.SELECT_ACCOUNT"
         @quit-modal="quitModal()" 
         :vultureWallet="vultureWallet"
+        :modalSystem="modalSystem"
         :nextAccountIndex="vultureWallet.nextDerivIndex"/>
 
-        <SelectNetworkModal v-if="modalType == modals.SELECT_NEW_NETWORK"
-        @quit-modal="quitModal()" 
-        :vultureWallet="vultureWallet"
-        :nextAccountIndex="vultureWallet.nextDerivIndex"/>
-
-        <TransferAssetsModal v-if="modalType == modals.TRANSFER_ASSETS"
-        @quit-modal="quitModal()" 
-        :vultureWallet="vultureWallet"
-        :recipentAddress="recipentAddress"
-        :amountToSend="amountToSend"
-        :addressOfTokenToTransfer="addressOfTokenToTransfer"/>
-
-        <ResetWalletModal v-if="modalType == modals.RESET_WALLET"
-        @quit-modal="quitModal()"
-        @on-wallet-reset="hardWalletReset()"
+        <SelectNetworkModal v-if="currentModal == modalEvents.SELECT_NETWORK"
+        :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"/>
 
+        <TransferAssetsModal v-if="currentModal == modalEvents.TRANSFER_ASSETS"
+        :vultureWallet="vultureWallet"
+        :modalSystem="modalSystem"/>
+
+        <ResetWalletModal v-if="currentModal == modalEvents.RESET_WALLET"
+        @on-wallet-reset="hardWalletReset()"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
 
         <AddTokenModal v-if="currentModal == modalEvents.ADD_TOKEN"
         :modalSystem="modalSystem"
@@ -41,9 +37,9 @@
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"/>
 
-        <SelectAssetModal v-if="modalType == modals.SELECT_NEW_ASSET"
-        @quit-modal="quitModal()"
+        <SelectAssetModal v-if="currentModal == modalEvents.SELECT_ASSET"
         @select-token="selectToken($event)"
+        :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"
         :selectedTokenAddress="addressOfTokenToTransfer"/>
         
@@ -91,11 +87,6 @@ export default defineComponent({
       },
       currentModal: {
           type: String as PropType<ModalEvents>,
-          required: true,
-      },
-      // TODO: remove after new modal system is implemented.
-      modalType: {
-          type: Number as PropType<Modals>,
           required: true,
       },
       vultureWallet: {

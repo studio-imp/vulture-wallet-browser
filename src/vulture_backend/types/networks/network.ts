@@ -56,16 +56,6 @@ export class DefaultNetworks {
         networkFeatures: (NetworkFeatures.STAKING | NetworkFeatures.SMART_CONTRACTS),
         isTestnet: true,
     }
-    public AlephZeroSmartnet: Network = {
-        networkUri: 'wss://ws-smartnet.test.azero.dev',
-        networkAssetPrefix: 'SZERO',
-        networkName: 'Aleph Zero Smartnet',
-        networkAssetDecimals: 12,
-        networkColor: '#4dff97',
-        networkType: NetworkType.Substrate,
-        networkFeatures: (NetworkFeatures.SMART_CONTRACTS),
-        isTestnet: true,
-    }
     public allNetworks: Map<string, Network> = new Map([
         [
             this.AlephZero.networkName,
@@ -89,10 +79,6 @@ export class DefaultNetworks {
             this.AlephZeroTestNet.networkName,
             this.AlephZeroTestNet
         ],
-        [
-            this.AlephZeroSmartnet.networkName,
-            this.AlephZeroSmartnet
-        ],
     ]);
     public mainNets: Map<string, Network> = new Map([
         [
@@ -112,10 +98,6 @@ export class DefaultNetworks {
         [
             this.AlephZeroTestNet.networkName,
             this.AlephZeroTestNet
-        ],
-        [
-            this.AlephZeroSmartnet.networkName,
-            this.AlephZeroSmartnet
         ],
     ]);
 }

@@ -28,6 +28,7 @@ import AccountModule from "../components/AccountModule.vue"
 import { AccountData, VultureWallet } from '../vulture_backend/wallets/vultureWallet'
 import { defineComponent, PropType } from '@vue/runtime-core';
 import { ref } from 'vue';
+import { ModalEvents, ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "SettingsTab",
@@ -40,20 +41,19 @@ export default defineComponent({
     allAccounts: {
       type: Array as PropType<AccountData[]>,
     },
+    modalSystem: {
+      type: Object as PropType<ModalEventSystem>,
+      required: true,
+    },
     vultureWallet: {
       type: Object as PropType<VultureWallet>,
       required: true,
     }
   },
-  methods: {
-    createNewAccount() {
-        this.$emit('create-new-account');
-    }
-  },
   setup(props, context) {
 
     function resetWallet() {
-        context.emit('reset-wallet');
+        props.modalSystem.openModal(ModalEvents.RESET_WALLET, null);
     }
 
     return {

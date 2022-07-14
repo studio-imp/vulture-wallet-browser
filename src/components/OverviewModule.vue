@@ -8,7 +8,7 @@
             <div class="underline"/>
         </div>
         <div v-else class="flexBox" style="">
-            <div class="vultureLoader" style="margin-left: 15px; margin-bottom: 3px;"></div>
+            <div class="vultureLoader" style="margin-left: 15px; margin-top: 16px;"></div>
         </div>
 
         <div class="flexBox" style="">
@@ -37,11 +37,17 @@
 </template>
 
 <script lang="ts">
+import { ModalEvents, ModalEventSystem } from "@/modalEventSystem";
 import { defineComponent } from "@vue/runtime-core"
+import { PropType } from "vue";
 
 export default defineComponent({
   name: "OverviewModule",
   props: {
+    modalSystem: {
+      type: Object as PropType<ModalEventSystem>,
+      required: true,
+    },
     address: String,
     accountName: String,
     assetPrefix: String,
@@ -50,10 +56,10 @@ export default defineComponent({
   },
   setup(props, context) {
     function selectAccount() {
-      context.emit("select-account");
+      props.modalSystem.openModal(ModalEvents.SELECT_ACCOUNT, null);
     }
     function selectNetwork() {
-      context.emit("select-network")
+      props.modalSystem.openModal(ModalEvents.SELECT_NETWORK, null);
     }
     return {
       selectAccount: selectAccount,

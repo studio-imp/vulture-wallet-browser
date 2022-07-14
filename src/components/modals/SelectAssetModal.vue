@@ -48,6 +48,7 @@ import { VultureWallet } from "../../vulture_backend/wallets/vultureWallet";
 import { AbstractToken } from "../../vulture_backend/types/abstractToken";
 import { VultureMessage } from "../../vulture_backend/vultureMessage";
 import { defineComponent, PropType, reactive, ref, Ref } from 'vue';
+import { ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "SelectTokenModal",
@@ -58,6 +59,10 @@ export default defineComponent({
     TokenModule,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
@@ -67,7 +72,7 @@ export default defineComponent({
   setup(props, context) {
 
     function quitModal() {
-        context.emit("quit-modal");
+        props.modalSystem.closeModal();
     }
     function selectToken(tokenAddress: string) {
         context.emit("select-token", tokenAddress);

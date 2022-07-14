@@ -55,6 +55,7 @@ import NetworkModule from "../NetworkModule.vue"
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
+import { ModalEventSystem } from "@/modalEventSystem";
 
 export default defineComponent({
   name: "SelectNetworkModal",
@@ -65,11 +66,14 @@ export default defineComponent({
     DefaultInput,
   },
   props: {
+    modalSystem: {
+        type: Object as PropType<ModalEventSystem>,
+        required: true,
+    },
     vultureWallet: {
         type: Object as PropType<VultureWallet>,
         required: true,
     },
-    nextAccountIndex: Number
   },
   setup(props, context) {
 
@@ -81,17 +85,11 @@ export default defineComponent({
     let selectedNetwork = reactive({network: networks.AlephZero});
 
     function quitModal() {
-        context.emit("quit-modal");
+      props.modalSystem.closeModal();
     }
-    function setName(name: string) {
-        accountName = name;
-    }
-    function selectAccount(index: number) {
-        props.vultureWallet.switchWallet(index);
-        quitModal();
-    }
+
     function selectNetwork(name: string) {
-      console.log("Switch to " + name);
+      console.info("Switch to " + name);
       props.vultureWallet.switchNetwork(name);
       quitModal();
     }
@@ -101,10 +99,8 @@ export default defineComponent({
         accountAmount,
         selectedNetwork,
 
-        selectAccount: selectAccount,
         selectNetwork: selectNetwork,
         quitModal: quitModal,
-        setName: setName,
     }
   }
 });
@@ -138,7 +134,8 @@ hr {
 
   justify-content: flex-start;
   overflow: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
+  padding-top: 5px;
   border-radius: 4px;
 }
 .vultureLogo {
