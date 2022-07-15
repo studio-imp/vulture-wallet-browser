@@ -42,6 +42,10 @@
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"
         :selectedTokenAddress="addressOfTokenToTransfer"/>
+
+        <TransferBetweenStaking v-if="currentModal == modalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
         
     </div>
 </template>
@@ -54,6 +58,7 @@ import CreateAccountModal from './CreateAccountModal.vue';
 import ModifyAccountModal from './ModifyAccountModal.vue';
 import SelectAccountModal from './SelectAccountModal.vue';
 import SelectNetworkModal from './SelectNetworkModal.vue';
+import TransferBetweenStaking from './TransferBetweenStaking.vue';
 import TransferAssetsModal from './TransferAssetsModal.vue';
 import SelectAssetModal from './SelectAssetModal.vue';
 
@@ -71,6 +76,7 @@ export default defineComponent({
   components: {
     DefaultButton,
     ResetWalletModal,
+    TransferBetweenStaking,
     ModifyAccountModal,
     CreateAccountModal,
     SelectAccountModal,

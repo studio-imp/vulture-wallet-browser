@@ -30,16 +30,21 @@ export class ModalEventSystem {
 
 // All current modals
 export enum ModalEvents{
+    // Account Management.
     CREATE_NEW_ACCOUNT = "CREATE_NEW_ACCOUNT",
     SELECT_ACCOUNT = "SELECT_ACCOUNT",
     MODIFY_ACCOUNT = "MODIFY_ACCOUNT",
+    SELECT_NETWORK = "SELECT_NETWORK",
 
+    // Token stuff
     VIEW_TOKEN_INFO = "VIEW_TOKEN_INFO", 
     SELECT_ASSET = "SELECT_ASSET",
     ADD_TOKEN = "ADD_TOKEN",
 
     TRANSFER_ASSETS = "TRANSFER_ASSETS",
-    SELECT_NETWORK = "SELECT_NETWORK",
+    
+    // Staking
+    TRANSFER_BETWEEN_STAKING_ACCOUNT = "TRANSFER_BETWEEN_STAKING_ACCOUNT", 
 
     RESET_WALLET = "RESET_WALLET",
     NONE = "NONE",

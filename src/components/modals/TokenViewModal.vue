@@ -38,11 +38,8 @@
                     </div>
                 </div>
                 <div class="infoSection">
-                    <div class="infoParagraph">
-                        Token Address: 
-                        <span class="accentColored" style="font-size: 15px;">
-                            {{token.address}}
-                        </span>
+                    <div class="infoParagraph addressSection">
+                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
                         <br>
                     </div>
                 </div>
@@ -122,10 +119,10 @@
                         {{token.name}}
                         <hr class="smallerHr">
                     </span>
-                    Token Address: 
-                    <span class="accentColored" style="font-size: 15px;">
-                        {{token.address}}
-                    </span>
+                    <div class="infoParagraph addressSection">
+                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
+                        <br>
+                    </div>
                 </div>
             </div>
 
@@ -143,10 +140,10 @@
                     {{token.name}}
                     <hr class="smallerHr">
                 </span>
-                    Token Address: 
-                    <span class="accentColored" style="font-size: 15px;">
-                        {{token.address}}
-                    </span>
+                    <div class="infoParagraph addressSection">
+                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
+                        <br>
+                    </div>
                 </div>
             </div>
 
@@ -445,6 +442,17 @@ hr {
     width: 100%;
     text-align: left;
     font-size: 22px;
+}
+.addressSection {
+    word-break: break-all;
+}
+.addressText {
+    box-sizing: border-box;
+    outline: none;
+    font-size: 16px;
+    outline-color: var(--bg_color_2);
+    
+    outline-width: 2px;
 }
 .metadataParagraph {
     width: 100%;

@@ -5,7 +5,7 @@
         This is a temporary testing-zone for staking, view info in console! :D
       </div>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="View Staking Info" @click="getStakingInfoTEST()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="transferBetweenAccounts()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="getStakingInfoTEST()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Nominate Validator"  @click="getStakingInfoTEST()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="getStakingInfoTEST()"/>
@@ -18,6 +18,7 @@ import { VultureWallet } from '@/vulture_backend/wallets/vultureWallet';
 
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import MinimalInput from "../building_parts/MinimalInput.vue";
+import { ModalEvents, ModalEventSystem } from '@/modalEventSystem';
 
 export default defineComponent({
   name: "StakingTab",
@@ -27,6 +28,10 @@ export default defineComponent({
   },
   props: {
       isWalletReady: Boolean,
+      modalSystem: {
+          type: Object as PropType<ModalEventSystem>,
+          required: true,
+      },
       vultureWallet: {
       type: Object as PropType<VultureWallet>,
       required: true,
@@ -37,7 +42,12 @@ export default defineComponent({
     function getStakingInfoTEST() {
       props.vultureWallet.getStakingInfo();
     }
+
+    function transferBetweenAccounts() {
+      props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
+    }
     return {
+      transferBetweenAccounts: transferBetweenAccounts,
       getStakingInfoTEST: getStakingInfoTEST,
     }
   }

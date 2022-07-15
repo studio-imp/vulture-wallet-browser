@@ -13,8 +13,8 @@
                 <div class="infoParagraph">
                     Send: <span class="accentColored">{{assetTransferData.amount}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{asset}}</span></span>
                 </div>
-                <div class="infoParagraph recipentSection">
-                    To: <span class="accentColored addressBox" style="font-size: 15px;">{{assetTransferData.recipent}}</span>
+                <div class="infoParagraph addressSection">
+                    To: <span class="accentColored addressText">{{assetTransferData.recipent}}</span>
                 </div>
                 <hr class="smallerHr">
                 <div class="infoParagraph">
@@ -232,15 +232,14 @@ hr {
     display: flex;
     width: 100%;
 }
-.recipentSection {
+.addressSection {
     word-break: break-all;
 }
-.addressBox {
+.addressText {
     box-sizing: border-box;
     outline: none;
+    font-size: 16px;
     outline-color: var(--bg_color_2);
-
-    padding: 4px;
     
     outline-width: 2px;
 }

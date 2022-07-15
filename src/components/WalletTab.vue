@@ -21,6 +21,7 @@
                 :token="token"
                 :vultureWallet="vultureWallet"
                 @module-click="openToken($event, tokenTypes.ERC721)"/>
+                
               </div>
               <DefaultButton @button-click="addToken(tokenTypes.ERC721)" buttonText="Add NFT" buttonHeight="25px"  buttonWidth="100px" fontSize="16px" style="margin-bottom: 15px; margin-top: 10px"/>
             </div>
@@ -51,7 +52,7 @@
           </div>
         </div>
         <div class="flexBox" style="width: 100%;" v-else-if="supportsStaking() == true && currentTab == 'Staking'">
-          <StakingTab :vultureWallet="vultureWallet" :isWalletReady="isWalletReady"/>
+          <StakingTab :vultureWallet="vultureWallet" :isWalletReady="isWalletReady" :modalSystem="modalSystem"/>
         </div>
         <div v-else class="flexBox" style="margin-top: 50px; align-items: center;">
           <div class="flexBox" style="margin-bottom: 10px; align-items: center;">
@@ -157,6 +158,7 @@ export default defineComponent({
       };
       props.modalSystem.openModal(ModalEvents.VIEW_TOKEN_INFO, data);
     }
+
     return {
       networkFeatures,
       currentTab,
