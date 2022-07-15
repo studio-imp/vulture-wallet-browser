@@ -131,7 +131,7 @@ export default {
       /* --- Transfer Asset Variables & Functions --- */
 
 
-      let currentAccentColor = ref('#4dff97');
+      let currentAccentColor = ref('#98ea79'); // default accent color :p
 
       let selectedAccountIndex = ref(0);
 
@@ -274,9 +274,6 @@ html {
   --fg_color: rgb(255,255,255);
   --fg_color_2: rgb(150, 150, 150);
 
-/*
-  --accent_color: #4dff97;
- */
 
   font-family: GardensC;
   -webkit-font-smoothing: antialiased;

@@ -51,7 +51,7 @@ export class DefaultNetworks {
         networkAssetPrefix: 'TZERO',
         networkName: 'Aleph Zero Testnet',
         networkAssetDecimals: 12,
-        networkColor: '#4dff97',
+        networkColor: '#98ea79',
         networkType: NetworkType.Substrate,
         networkFeatures: (NetworkFeatures.STAKING | NetworkFeatures.SMART_CONTRACTS),
         isTestnet: true,

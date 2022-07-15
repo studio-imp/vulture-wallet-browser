@@ -1,5 +1,5 @@
 <template>
-    <div class="flexBox box" style="position: absolute; height: 550px; width: 350px; top: 5px; left: 5px;">
+    <div class="flexBox box" style="position: absolute; height: 550px; width: 350px; top: 5px; left: 5px; overflow: hidden;">
         <CreateAccountModal v-if="currentModal == modalEvents.CREATE_NEW_ACCOUNT"
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"
