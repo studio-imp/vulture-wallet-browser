@@ -39,7 +39,7 @@
                 </div>
                 <div class="infoSection">
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
                         <br>
                     </div>
                 </div>
@@ -120,7 +120,7 @@
                         <hr class="smallerHr">
                     </span>
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
                         <br>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                     <hr class="smallerHr">
                 </span>
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText" style="font-size: 15px;">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
                         <br>
                     </div>
                 </div>
