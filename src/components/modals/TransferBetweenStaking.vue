@@ -8,7 +8,6 @@
         overflow-wrap: break-word;">
 
             <div class="outline">
-
                 <div style="width: 100%;">
                     <div style="font-size: 26px;">
                         Transfer Between
@@ -17,9 +16,19 @@
                 </div>
                 <div class="infoSection">
                     <div class="infoParagraph addressSection">
-                    
-                        Deposit Address: <span class="accentColored addressText"> {{vultureWallet.currentWallet.accountData.address}} </span>
+                        Deposit Address: <span class="accentColored addressText"> {{vultureWallet.currentWallet.accountData.address.slice(0,10) + '...'}}</span>
+                    </div>
+                    <div class="infoParagraph addressSection">
+                        Balance: <span class="accentColored addressText"> {{Math.round(Number(accountBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                    </div>
+                </div>
 
+                <div class="infoSection">
+                    <div class="infoParagraph addressSection">
+                        Staking Address: <span class="accentColored addressText"> {{stakingAddress.slice(0,10) + '...'}}</span>
+                    </div>
+                    <div class="infoParagraph addressSection">
+                        Balance: <span class="accentColored addressText"> {{Math.round(Number(stakingAddressBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
                     </div>
                 </div>
 
@@ -41,6 +50,9 @@ import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
+import { NetworkFeatures, NetworkType } from "@/vulture_backend/types/networks/networkTypes";
+import { VultureMessage } from "@/vulture_backend/vultureMessage";
+import { StakingInfo, SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
 
 export default defineComponent({
   name: "TransferBetweenStaking",
@@ -61,11 +73,32 @@ export default defineComponent({
   },
   setup(props, context) {
 
+    let stakingSupport = ref(props.vultureWallet.supportsFeature(NetworkFeatures.STAKING));
+    let stakingAddress = ref('');
+    let stakingAddressBalance = ref('');
+
+    let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
+
+    if(stakingSupport.value == true) {
+        stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
+        if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
+            let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
+            stakingAddressBalance.value = stakingData.liquidBalance;
+        }
+
+    }else {
+        console.warn("The currently selected network doesn't support staking!");
+    }
+
     function quitModal() {
         props.modalSystem.closeModal();
     }
 
     return {
+        stakingAddressBalance,
+        accountBalance,
+        stakingAddress,
+
         quitModal: quitModal,
     }
   }
@@ -150,7 +183,7 @@ hr {
 .addressText {
     box-sizing: border-box;
     outline: none;
-    font-size: 16px;
+    font-size: 20px;
     outline-color: var(--bg_color_2);
     
     outline-width: 2px;

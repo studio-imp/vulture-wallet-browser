@@ -54,7 +54,7 @@ html {
 
 /*
  */
-  --accent_color: rgb(77, 255, 151);
+  --accent_color: #98ea79;
 
   font-family: GardensC;
   -webkit-font-smoothing: antialiased;

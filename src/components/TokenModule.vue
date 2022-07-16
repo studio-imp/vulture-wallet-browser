@@ -7,7 +7,7 @@
         <span class="accentColored">$</span>{{token.symbol}}
       </div>
       <div class="right">
-        {{Math.round(Number(token.balance) *  Math.pow(10, 2)) / Math.pow(10, 2)}}
+        {{ Math.round(Number(token.balance) *  Math.pow(10, 2)) / Math.pow(10, 2) }}
       </div>
   </div>
 </template>

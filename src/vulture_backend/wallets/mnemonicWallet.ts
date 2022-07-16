@@ -8,7 +8,8 @@ import { BigNumber } from "bignumber.js";
 import { VultureMessage } from "../vultureMessage";
 import { AbstractToken } from "../types/abstractToken";
 import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/substrateActions";
-import { Network } from "../types/networks/networkTypes";
+import { Network, NetworkFeatures } from "../types/networks/networkTypes";
+import { StakingInfo, SubstrateStakingInfo } from "../types/stakingInfo";
 
 
 
@@ -37,6 +38,8 @@ export class MnemonicWallet implements VultureAccount {
             type: 'module',
             credentials: "same-origin"
         });
+
+        this.accountData.stakingInfo = new Map<StakingInfo, any>();
 
         // Callback for SET_CURRENT_WALLET from the action worker.
         this.actionWorker.onmessage = async (event) => {
@@ -74,6 +77,36 @@ export class MnemonicWallet implements VultureAccount {
 
                     // Subscribe to account events after our info worker is initialized.
                     await this.subscribeToAccountEvents();
+
+                    // If the current network supports staking, we initialize staking address and info.
+                    if(network.networkFeatures & NetworkFeatures.STAKING) {
+                        this.actionWorker.onmessage = async (event: any) => {
+                            if(event.data.method == VultureMessage.GET_ADDRESS_FROM_URI) {
+                                if(event.data.params.success == true && event.data.params.addressURI == "//staking_" + this.accountData.accountIndex) {
+                                    let stakingInfo: SubstrateStakingInfo = {
+                                        stakingAddress: event.data.params.address,
+                                        controllerAddress: this.accountData.address,
+                                        isStashAccountBonded: false,
+                                        frozenBalance: "",
+                                        stakedBalance: "",
+                                        liquidBalance: "",
+                                        unlocking: [],
+                                        currentEra: ""
+                                    };
+                                    this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
+                                    await this.subscribeToStakingEvents();
+                                }
+                            }
+                        };
+            
+                        this.actionWorker.postMessage({
+                            method: VultureMessage.GET_ADDRESS_FROM_URI,
+                            params: {
+                                addressURI: "//staking_" + this.accountData.accountIndex,
+                                //accountIndex: accountIndex
+                            }
+                        });
+                    }
 
                     // This is quite temporary.
                     /*
@@ -194,8 +227,48 @@ export class MnemonicWallet implements VultureAccount {
         });
     }
 
+    //async get
 
-    async subscribeToAccountEvents() {
+    public async subscribeToStakingEvents() {
+        if(this.accountData.stakingAddress != null) {
+            this.infoWorker.addEventListener("message", async(event) => {
+            
+                //The event callback for SUB_TO_ACCOUNT_STATE
+                if(event.data.method == VultureMessage.SUBSCRIBE_TO_ACC_EVENTS) {
+                    if(event.data.params.success == true && event.data.params.address == this.accountData.stakingAddress!) {
+    
+                        //5 decimals is enuff (for this purpose of showing the amount)...
+                        let free = new BigNumber(event.data.params.result.data.free);
+    
+                        let feeFrozen = new BigNumber(event.data.params.result.data.feeFrozen);
+                        let miscFrozen = new BigNumber(event.data.params.result.data.miscFrozen);
+    
+                        let liquidAmount = free.minus(BigNumber.max(feeFrozen, miscFrozen));
+
+                        let stakingInfo: SubstrateStakingInfo = this.accountData.stakingInfo.get(StakingInfo.Substrate);
+
+                        stakingInfo.frozenBalance = miscFrozen.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
+                        stakingInfo.liquidBalance = liquidAmount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
+
+                        this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
+    
+                    }
+                    if(event.data.params.success == false){
+                        console.error("Error: Vulture worker failed to get wallet state!");
+                    }
+                }
+            });
+    
+            this.infoWorker.postMessage({
+                method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS,
+                address: this.accountData.stakingAddress!
+            });
+        }else {
+            console.error("Cannot subscribe to staking events because staking address is null!");
+        }
+    }
+
+    public async subscribeToAccountEvents() {
         this.infoWorker.addEventListener("message", async(event) => {
             
             //The event callback for SUB_TO_ACCOUNT_STATE

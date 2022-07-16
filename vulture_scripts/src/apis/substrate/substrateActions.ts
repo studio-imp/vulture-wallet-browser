@@ -94,7 +94,6 @@ export class SubstrateActions implements AccountActionHandler {
             ));
         });
     }
-
     async generateAddress(derivationPath: string, accountIndex?: number) {
         if(this.isCryptoWasmReady){
             let kp = this.keyring!.addFromUri(this.seed + derivationPath);
@@ -103,6 +102,7 @@ export class SubstrateActions implements AccountActionHandler {
                 {
                     success: true,
                     address: kp.address,
+                    addressURI: derivationPath,
                     accountIndex: accountIndex,
                 }
             ));

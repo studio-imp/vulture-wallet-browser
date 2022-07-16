@@ -9,6 +9,7 @@ import { TokenTypes } from "../types/tokenTypes";
 import { VultureRequest } from "../vultureRPC";
 import { StakingInfo } from "../types/stakingInfo";
 import { DefaultNetworks } from "../types/networks/network";
+import BigNumber from "bignumber.js";
 
 /* --- Note # PSYCODERS # we are one @
     vultureWallet.ts contains interfaces that are used by the Vulture wallet.
@@ -264,16 +265,8 @@ export class VultureWallet {
         // Start polling token balances instantly when the info worker is ready.s
         this.currentWallet.accountEvents.on("infoWorkerReady", async () => {
             this.walletEvents.emit('IsWalletReady', this.currentWallet.isReady);
-
-            // If the current network supports staking, we will get the staking address and assing it to the account data. 
-            if(this.supportsFeature(NetworkFeatures.STAKING)) {
-                this.generateAddress("//staking_" + this.currentWallet.accountData.accountIndex).then((data) => {
-                    this.currentWallet.accountData.stakingAddress = data.params.address;
-                });
-            }
-
             await this.startTokenBalancePolling();
-        })
+        });
 
        //TODO: REMOVE 
        ////Set the callback for updating token balances here, it's wonky but I'll refactor the way this works eventually.
@@ -514,6 +507,41 @@ export class VultureWallet {
         }else {
             return false;
         }
+    }
+
+    /** ## getBalanceOfAddress()
+     *  Will return the balance of a specified address.
+     */
+    async getBalanceOfAddress(address: string): Promise<any> {
+        let wallet = this.currentWallet;
+        let networkDecimals = this.accountStore.currentlySelectedNetwork.networkAssetDecimals;
+        return new Promise(function(resolve, reject) {
+            wallet.infoWorker.onmessage = (event) => {
+                if(event.data.method == VultureMessage.GET_BALANCE_OF_ADDRESS) {
+                    if(event.data.params.address == address) { 
+                                                // data.params.data.data, I know, be quiet.
+                        let free = new BigNumber(event.data.params.data.data.free);
+                        
+                        let feeFrozen = new BigNumber(event.data.params.data.data.feeFrozen);
+                        let miscFrozen = new BigNumber(event.data.params.data.data.miscFrozen);
+                        
+                        let liquidAmount = free.minus(BigNumber.max(feeFrozen, miscFrozen));
+                        
+                        //Our Whole asset amount is the result divided by 10 to the power of the denomination/smallest fraction.
+                        let wholeAmount = liquidAmount.div(new BigNumber(10).pow(networkDecimals));
+
+                        console.log(wholeAmount.toNumber());
+                    }
+                }
+            };
+
+            wallet.infoWorker.postMessage({
+                method: VultureMessage.GET_BALANCE_OF_ADDRESS,
+                params: {
+                    address: address
+                }
+            });
+        });
     }
     /** ## generateAddress
      * Generates an address with the current seed the account has. Optional

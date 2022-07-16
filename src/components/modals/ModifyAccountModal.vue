@@ -135,10 +135,7 @@ export default defineComponent({
         }
     });
     if(stakingSupport.value == true) {
-        // Temporary since its not efficient and ugly, but until refactoring we'll get the staking address per account by generating it in real-time.
-        props.vultureWallet.generateAddress("//staking_" + props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex).then((data) => {
-            stakingAddress.value = data.params.address;
-        });
+        stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
     }
 
     function quitModal() {
