@@ -91,7 +91,8 @@ export class MnemonicWallet implements VultureAccount {
                                         stakedBalance: "",
                                         liquidBalance: "",
                                         unlocking: [],
-                                        currentEra: ""
+                                        currentEra: "",
+                                        minimumBondAmount: ""
                                     };
                                     this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
                                     await this.subscribeToStakingEvents();

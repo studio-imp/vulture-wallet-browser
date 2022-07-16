@@ -81,6 +81,7 @@ export default defineComponent({
 
     if(stakingSupport.value == true) {
         stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
+        
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
             stakingAddressBalance.value = stakingData.liquidBalance;

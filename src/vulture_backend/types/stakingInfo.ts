@@ -16,6 +16,8 @@ export interface SubstrateStakingInfo {
     stakedBalance: string,
     liquidBalance: string,
 
+    minimumBondAmount: string,
+
     unlocking: SubstrateScheduledUnstake[]
 
     currentEra: string,

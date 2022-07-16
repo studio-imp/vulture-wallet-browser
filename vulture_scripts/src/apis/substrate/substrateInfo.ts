@@ -76,7 +76,8 @@ export class SubstrateInfo implements AccountInfoHandler {
                 stakedBalance: '',
                 liquidBalance: '',
                 unlocking: [],
-                currentEra: ''
+                currentEra: '',
+                minimumBondAmount: ''
             };
             let success: boolean = true;
 
