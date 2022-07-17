@@ -69,16 +69,14 @@
                             <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
                         </div>
 
+
                         <div class="infoParagraph">
                             Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
                         </div>
-
-                        <hr class="smallerHr">
-
-
-                        <div v-bind:class="currentTxState == txStates.SUCCESS ? 'showBlockId' : 'hideBlockId' " class="infoParagraph">
-                            Block ID: <span style="color: var(--accent_color); font-size: 15px;">{{blockHash}}</span> <br>
+                        <div class="infoParagraph" v-if="currentTxState == txStates.SUCCESS">
+                            Sent: <span class="accentColored">{{amountToTransfer}}<span style="font-size: 15px;">&nbsp;{{asset}}</span></span> 
                         </div>
+
                     </div>
 
                 </div>
@@ -407,6 +405,8 @@ hr {
     flex-direction: row;
     margin-bottom: auto;
     margin-top: auto;
+
+    transition-duration: 150ms;
 }
 .infoIcon {
     font-family: fonticonA;
@@ -449,6 +449,8 @@ hr {
 
     margin-bottom: auto;
     margin-top: auto;
+
+    transition-duration: 120ms;
 
     border-radius: 4px;
 }
