@@ -161,15 +161,23 @@ export class SubstrateActions implements AccountActionHandler {
             ));
         }
     }
-    async transferAssets(recipent: string, amount: string, token?: AbstractToken) {
+    async transferAssets(recipent: string, amount: string, token?: AbstractToken, from?: {address: string, derivationPath: string}) {
         if(this.isCryptoWasmReady) {
+            
+            // If we are transfering from a specific address that ISN'T the main address of the current account, we will create it
+            // here on the spot. This is mainly used for when single vulture accounts have multiple addresses (such as staking addresses + deposit addresses.)
+            let kp = null;
+            if(from != null) {
+              kp = this.keyring!.addFromUri(this.seed + from.derivationPath);
+            }
+
             if(token != null) {
               //If the method caller specified a token, we are sending the token and not the native asset.
               //This only works on substrate networks with the Ink! smart contract pallete.
   
               let contract = new ContractPromise(this.networkAPI!, erc20Abi, token.address);
               
-              contract.tx.transfer({value: 0, gasLimit: -1}, recipent, amount).signAndSend(this.keypair!, ({events = [], status = {}}) => {
+              contract.tx.transfer({value: 0, gasLimit: -1}, recipent, amount).signAndSend(kp == null ? this.keypair! : kp, ({events = [], status = {}}) => {
                 if((status as any).isInBlock) {
   
                     events.forEach(({event: {data, method, section}, phase}) => {
@@ -212,7 +220,7 @@ export class SubstrateActions implements AccountActionHandler {
   
             }else {
               //If the method caller hasn't specified a token, we are sending the native asset of the current network.
-              this.networkAPI!.tx.balances.transferKeepAlive(recipent, amount).signAndSend(this.keypair!, ({events = [], status}) => {
+              this.networkAPI!.tx.balances.transferKeepAlive(recipent, amount).signAndSend(kp == null ? this.keypair! : kp, ({events = [], status}) => {
                   if(status.isInBlock) {
   
                       events.forEach(({event: {data, method, section}, phase}) => {

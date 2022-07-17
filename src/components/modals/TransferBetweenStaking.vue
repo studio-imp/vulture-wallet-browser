@@ -69,8 +69,19 @@
 
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" :buttonDisabled="statusCode == 'readyToTransfer' ? false : true"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"
+            v-if="statusCode != 'verifyTransfer'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Back" @button-click="verifyTransferToggle()"
+            v-if="statusCode == 'verifyTransfer'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Send" @button-click="sendTransaction()"
+            v-if="statusCode == 'verifyTransfer'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" @button-click="verifyTransferToggle()"
+             :buttonDisabled="statusCode == 'readyToTransfer' ? false : true"
+             v-if="statusCode != 'verifyTransfer'"/>
+
         </div>
     </div>
 </template>
@@ -132,8 +143,24 @@ export default defineComponent({
     function quitModal() {
         props.modalSystem.closeModal();
     }
+    function sendTransaction() {
+
+    }
+    function verifyTransferToggle() {
+        if(statusCode.value == 'readyToTransfer') {
+            statusCode.value = 'verifyTransfer';
+        }else {
+            statusCode.value = 'readyToTransfer';
+        }
+        //statusCode.value == 'verifyTransfer' ? 'readyToTransfer' : 'verifyTransfer';
+    }
     amount('0');
     function amount(value: string) {
+        // If we change the amount 
+        //if(statusCode.value == 'verifyTransfer') {
+        //    statusCode.value = '';
+        //}
+
         amountToTransfer.value = Number(value);
         if(amountToTransfer.value > 0) {
             if(transferToStakingAccount.value == true) {
@@ -173,6 +200,8 @@ export default defineComponent({
 
         amount: amount,
         quitModal: quitModal,
+        sendTransaction: sendTransaction,
+        verifyTransferToggle: verifyTransferToggle,
         switchTransferDirection: switchTransferDirection,
     }
   }

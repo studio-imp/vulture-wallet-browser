@@ -142,7 +142,7 @@ export class MnemonicWallet implements VultureAccount {
         this.infoWorker.terminate();
         clearInterval(this.updateTokenBalance);
     }
-    async transferAssets(destination: String, amountWhole: number, token?: AbstractToken) {
+    async transferAssets(destination: String, amountWhole: number, token?: AbstractToken, from?: {address: string, derviationPath: string}) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {
             if(event.data.method == VultureMessage.TRANSFER_ASSETS) {
@@ -157,7 +157,8 @@ export class MnemonicWallet implements VultureAccount {
             params: {
                 recipent: destination,
                 amount: new BigNumber(amountWhole).times(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString(),
-                token: token == null ? null : JSON.parse(JSON.stringify(token))
+                token: token == null ? null : JSON.parse(JSON.stringify(token)),
+                from: from == null ? null : from
             }
         });
     }

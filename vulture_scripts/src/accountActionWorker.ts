@@ -54,7 +54,8 @@ self.addEventListener("message", async (event) => {
             // Transfers assets
             case VultureMessage.TRANSFER_ASSETS: {
                 await wallet?.transferAssets(event.data.params.recipent, event.data.params.amount,
-                                 event.data.params.token == null ? null : event.data.params.token)
+                     event.data.params.token == null ? null : event.data.params.token,
+                     event.data.params.from == null ? null : event.data.params.from);
                 break;
             }
             // Gets a transaction-fee estimate without signing/sending a transaction.
