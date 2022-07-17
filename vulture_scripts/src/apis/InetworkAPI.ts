@@ -44,7 +44,7 @@ export interface AccountInfoHandler {
     address: string,
     networkURI: string,
 
-    subscribeToAddressEvents(): Promise<void>;
+    subscribeToAddressEvents(address?: string): Promise<void>;
     addTokenToSubscription(tokenAddress: string, tokenType: string): Promise<void>;
     getBalanceOfToken(tokenAddress: string, tokenType: string): Promise<void>;
     getStakingInfo(address: string, stakingAddress: string): Promise<void>;

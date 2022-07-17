@@ -40,7 +40,7 @@ self.addEventListener("message", async (event) => {
             }
             // Subscribes to events related to a given account address, such as balance changes.
             case VultureMessage.SUBSCRIBE_TO_ACC_EVENTS: {
-                await keylessWallet?.subscribeToAddressEvents();
+                await keylessWallet?.subscribeToAddressEvents(event.data.params.address == null ? null : event.data.params.address);
                 break;
             }
             // Calls many methods related to the tokenType to retrieve information about a token (smart contract methods).

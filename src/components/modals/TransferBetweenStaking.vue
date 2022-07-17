@@ -19,7 +19,8 @@
                         Deposit Address: <span class="accentColored addressText"> {{vultureWallet.currentWallet.accountData.address.slice(0,10) + '...'}}</span>
                     </div>
                     <div class="infoParagraph addressSection">
-                        Balance: <span class="accentColored addressText"> {{Math.round(Number(accountBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        Balance: <span class="accentColored"> {{Math.round(Number(accountBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        <span style="font-size: 14px;" class="accentColored">{{asset}}</span>
                     </div>
                 </div>
 
@@ -28,21 +29,60 @@
                     &#xe5d8;
                 </div>
 
-                <div class="transferBetweenBox" >
-                    <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
-                        <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
-                            &#xe5d8;
+                <div class="temporary">
+
+                    <div class="transferBetweenBox" v-if="statusCode != 'verifyTransfer' && statusCode != 'Sending' && statusCode != 'Sent'">
+                        <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
+                            <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
+                                &#xe5d8;
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <MinimalInput style="margin-bottom: 5px;"
+                                @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="175px" inputHeight="38px" fontSize="20px" inputName="Amount"/>
+                                 <div class="amountStatusText" :class="statusCode == 'InsufficientFunds' ? 'showSection' : 'hideSection'">
+                                         Insufficient Funds
+                                 </div>
+                            </div>
                         </div>
-                        <div style="margin-top: 10px;">
-                            <MinimalInput style="margin-bottom: 5px;"
-                            @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="175px" inputHeight="38px" fontSize="20px" inputName="Amount"/>
-                             <div class="amountStatusText" :class="statusCode == 'InsufficientFunds' ? 'showSection' : 'hideSection'">
-                                     Insufficient Funds
-                             </div>
+                    </div>
+
+                    <div class="transferBetweenBox" v-if="statusCode == 'verifyTransfer'">
+                        <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: center; width: auto;">
+                            <div class="circle">
+                                {{amountToTransfer}} <span style="font-size: 15px;">&nbsp;{{asset}}</span>
+                            </div>
+                            <span class="accentColored" style="font-size: 20px;">+</span>
+                            <div class="circle">
+                                {{Math.round(Number(txFee) *  Math.pow(10, 5)) / Math.pow(10, 5)}} &nbsp; <span style="font-size: 15px;">(tx fee)</span>
+                            </div>
+                        </div>
+                        <hr class="smallerHr">
+                        <div class="amountStatusText">Please Confirm</div>
+                    </div>
+
+                    <div class="transferBetweenBox" v-if="statusCode == 'Sent' || statusCode == 'Sending'">
+                         <div class="infoParagraph">
+                            Status:
+                            <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
+                            <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
+                            <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <span class="fonticon" style="font-size: 18px;">&#xe876;</span><br></span>
+                            <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
+                        </div>
+
+                        <div class="infoParagraph">
+                            Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
+                        </div>
+
+                        <hr class="smallerHr">
+
+
+                        <div v-bind:class="currentTxState == txStates.SUCCESS ? 'showBlockId' : 'hideBlockId' " class="infoParagraph">
+                            Block ID: <span style="color: var(--accent_color); font-size: 15px;">{{blockHash}}</span> <br>
                         </div>
                     </div>
 
                 </div>
+
 
                 <div class="transferArrow" :class="transferToStakingAccount == true ? 'stakingDirection' : ''">
                     &#xe5d8;
@@ -59,7 +99,8 @@
                         Staking Address: <span class="accentColored addressText"> {{stakingAddress.slice(0,10) + '...'}}</span>
                     </div>
                     <div class="infoParagraph addressSection">
-                        Balance: <span class="accentColored addressText"> {{Math.round(Number(stakingAddressBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        Balance: <span class="accentColored"> {{Math.round(Number(stakingAddressBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        <span style="font-size: 14px;" class="accentColored">{{asset}}</span>
                     </div>
                 </div>
 
@@ -70,17 +111,23 @@
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"
-            v-if="statusCode != 'verifyTransfer'"/>
+            v-if="statusCode != 'verifyTransfer' && statusCode != 'Sending' && statusCode != 'Sent'"/>
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Back" @button-click="verifyTransferToggle()"
             v-if="statusCode == 'verifyTransfer'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Send" @button-click="sendTransaction()"
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Confirm" @button-click="sendTransaction()"
             v-if="statusCode == 'verifyTransfer'"/>
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" @button-click="verifyTransferToggle()"
              :buttonDisabled="statusCode == 'readyToTransfer' ? false : true"
-             v-if="statusCode != 'verifyTransfer'"/>
+             v-if="statusCode != 'verifyTransfer' && statusCode != 'Sending' && statusCode != 'Sent'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"
+            v-if="statusCode == 'Sending' || statusCode == 'Sent'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="quitModal()"
+            v-if="statusCode == 'Sent' && currentTxState == txStates.SUCCESS"/>
 
         </div>
     </div>
@@ -96,6 +143,7 @@ import { ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 import { NetworkFeatures, NetworkType } from "@/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { StakingInfo, SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
+import { TxState } from "@/types/uiTypes";
 
 export default defineComponent({
   name: "TransferBetweenStaking",
@@ -125,8 +173,16 @@ export default defineComponent({
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
 
     let amountToTransfer = ref(0);
+    let txFee = ref(0);
 
     let transferToStakingAccount = ref(true);
+
+    let asset = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
+
+    let currentTxState = ref(TxState.NONE);
+    let blockHash = ref('');
+    let txTimer = ref(0);
+    let txStates = TxState;
 
     if(stakingSupport.value == true) {
         stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
@@ -144,7 +200,63 @@ export default defineComponent({
         props.modalSystem.closeModal();
     }
     function sendTransaction() {
+        currentTxState.value = TxState.SENDING;
+        statusCode.value = "Sending";
+        let timer = setInterval(async () => {
+            txTimer.value += 0.01;
+        }, 10);
+        props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.TRANSFER_ASSETS);
+        props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.TRANSFER_ASSETS, (params) => {
+            if(params.status == false) {
+                currentTxState.value = TxState.FAILED;
+                blockHash.value = params.blockHash;
+                clearInterval(timer);
+            } else if(params.status == 'InBlock') {
+                if(params.method == 'ExtrinsicSuccess') {
+                    currentTxState.value = TxState.SUCCESS;
+                    blockHash.value = params.blockHash;
+                    clearInterval(timer);
 
+                    if(transferToStakingAccount.value == false) {
+                        // fking stupid but im lazy right now I haven't slept in ages >_>, no harm in doing it this way
+                        // for now.
+                        stakingAddressBalance.value = String(Number(stakingAddressBalance.value) - Number(amountToTransfer.value));
+                        accountBalance.value += Number(amountToTransfer.value);
+                    }else {
+                        accountBalance.value -= Number(amountToTransfer.value);
+                        // Again, I'm too lazy to just turn stakingAddressBalance into a Number by default. Next update
+                        // is refactoring update...
+                        stakingAddressBalance.value = String(Number(stakingAddressBalance.value) + Number(amountToTransfer.value));
+                    }
+                }else if(params.method == 'ExtrinsicFailed'){
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = params.blockHash;
+                    clearInterval(timer);
+                }else {
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = "Not included in block.";
+                    clearInterval(timer);
+                }
+                statusCode.value = 'Sent';
+            }
+            if(params.status == 'Ready') {
+                currentTxState.value = TxState.SENDING;
+            }
+            if(params.status == 'Broadcast') {
+                currentTxState.value = TxState.PENDING;
+            }
+        });
+
+        let from: {address: string, derivationPath: string} | undefined = undefined;
+        let recipent = stakingAddress.value;
+        if(transferToStakingAccount.value == false) {
+            recipent = props.vultureWallet.currentWallet.accountData.address;
+            from = {
+                address: stakingAddress.value,
+                derivationPath: "//staking_" + props.vultureWallet.currentWallet.accountData.accountIndex
+            };
+        }
+        props.vultureWallet.currentWallet.transferAssets(recipent, Number(amountToTransfer.value), undefined, from);
     }
     function verifyTransferToggle() {
         if(statusCode.value == 'readyToTransfer') {
@@ -165,6 +277,7 @@ export default defineComponent({
         if(amountToTransfer.value > 0) {
             if(transferToStakingAccount.value == true) {
                 props.vultureWallet.estimateTxFee(stakingAddress.value, amountToTransfer.value).then((fee) => {
+                    txFee.value = Number(fee);
                     if(accountBalance.value < amountToTransfer.value + fee) {
                         statusCode.value = 'InsufficientFunds';
                     }else {
@@ -174,6 +287,7 @@ export default defineComponent({
     
             }else {
                 props.vultureWallet.estimateTxFee(stakingAddress.value, amountToTransfer.value).then((fee) => {
+                    txFee.value = Number(fee);
                     if(Number(stakingAddressBalance.value) < amountToTransfer.value + fee) {
                         statusCode.value = 'InsufficientFunds';
                     }else {
@@ -194,9 +308,17 @@ export default defineComponent({
     return {
         transferToStakingAccount,
         stakingAddressBalance,
+        amountToTransfer,
         accountBalance,
         stakingAddress,
         statusCode,
+        asset,
+        txFee,
+
+        currentTxState,
+        blockHash,
+        txStates,
+        txTimer,
 
         amount: amount,
         quitModal: quitModal,
@@ -220,7 +342,8 @@ hr {
 }
 .smallerHr {
     background-color: var(--bg_color_2);
-    height: 1px;
+    height: 2px;
+    border-radius: 10px;
     width: 90%;
 }
 .outline {
@@ -275,6 +398,16 @@ hr {
     margin-right: auto;
     margin-left: auto;
 }
+.temporary {
+    display: flex;
+    margin: 0px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0px;
+    flex-direction: row;
+    margin-bottom: auto;
+    margin-top: auto;
+}
 .infoIcon {
     font-family: fonticonA;
     font-size: 22px;
@@ -306,8 +439,7 @@ hr {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-left: 5px;
-    margin-right: 5px;
+
     
     padding: 5px;
 
@@ -358,6 +490,24 @@ hr {
     filter: brightness(75%);
     transition-duration: 125ms;
 }
+.circle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    min-width: 50px;
+    height: 30px;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: auto;
+    margin: 10px;
+    outline-style: solid;
+    border-radius: 10px;
+    outline-width: 2px;
+    outline-color: var(--bg_color_2);
+    color: var(--accent_color);
+}
 .stakingDirection {
     transform: rotate(180deg);
     transition-duration: 160ms;
@@ -378,6 +528,9 @@ hr {
     z-index: 2;
 }
 
+.hideDisplay {
+    display: none;
+}
 
 .showSection {
   transition-duration: 180ms;

@@ -155,7 +155,7 @@ export interface VultureAccount {
     /** ## transferAssets();
      * docs: Todo
      */
-    transferAssets(destination: string, amountWhole: number, token?: AbstractToken, from?: {address: string, derviationPath: string}): Promise<void>;
+    transferAssets(destination: string, amountWhole: number, token?: AbstractToken, from?: {address: string, derivationPath: string}): Promise<void>;
     /** ## estimateTxFee();
      * docs: Todo
      */

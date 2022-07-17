@@ -190,13 +190,14 @@ export class SubstrateInfo implements AccountInfoHandler {
     async setAddress(address: string) {
         throw new Error('Method not implemented.');
     }
-    async subscribeToAddressEvents() {
+    async subscribeToAddressEvents(address?: string) {
         if(this.isCryptoReady) {
 
-            const unsub = await this.networkAPI?.query.system.account(this.address, async (result: any) => {
+            const unsub = await this.networkAPI?.query.system.account(address == null ? this.address : address, async (result: any) => {
                 postMessage({method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, params: {
                     success: true,
                     result: result.toJSON(),
+                    address: address == null ? null : address,
                 }});
             });
 

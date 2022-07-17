@@ -142,7 +142,7 @@ export class MnemonicWallet implements VultureAccount {
         this.infoWorker.terminate();
         clearInterval(this.updateTokenBalance);
     }
-    async transferAssets(destination: String, amountWhole: number, token?: AbstractToken, from?: {address: string, derviationPath: string}) {
+    async transferAssets(destination: String, amountWhole: number, token?: AbstractToken, from?: {address: string, derivationPath: string}) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {
             if(event.data.method == VultureMessage.TRANSFER_ASSETS) {
@@ -193,10 +193,6 @@ export class MnemonicWallet implements VultureAccount {
                         let fee = new BigNumber(event.data.params.result.partialFee)
                         .div(new BigNumber(10).pow(token == null ? currentNetwork.networkAssetDecimals : token.decimals)).toNumber();
                         resolve(fee);
-    
-                        // EDIT: changed to promises, will remove these comments once everything is confirmed working ^-^
-                        // Emit the event containing the tx fee data to accountEvents (used by the front-end ^-^).
-                        // his.accountEvents.emit(VultureMessage.ESTIMATE_TX_FEE, fee);
                         
                     }else {
                         console.error("Error: Vulture worker failed to get wallet state!");
@@ -257,18 +253,18 @@ export class MnemonicWallet implements VultureAccount {
                         stakingInfo.frozenBalance = miscFrozen.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
                         stakingInfo.liquidBalance = liquidAmount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
 
-                        this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
-    
+                        this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);    
                     }
                     if(event.data.params.success == false){
                         console.error("Error: Vulture worker failed to get wallet state!");
                     }
                 }
             });
-    
             this.infoWorker.postMessage({
                 method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS,
-                address: this.accountData.stakingAddress!
+                params: {
+                    address: this.accountData.stakingAddress! // SUBSCRIBE_TO_ACC_EVENTS supports an optional address.
+                }
             });
         }else {
             console.error("Cannot subscribe to staking events because staking address is null!");
@@ -280,7 +276,7 @@ export class MnemonicWallet implements VultureAccount {
             
             //The event callback for SUB_TO_ACCOUNT_STATE
             if(event.data.method == VultureMessage.SUBSCRIBE_TO_ACC_EVENTS) {
-                if(event.data.params.success == true) {
+                if(event.data.params.success == true && event.data.params.address == null) {
 
                     
                     //5 decimals is enuff (for this purpose of showing the amount)...
@@ -305,14 +301,18 @@ export class MnemonicWallet implements VultureAccount {
 
                     //Update tokens as well.
                     this.accountEvents.emit(VultureMessage.GET_TOKEN_BALANCE);
-                }else {
+                }
+                if(event.data.params.success == false){
                     console.error("Error: Vulture worker failed to get wallet state!");
                 }
             }
         });
 
         this.infoWorker.postMessage({
-            method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS
+            method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS,
+            params: {
+                address: null // A null address means the default address of the account.
+            }
         });
     }
 }
