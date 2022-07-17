@@ -14,7 +14,7 @@
                     </div>
                     <hr>
                 </div>
-                <div class="infoSection">
+                <div class="infoSection" style="margin-bottom: auto; margin-top: 20px;">
                     <div class="infoParagraph addressSection">
                         Deposit Address: <span class="accentColored addressText"> {{vultureWallet.currentWallet.accountData.address.slice(0,10) + '...'}}</span>
                     </div>
@@ -23,7 +23,21 @@
                     </div>
                 </div>
 
-                <div class="infoSection">
+                <div class="transferBetweenBox" >
+                    <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
+                        &#xe5d8;
+                    </div>
+                    <MinimalInput @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="175px" inputHeight="38px" fontSize="20px" inputName="Amount"/>
+
+                </div>
+                <!--
+                <div class="description">
+                    You need to fund your staking address in order to stake.
+                </div>
+
+                -->
+
+                <div class="infoSection" style="margin-top: auto; margin-bottom: 10px;">
                     <div class="infoParagraph addressSection">
                         Staking Address: <span class="accentColored addressText"> {{stakingAddress.slice(0,10) + '...'}}</span>
                     </div>
@@ -38,14 +52,15 @@
 
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
-            <DefaultButton buttonHeight="40px" buttonWidth="120px" buttonText="Return" @button-click="quitModal()"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" @button-click="quitModal()"/>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import DefaultButton from "../building_parts/DefaultButton.vue";
-import DefaultInput from "../building_parts/DefaultInput.vue"
+import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
@@ -59,7 +74,7 @@ export default defineComponent({
   components: {
     DropdownSelection,
     DefaultButton,
-    DefaultInput,
+    MinimalInput,
   },
   props: {
     modalSystem: {
@@ -79,9 +94,11 @@ export default defineComponent({
 
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
 
+    let transferToStakingAccount = ref(true);
+
     if(stakingSupport.value == true) {
         stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
-        
+
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
             stakingAddressBalance.value = stakingData.liquidBalance;
@@ -94,13 +111,22 @@ export default defineComponent({
     function quitModal() {
         props.modalSystem.closeModal();
     }
+    function amount(value: string) {
+
+    }
+    function switchTransferDirection() {
+        transferToStakingAccount.value = !transferToStakingAccount.value;
+    }
 
     return {
+        transferToStakingAccount,
         stakingAddressBalance,
         accountBalance,
         stakingAddress,
 
+        amount: amount,
         quitModal: quitModal,
+        switchTransferDirection: switchTransferDirection,
     }
   }
 });
@@ -202,6 +228,60 @@ hr {
 .welcomeText {
     font-size: 16px;
     text-align: center;
+}
+.transferBetweenBox {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 5px;
+    margin-right: 5px;
+    
+    padding: 5px;
+    padding-right: 30px;
+    padding-left: 30px;
+
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: var(--bg_color_2);
+
+    border-radius: 4px;
+}
+.directionButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 38px;
+    font-family: fonticonA;
+    width: 48px;
+    height: 48px;
+    margin-top: 5px;
+    outline-style: solid;
+    border-radius: 50px;
+    outline-width: 2px;
+    color: var(--fg_color_2);
+    user-select: none;
+    transition-duration: 125ms;
+    cursor: pointer;
+}
+.directionButton:hover {
+    color: var(--accent_color);
+    transition-duration: 170ms;
+}
+.directionButton:active {
+    filter: brightness(75%);
+    transition-duration: 125ms;
+}
+.stakingDirection {
+    transform: rotate(180deg);
+    transition-duration: 160ms;
+}
+.description {
+    color: var(--fg_color_2);
+    font-size: 15px;
+    width: 80%;
 }
 .box {
     flex-direction: column;
