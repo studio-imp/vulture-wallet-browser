@@ -98,60 +98,51 @@ export default defineComponent({
     }
     
     function amount(amount: number) {
-      currentAmount.value = amount;
-      props.vultureWallet.currentWallet.accountEvents.once(VultureMessage.ESTIMATE_TX_FEE, (fee: number) => {
-        estimatedFee.value = fee;
-
-        // Check if we are transfering a token or the native asset by props.addressOfTokenToTransfer
-        if(props.addressOfTokenToTransfer == "") {
-          if((currentAmount.value + fee) < props.vultureWallet.currentWallet.accountData.freeAmountWhole) {
-            insufficientFunds.value = false;
-          }else {
-            insufficientFunds.value = true;
-          }
-        }else {
-          // Make sure we have enough of the token we are sending.
-          let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
-          if(tokenArray != undefined) {
-            if(tokenArray!.get(props.addressOfTokenToTransfer!) != null) {
-              if(currentAmount.value < Number(tokenArray!.get(props.addressOfTokenToTransfer!)!.balance)) {
-              insufficientFunds.value = false;
-              }else {
-                insufficientFunds.value = true;
-              }
-            }else {
-              console.error("Token not found!");
-            }
-          }
+        currentAmount.value = amount;
+        if(invalidAddress.value == true || currentAddress.value == '') {
+            return;
         }
-
-      });
-      if(invalidAddress.value == false) {
-        // If we are sending native assets.
-        if(props.addressOfTokenToTransfer == "") {
-          if(currentAmount.value > 0) {
-            props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value);
-          }
-        }else {
-        // If we are sending some token. This is quite messy, will have to refactor to something easier on the eyes later.
-          let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
-          if(tokenArray != undefined) {
-            if(tokenArray!.get(props.addressOfTokenToTransfer!) != null) {
-              if(currentAmount.value > 0) {
-                props.vultureWallet.currentWallet.estimateTxFee(currentAddress.value, currentAmount.value, tokenArray!.get(props.addressOfTokenToTransfer!)!);
-              }
-            }else {
-              console.error("Token not found!");
-            }
-          }
+        let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
+        if(tokenArray == undefined) {
+            console.error("Token array is undefined!");
+            return;
         }
-      }
+        if(currentAmount.value > 0) {
+            // Either get a token or undefined depending on if props.addressOfTokenToTransfer is a thing or not.
+            // If we don't have a token, we simply transfer the native asset.
+
+            let token = props.addressOfTokenToTransfer != '' ? tokenArray!.get(props.addressOfTokenToTransfer!)! : undefined;
+            
+            // Get a fee-estimate and check if the user has enough funds to cover the tx + fee.
+            props.vultureWallet.estimateTxFee(currentAddress.value, currentAmount.value, token).then((fee) => {
+                estimatedFee.value = Number(fee);
+                // Check if we are transfering a token or the native asset by props.addressOfTokenToTransfer
+                if(props.addressOfTokenToTransfer == "") {
+                  if((currentAmount.value + fee) < props.vultureWallet.currentWallet.accountData.freeAmountWhole) {
+                    insufficientFunds.value = false;
+                  }else {
+                    insufficientFunds.value = true;
+                  }
+                }else {
+                    // Make sure we have enough of the token we are sending.
+                    if(tokenArray!.get(props.addressOfTokenToTransfer!) != null) {
+                      if(currentAmount.value < Number(tokenArray!.get(props.addressOfTokenToTransfer!)!.balance)) {
+                      insufficientFunds.value = false;
+                      }else {
+                        insufficientFunds.value = true;
+                      }
+                    }else {
+                      console.error("Token not found!");
+                    }
+                }
+            });
+        }
     }
     function sendButton() {
       let data: TransferAssetsData = {
         amount: currentAmount.value,
         recipent: currentAddress.value,
-        addressOfTokenToTransfer: props.addressOfTokenToTransfer
+        addressOfTokenToTransfer: props.addressOfTokenToTransfer,
       }
       props.modalSystem.openModal(ModalEvents.TRANSFER_ASSETS, data);
       amount(0);

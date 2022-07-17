@@ -23,12 +23,29 @@
                     </div>
                 </div>
 
-                <div class="transferBetweenBox" >
-                    <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
-                        &#xe5d8;
-                    </div>
-                    <MinimalInput @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="175px" inputHeight="38px" fontSize="20px" inputName="Amount"/>
 
+                <div class="transferArrow" :class="transferToStakingAccount == true ? 'stakingDirection' : ''">
+                    &#xe5d8;
+                </div>
+
+                <div class="transferBetweenBox" >
+                    <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
+                        <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
+                            &#xe5d8;
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <MinimalInput style="margin-bottom: 5px;"
+                            @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="175px" inputHeight="38px" fontSize="20px" inputName="Amount"/>
+                             <div class="amountStatusText" :class="statusCode == 'InsufficientFunds' ? 'showSection' : 'hideSection'">
+                                     Insufficient Funds
+                             </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="transferArrow" :class="transferToStakingAccount == true ? 'stakingDirection' : ''">
+                    &#xe5d8;
                 </div>
                 <!--
                 <div class="description">
@@ -53,7 +70,7 @@
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" @button-click="quitModal()"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" :buttonDisabled="statusCode == 'readyToTransfer' ? false : true"/>
         </div>
     </div>
 </template>
@@ -92,7 +109,11 @@ export default defineComponent({
     let stakingAddress = ref('');
     let stakingAddressBalance = ref('');
 
+    let statusCode = ref('');
+
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
+
+    let amountToTransfer = ref(0);
 
     let transferToStakingAccount = ref(true);
 
@@ -111,11 +132,36 @@ export default defineComponent({
     function quitModal() {
         props.modalSystem.closeModal();
     }
+    amount('0');
     function amount(value: string) {
-
+        amountToTransfer.value = Number(value);
+        if(amountToTransfer.value > 0) {
+            if(transferToStakingAccount.value == true) {
+                props.vultureWallet.estimateTxFee(stakingAddress.value, amountToTransfer.value).then((fee) => {
+                    if(accountBalance.value < amountToTransfer.value + fee) {
+                        statusCode.value = 'InsufficientFunds';
+                    }else {
+                        statusCode.value = 'readyToTransfer';
+                    }
+                });
+    
+            }else {
+                props.vultureWallet.estimateTxFee(stakingAddress.value, amountToTransfer.value).then((fee) => {
+                    if(Number(stakingAddressBalance.value) < amountToTransfer.value + fee) {
+                        statusCode.value = 'InsufficientFunds';
+                    }else {
+                        statusCode.value = 'readyToTransfer';
+                    }
+                });
+            }
+        }else {
+            statusCode.value = '';
+            return;
+        }
     }
     function switchTransferDirection() {
         transferToStakingAccount.value = !transferToStakingAccount.value;
+        amount(String(amountToTransfer.value));
     }
 
     return {
@@ -123,6 +169,7 @@ export default defineComponent({
         stakingAddressBalance,
         accountBalance,
         stakingAddress,
+        statusCode,
 
         amount: amount,
         quitModal: quitModal,
@@ -169,6 +216,10 @@ hr {
     overflow-y: auto;
 
     border-radius: 0px;
+}
+.amountStatusText {
+    font-size: 16px;
+    color: var(--fg_color_2);
 }
 .infoSection {
     display: flex;
@@ -218,21 +269,11 @@ hr {
 .description {
     font-size: 16px;
 }
-.vultureLogo {
-    fill: var(--bg_color);
-    filter: drop-shadow(0px 0px 5px rgb(2,2,2));
-}
-.styled {
-    color: var(--accent_color);
-}
-.welcomeText {
-    font-size: 16px;
-    text-align: center;
-}
+
 .transferBetweenBox {
     display: flex;
     box-sizing: border-box;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
     width: 100%;
@@ -240,14 +281,28 @@ hr {
     margin-right: 5px;
     
     padding: 5px;
-    padding-right: 30px;
-    padding-left: 30px;
 
     outline-style: solid;
     outline-width: 1px;
     outline-color: var(--bg_color_2);
 
+    margin-bottom: auto;
+    margin-top: auto;
+
     border-radius: 4px;
+}
+.transferArrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    font-family: fonticonA;
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    color: var(--bg_color_2);
+    user-select: none;
+    transition-duration: 125ms;
 }
 .directionButton {
     display: flex;
@@ -292,6 +347,16 @@ hr {
     border-style: solid;
     border-radius: 24px;
     z-index: 2;
+}
+
+
+.showSection {
+  transition-duration: 180ms;
+  filter: opacity(1);
+}
+.hideSection {
+  transition-duration: 140ms;
+  filter: opacity(0);
 }
 
 *::-webkit-scrollbar {

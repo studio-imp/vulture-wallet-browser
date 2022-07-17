@@ -73,13 +73,16 @@ export default {
     align-items: center;
     width: auto;
     height: auto;
-    border-radius: 12px;
+    border-radius: 10px;
     border-color: var(--bg_color_2);
     border-width: 2px;
     border-style: solid;
     box-shadow: 0px 0px 3px rgb(5, 5, 5);
     transition-duration: 100ms;
     cursor:not-allowed;
+
+    font-family: ButtonFont;
+
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;

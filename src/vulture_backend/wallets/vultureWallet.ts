@@ -159,7 +159,7 @@ export interface VultureAccount {
     /** ## estimateTxFee();
      * docs: Todo
      */
-    estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<void>;
+    estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<any>;
 
     
     isAddressValid(address: string): Promise<void>;
@@ -508,7 +508,17 @@ export class VultureWallet {
             return false;
         }
     }
-
+    /** ## estimateTxFee
+     * This function will return the estimated Tx fee.
+     * 
+     * @param destination 
+     * @param amountWhole 
+     * @param token 
+     * @returns 
+     */
+    async estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<any> {
+        return this.currentWallet.estimateTxFee(destination, amountWhole, token);
+    }
     /** ## getBalanceOfAddress()
      *  Will return the balance of a specified address.
      */

@@ -5,30 +5,32 @@
         overflow-wrap: break-word;">
             
             <div style="width: 100%; text-align: center; margin-bottom: 0px; margin-top: 0px;  font-size: 24px; margin-bottom: 15px;">
-                Transfer Assets<br>
+                Send Assets
+                <br>
                 <hr>
             </div>
 
             <div class="outline">
                 <div class="infoParagraph">
-                    Send: <span class="accentColored">{{assetTransferData.amount}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{asset}}</span></span>
+                    Send: <span class="accentColored">{{assetTransferData.amount}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{asset}}</span></span> 
+                    
                 </div>
                 <div class="infoParagraph addressSection">
-                    To: <span class="accentColored addressText">{{assetTransferData.recipent}}</span>
+                    To: <span class="accentColored addressText">{{assetTransferData.recipent}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
                 </div>
                 <hr class="smallerHr">
                 <div class="infoParagraph">
-                    Tx Fee: <span style="color: var(--accent_color)">{{txFee.toFixed(8)}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{nativeAsset}}</span></span>  
+                    Fee: ~<span style="color: var(--accent_color)">{{txFee.toFixed(8)}}</span> <span style="font-size: 18px;">$<span class="accentColored">{{nativeAsset}}</span></span>  
                 </div>
             </div>
 
             <div v-bind:class="currentTxState != txStates.NONE ? 'show' : 'hide' " class="outline txState">
                 <div class="infoParagraph">
                     Status:
-                    <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending <br></span>
-                    <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending <br></span>
-                    <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <br></span>
-                    <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <br></span>
+                    <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
+                    <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
+                    <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <span class="fonticon" style="font-size: 18px;">&#xe876;</span><br></span>
+                    <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
                 </div>
 
                 <div class="infoParagraph">
@@ -168,10 +170,13 @@ export default defineComponent({
         props.vultureWallet.currentWallet.transferAssets(assetTransferData.recipent, Number(assetTransferData.amount), token == null ? undefined : token);
     }
     let estimateFee = () => {
-        props.vultureWallet.currentWallet.accountEvents.once(VultureMessage.ESTIMATE_TX_FEE, (fee) => {
+        props.vultureWallet.estimateTxFee(
+            assetTransferData.recipent,
+            Number(assetTransferData.amount),
+            token == null ? undefined : token
+        ).then((fee) => {
             txFee.value = fee;
         });
-        props.vultureWallet.currentWallet.estimateTxFee(assetTransferData.recipent, Number(assetTransferData.amount), token == null ? undefined : token);
     }
     estimateFee();
 

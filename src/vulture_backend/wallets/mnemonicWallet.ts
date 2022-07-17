@@ -182,31 +182,36 @@ export class MnemonicWallet implements VultureAccount {
      * This function will request an estimate transaction fee for the given transaction parameters.
      * The fee data will be sent as an event to `accountEvents` with the `VultureMessage` 'ESTIMATE_TX_FEE'.
      */
-    async estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken) {
-
-        // The Event-Callback from the worker will contain the fee data.
-        this.actionWorker.onmessage = (event) => {
-            if(event.data.method == VultureMessage.ESTIMATE_TX_FEE) {
-                if(event.data.params.success == true) {
-                    let fee = new BigNumber(event.data.params.result.partialFee)
-                    .div(new BigNumber(10).pow(token == null ? this.currentNetwork.networkAssetDecimals : token.decimals)).toNumber();
-
-                    // Emit the event containing the tx fee data to accountEvents (used by the front-end ^-^).
-                    this.accountEvents.emit(VultureMessage.ESTIMATE_TX_FEE, fee);
-                }else {
-                    console.error("Error: Vulture worker failed to get wallet state!");
+    async estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<any> {
+        let actionWorker = this.actionWorker;
+        let currentNetwork = this.currentNetwork;
+        return new Promise(function(resolve, reject) {
+            actionWorker.onmessage = (event: any) => {
+                if(event.data.method == VultureMessage.ESTIMATE_TX_FEE) {
+                    if(event.data.params.success == true) {
+                        let fee = new BigNumber(event.data.params.result.partialFee)
+                        .div(new BigNumber(10).pow(token == null ? currentNetwork.networkAssetDecimals : token.decimals)).toNumber();
+                        resolve(fee);
+    
+                        // EDIT: changed to promises, will remove these comments once everything is confirmed working ^-^
+                        // Emit the event containing the tx fee data to accountEvents (used by the front-end ^-^).
+                        // his.accountEvents.emit(VultureMessage.ESTIMATE_TX_FEE, fee);
+                        
+                    }else {
+                        console.error("Error: Vulture worker failed to get wallet state!");
+                        reject();
+                    }
                 }
-            }
-        };
-        
-        // Posting a request to estimate Tx Fee to the vulture worker.
-        this.actionWorker.postMessage({
-            method: VultureMessage.ESTIMATE_TX_FEE,
-            params: {
-                recipent: destination,
-                amount: new BigNumber(amountWhole).times(new BigNumber(10).pow(token == null ? this.currentNetwork.networkAssetDecimals : token.decimals)).toString(),
-                token: token == null ? null : JSON.parse(JSON.stringify(token)) // Due to the fact that the token is a proxy, need to stringify/parse. Temp solution.
-            }
+            };
+
+            actionWorker.postMessage({
+                method: VultureMessage.ESTIMATE_TX_FEE,
+                params: {
+                    recipent: destination,
+                    amount: new BigNumber(amountWhole).times(new BigNumber(10).pow(token == null ? currentNetwork.networkAssetDecimals : token.decimals)).toString(),
+                    token: token == null ? null : JSON.parse(JSON.stringify(token)) // Due to the fact that the token is a proxy, need to stringify/parse. Temp solution.
+                }
+            });
         });
         
     }
