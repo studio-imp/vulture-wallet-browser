@@ -187,6 +187,8 @@ export default defineComponent({
   background-size: cover;
 
   border-color: var(--bg_color_2);
+  background-color: var(--bg_color);
+  
   border-width: 2px;
   border-radius: 12px;
   border-style: solid;
@@ -215,11 +217,6 @@ export default defineComponent({
   margin-bottom: auto;
   font-size: 12px;
 }
-.vultureLogo {
-  fill: var(--bg_color);
-  filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.4));
-  margin: 5px;
-}
 .module:hover {
   transition-duration: 160ms;
   box-shadow: 0px 0px 8px rgb(6,6,6);
@@ -234,5 +231,11 @@ export default defineComponent({
 .selected {
   border-color: var(--accent_color);
   color: var(--accent_color);
+}
+.vultureLogo {
+  fill: var(--bg_color);
+  color: var(--bg_color);
+  filter: drop-shadow(0px 0px 3px rgba(0,0,0,0.4));
+  margin: 5px;
 }
 </style>

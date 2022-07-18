@@ -30,10 +30,12 @@
                  statusCode == 'verifyTransfer' ? 'blinkAccent' : '', statusCode == 'Sent' ? 'accentColored' : '']">
                     &#xe5d8;
                 </div>
+                                                <!-- Will do computed later, on refactor stage. -->
+                <div class="temporary" :class="[statusCode != 'verifyTransfer' ? 'showAmountBox'  : '',
+                                                statusCode == 'verifyTransfer' ? 'showConfirmBox' : '',
+                                                statusCode == 'Sent'           ? 'showTxDataBox'  : '']">
 
-                <div class="temporary">
-
-                    <div class="transferBetweenBox" v-if="statusCode != 'verifyTransfer' && statusCode != 'Sending' && statusCode != 'Sent'">
+                    <div class="transferBetweenBox">
                         <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: space-evenly; width: 100%;">
                             <div class="directionButton" :class="transferToStakingAccount == true ? 'stakingDirection' : ''" @click="switchTransferDirection()">
                                 &#xe5d8;
@@ -48,7 +50,7 @@
                         </div>
                     </div>
 
-                    <div class="transferBetweenBox" v-if="statusCode == 'verifyTransfer'">
+                    <div class="transferBetweenBox">
                         <div class="flexBox" style="flex-direction: row; align-items: center; justify-content: center; width: auto;">
                             <div class="circle">
                                 {{amountToTransfer}} <span style="font-size: 15px;">&nbsp;{{asset}}</span>
@@ -63,7 +65,7 @@
                         <div class="amountStatusText" v-if="transferToStakingAccount == true">Send to Staking address <br> Please Confirm</div>
                     </div>
 
-                    <div class="transferBetweenBox" v-if="statusCode == 'Sent' || statusCode == 'Sending'">
+                    <div class="transferBetweenBox">
                          <div class="infoParagraph">
                             Status:
                             <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
@@ -90,12 +92,6 @@
                  statusCode == 'verifyTransfer' ? 'blinkAccent' : '', statusCode == 'Sent' ? 'accentColored' : '']">
                     &#xe5d8;
                 </div>
-                <!--
-                <div class="description">
-                    You need to fund your staking address in order to stake.
-                </div>
-
-                -->
 
                 <div class="infoSection" style="margin-top: auto; margin-bottom: 10px;">
                     <div class="infoParagraph addressSection">
@@ -122,7 +118,7 @@
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Confirm" @button-click="sendTransaction()"
             v-if="statusCode == 'verifyTransfer'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Transfer" @button-click="verifyTransferToggle()"
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Next" @button-click="verifyTransferToggle()"
              :buttonDisabled="statusCode == 'readyToTransfer' ? false : true"
              v-if="statusCode != 'verifyTransfer' && statusCode != 'Sending' && statusCode != 'Sent'"/>
 
@@ -240,7 +236,6 @@ export default defineComponent({
                     blockHash.value = "Not included in block.";
                     clearInterval(timer);
                 }
-                statusCode.value = 'Sent';
             }
             if(params.status == 'Ready') {
                 currentTxState.value = TxState.SENDING;
@@ -259,6 +254,7 @@ export default defineComponent({
                 derivationPath: "//staking_" + props.vultureWallet.currentWallet.accountData.accountIndex
             };
         }
+        statusCode.value = 'Sent';
         props.vultureWallet.currentWallet.transferAssets(recipent, Number(amountToTransfer.value), undefined, from);
     }
     function verifyTransferToggle() {
@@ -404,22 +400,24 @@ hr {
     margin-right: auto;
     margin-left: auto;
 }
+
 .temporary {
     display: flex;
+    
+    flex-direction: row;
     margin: 0px;
-    width: 100%;
+    width: auto;
+    padding: 1px;
+    overflow: hidden;
+    flex-wrap: nowrap;
     box-sizing: border-box;
-    padding: 0px;
     flex-direction: row;
     margin-bottom: auto;
     margin-top: auto;
 
     transition-duration: 150ms;
 }
-.infoIcon {
-    font-family: fonticonA;
-    font-size: 22px;
-}
+
 .infoParagraph {
     width: 100%;
     text-align: left;
@@ -436,18 +434,17 @@ hr {
     
     outline-width: 2px;
 }
-.description {
-    font-size: 16px;
-}
-
 .transferBetweenBox {
     display: flex;
     box-sizing: border-box;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
 
+    min-width: 316px;
+    max-width: 316px;
+    margin-left: 50px;
+    margin-right: 50px;
     
     padding: 5px;
 
@@ -522,28 +519,12 @@ hr {
     white-space: nowrap;
 
     overflow-y: hidden;
-    overflow-x: auto;
+    overflow-x: scroll;
 }
 .stakingDirection {
     transform: rotate(180deg);
     transition-duration: 160ms;
 }
-.description {
-    color: var(--fg_color_2);
-    font-size: 15px;
-    width: 80%;
-}
-.box {
-    flex-direction: column;
-    background-color: var(--bg_color);
-    box-shadow: 0px 0px 7px rgb(7, 7, 7);
-    border-width: 2px;
-    border-color: var(--bg_color_2);
-    border-style: solid;
-    border-radius: 24px;
-    z-index: 2;
-}
-
 .hideDisplay {
     display: none;
 }
@@ -566,6 +547,25 @@ hr {
     }
 }
 
+/* -- There are 3 boxes, we divide the width + margin to get the offset, for the slide transitions -- */
+.showAmountBox {
+    margin-left: 832px;
+    transition-duration: 180ms;
+    filter: opacity(1);
+}
+.showConfirmBox {
+    margin-left: 0px;
+    transition-duration: 180ms;
+    filter: opacity(1);
+}
+.showTxDataBox {
+    margin-left: -832px;
+    filter: opacity(1);
+    transition-duration: 180ms;
+}
+/* ^ There are 3 boxes, we divide the width + margin to get the offset, for the slide transitions ^ */
+
+
 .showSection {
   transition-duration: 180ms;
   filter: opacity(1);
@@ -576,18 +576,19 @@ hr {
 }
 
 *::-webkit-scrollbar {
-  width: 3px;        
- height: 3px;
+    width: 3px;        
+    height: 3px;
+    display: none;
 }
 *::-webkit-scrollbar-track {
-  box-shadow: 0px 0px 0px rgba(0,0,0,1);
-  background: rgb(16,16,16);
-  border-radius: 10px;
+    box-shadow: 0px 0px 0px rgba(0,0,0,1);
+    background: rgb(16,16,16);
+    border-radius: 10px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: var(--bg_color_2);
-  border-radius: 10px;
+    background-color: var(--bg_color_2);
+    border-radius: 10px;
 }
 
 </style>

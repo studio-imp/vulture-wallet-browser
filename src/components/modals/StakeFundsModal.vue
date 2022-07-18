@@ -38,7 +38,8 @@
                         or <a style="cursor: pointer; text-decoration: underline;" @click="transfer()">transfer</a> from the deposit address.
                         <hr class="seperatorHr">
                         Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
-                        <span class="accentColored">Proceed?</span>
+                        <hr class="seperatorHr">
+                        <div class="accentColored" style="text-align: center; font-size: 24px;">Proceed?</div>
                     </div>
                 </div>
 
@@ -56,9 +57,21 @@
                 <div class="infoSection" style="margin-top: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'">
                     <MinimalInput style="margin-bottom: 10px;"
                     @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="200px" inputHeight="38px" fontSize="20px" inputName="Amount To Stake/Bond"/>
-                    <div class="amountStatusText">
+                    
+                    <div class="amountStatusText" v-if="transferState == ''">
                         The amount you stake will be frozen/locked until you unstake.
                     </div>
+                    <div class="amountStatusText" v-if="transferState == 'InsufficientStake'">
+                        The minimum stake is <span class="accentColored">{{minimumStakingAmount}}</span> {{asset}}!
+                    </div>
+                    <div class="amountStatusText" v-if="transferState == 'InsufficientFunds'">
+                        The staking address doesn't have enough funds to cover this Tx.
+                    </div>
+
+                    <div class="amountStatusText" v-if="transferState == 'Ready'">
+                        <span class="accentColored">Ready to Stake</span>
+                    </div>
+
                 </div>
 
             </div>
@@ -71,6 +84,9 @@
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('Bond')" v-if="statusCode == 'StakingInfo'"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Next" @button-click="setCode('Bond')" v-if="transferState == 'Ready'"/>
+
 
         </div>
     </div>
@@ -109,7 +125,7 @@ export default defineComponent({
 
     let stakingSupport = ref(props.vultureWallet.supportsFeature(NetworkFeatures.STAKING));
     let stakingAddress = ref('');
-    let stakingAddressBalance = ref('');
+    let stakingAddressBalance = ref(0);
 
     let minimumStakingAmount = ref(0);
 
@@ -119,6 +135,7 @@ export default defineComponent({
     let isBonded = ref(false);
 
     let statusCode = ref('StakingInfo');
+    let transferState = ref('');
 
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
 
@@ -136,7 +153,7 @@ export default defineComponent({
 
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
-            stakingAddressBalance.value = stakingData.liquidBalance;
+            stakingAddressBalance.value = Number(stakingData.liquidBalance);
             minimumStakingAmount.value = Number(stakingData.minimumBondAmount);
             isBonded.value = stakingData.isStashAccountBonded;
 
@@ -155,6 +172,19 @@ export default defineComponent({
     amount('0');
     function amount(value: string) {
         amountToStake.value = Number(value);
+        if(amountToStake.value > 0) {
+            if(amountToStake.value < minimumStakingAmount.value) {
+                transferState.value = 'InsufficientStake';
+            }else {
+                if(amountToStake.value > stakingAddressBalance.value) {
+                    transferState.value = 'InsufficientFunds';
+                }else {
+                    transferState.value = 'Ready';
+                }
+            }
+        }else {
+            transferState.value = '';
+        }
     }
     function transfer() {
         props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
@@ -171,6 +201,8 @@ export default defineComponent({
         accountBalance,
         currentNetwork,
         stakingAddress,
+        amountToStake,
+        transferState,
         statusCode,
         asset,
         txFee,
@@ -436,8 +468,8 @@ hr {
 }
 
 *::-webkit-scrollbar {
-  width: 3px;        
- height: 3px;
+    width: 3px;        
+    height: 3px;
 }
 *::-webkit-scrollbar-track {
   box-shadow: 0px 0px 0px rgba(0,0,0,1);
