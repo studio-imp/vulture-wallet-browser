@@ -255,7 +255,6 @@ export class MnemonicWallet implements VultureAccount {
                             unlocking: stakingInfo.unlocking,
                             currentEra: stakingInfo.currentEra
                         };
-                        console.log(newStakingInfo);
 
                         this.accountData.stakingInfo.set(StakingInfo.Substrate, newStakingInfo);
                     }

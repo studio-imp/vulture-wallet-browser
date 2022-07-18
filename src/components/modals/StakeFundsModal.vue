@@ -23,10 +23,12 @@
                         <hr>
                     </div>
                     <div class="infoParagraph" style="font-size: 20px;">
-                        Minimum stake amount on <span class="accentColored">{{currentNetwork}}</span> is
-                        <span class="accentColored">{{minimumStakingAmount}}</span>. 
+                        You need at least  <span class="accentColored">{{minimumStakingAmount}} <span style="font-size: 16px;">{{asset}} </span></span>
+                        to stake on "<span class="accentColored">{{currentNetwork}}</span>".
+                       
                         <hr class="seperatorHr">
-                        You will need to fund the <span class="accentColored">staking address</span> to stake.
+                        You will need to fund the <span class="accentColored">Staking Address</span> with
+                        <span class="accentColored">{{asset}}</span> to stake.
                         <hr class="seperatorHr">
                         The staking address <span class="accentColored">and</span> the Deposit address may need extra funds to cover transaction fees.
                         <hr class="seperatorHr">
@@ -43,6 +45,14 @@
                     <div class="infoParagraph addressSection">
                         Balance: <span class="accentColored"> {{Math.round(Number(stakingAddressBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
                         <span style="font-size: 14px;" class="accentColored">{{asset}}</span>
+                    </div>
+                </div>
+
+                <div class="infoSection" style="margin-top: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'">
+                    <MinimalInput style="margin-bottom: 10px;"
+                    @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="200px" inputHeight="38px" fontSize="20px" inputName="Amount To Stake/Bond"/>
+                    <div class="amountStatusText">
+                        The amount you stake will be frozen/locked until you unstake.
                     </div>
                 </div>
 
@@ -99,6 +109,7 @@ export default defineComponent({
     let minimumStakingAmount = ref(0);
 
     let currentNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork.networkName;
+    let asset = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
 
     let isBonded = ref(false);
 
@@ -110,8 +121,6 @@ export default defineComponent({
     let txFee = ref(0);
 
     let transferToStakingAccount = ref(true);
-
-    let asset = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
 
     let currentTxState = ref(TxState.NONE);
     let blockHash = ref('');
