@@ -24,7 +24,7 @@
                     </div>
                     <div class="infoParagraph" style="font-size: 20px;">
                         Minimum stake amount on <span class="accentColored">{{currentNetwork}}</span> is
-                        <span class="accentColored">{{minimumStakingAmount}}</span>.
+                        <span class="accentColored">{{minimumStakingAmount}}</span>. 
                         <hr class="seperatorHr">
                         You will need to fund the <span class="accentColored">staking address</span> to stake.
                         <hr class="seperatorHr">

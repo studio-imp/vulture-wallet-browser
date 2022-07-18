@@ -233,8 +233,36 @@ export class MnemonicWallet implements VultureAccount {
     //async get
 
     public async subscribeToStakingEvents() {
+        
         if(this.accountData.stakingAddress != null) {
+
             this.infoWorker.addEventListener("message", async(event) => {
+
+                //The event callback for GET_STAKING_INFO
+                if(event.data.method == VultureMessage.GET_STAKING_INFO) {
+                    if(event.data.params.success == true && event.data.params.stakingInfo.stakingAddress == this.accountData.stakingAddress!) {
+                        let stakingInfo = event.data.params.stakingInfo as SubstrateStakingInfo;
+                        let oldStakingInfo: SubstrateStakingInfo = this.accountData.stakingInfo.get(StakingInfo.Substrate);
+
+                        let newStakingInfo: SubstrateStakingInfo = {
+                            stakingAddress: stakingInfo.stakingAddress,
+                            controllerAddress: stakingInfo.controllerAddress,
+                            isStashAccountBonded: stakingInfo.isStashAccountBonded,
+                            frozenBalance: oldStakingInfo.frozenBalance, // temporary
+                            stakedBalance: oldStakingInfo.stakedBalance, // temporary
+                            liquidBalance: oldStakingInfo.liquidBalance, // temporary
+                            minimumBondAmount: new BigNumber(new BigNumber(stakingInfo.minimumBondAmount.replaceAll(',', '')).div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals))).toString(),
+                            unlocking: stakingInfo.unlocking,
+                            currentEra: stakingInfo.currentEra
+                        };
+                        console.log(newStakingInfo);
+
+                        this.accountData.stakingInfo.set(StakingInfo.Substrate, newStakingInfo);
+                    }
+                    if(event.data.params.success == false){
+                        console.error("Error: Vulture worker failed to get staking info!");
+                    }
+                }
             
                 //The event callback for SUB_TO_ACCOUNT_STATE
                 if(event.data.method == VultureMessage.SUBSCRIBE_TO_ACC_EVENTS) {
@@ -253,7 +281,15 @@ export class MnemonicWallet implements VultureAccount {
                         stakingInfo.frozenBalance = miscFrozen.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
                         stakingInfo.liquidBalance = liquidAmount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
 
-                        this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);    
+                        this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
+
+                        this.infoWorker.postMessage({
+                            method: VultureMessage.GET_STAKING_INFO,
+                            params: {
+                                address: this.accountData.address,
+                                stakingAddress: this.accountData.stakingAddress!
+                            }
+                        });
                     }
                     if(event.data.params.success == false){
                         console.error("Error: Vulture worker failed to get wallet state!");

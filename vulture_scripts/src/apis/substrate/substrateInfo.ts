@@ -69,8 +69,8 @@ export class SubstrateInfo implements AccountInfoHandler {
     async getStakingInfo(address: string, stakingAddress: string) {
         if(this.isCryptoReady) {
             let stakingInfo: SubstrateStakingInfo = {
-                stakingAddress: '',
-                controllerAddress: '',
+                stakingAddress: stakingAddress,
+                controllerAddress: address,
                 isStashAccountBonded: false,
                 frozenBalance: '',
                 stakedBalance: '',
@@ -100,13 +100,21 @@ export class SubstrateInfo implements AccountInfoHandler {
                 console.error("Staking account is bonded to an incorrect controller address!");
             }
 
+            let minNominationAmount = await this.networkAPI?.query.staking.minNominatorBond();
+            if(minNominationAmount != undefined) {
+                stakingInfo.minimumBondAmount = (minNominationAmount.toHuman() as string);
+            }else {
+                success = false;
+                console.error("Failed getting minimum bond amount! This is dangerous.");
+            }
+
             // Get the staking information for the stakingAddress, by the controller address.
             this.networkAPI?.query.staking.ledger(address).then((data) => {
-                console.log(data.toJSON());
                 if(data.toJSON() == null) {
                     stakingInfo.stakedBalance = '0';
                 }else {
-
+                    console.log(data.toJSON());
+                    stakingInfo.stakedBalance = (data.toJSON() as any).active;
                 }
                 /*                
                 if(data.toJSON()) {
