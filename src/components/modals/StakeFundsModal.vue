@@ -10,14 +10,36 @@
             <div class="outline">
                 <div style="width: 100%;">
                     <div style="font-size: 26px;">
-                        Stake
+                        Staking
                     </div>
                     <hr>
                 </div>
-                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;">
-                    <div class="infoParagraph addressSection">
-                        Staking Address: <span class="accentColored addressText"> {{stakingAddress.slice(0,10) + '...'}}</span>
+
+                <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'StakingInfo'">
+                    <div style="width: 100%; margin-bottom: 5px;">
+                        <div style="font-size: 24px;">
+                            Staking Info
+                        </div>
+                        <hr>
                     </div>
+                    <div class="infoParagraph" style="font-size: 20px;">
+                        Minimum stake amount on <span class="accentColored">{{currentNetwork}}</span> is
+                        <span class="accentColored">{{minimumStakingAmount}}</span>.
+                        <hr class="seperatorHr">
+                        You will need to fund the <span class="accentColored">staking address</span> to stake.
+                        <hr class="seperatorHr">
+                        The staking address <span class="accentColored">and</span> the Deposit address may need extra funds to cover transaction fees.
+                        <hr class="seperatorHr">
+                        Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
+                        <span class="accentColored">Proceed?</span>
+                    </div>
+                </div>
+
+                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'">
+                    <div class="infoParagraph addressSection">
+                        Staking Address: <span class="accentColored addressText"> {{stakingAddress}}</span>
+                    </div>
+                    <hr class="smallerHr">
                     <div class="infoParagraph addressSection">
                         Balance: <span class="accentColored"> {{Math.round(Number(stakingAddressBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
                         <span style="font-size: 14px;" class="accentColored">{{asset}}</span>
@@ -32,6 +54,9 @@
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
+
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('Bond')" v-if="statusCode == 'StakingInfo'"/>
+
         </div>
     </div>
 </template>
@@ -71,7 +96,13 @@ export default defineComponent({
     let stakingAddress = ref('');
     let stakingAddressBalance = ref('');
 
-    let statusCode = ref('');
+    let minimumStakingAmount = ref(0);
+
+    let currentNetwork = props.vultureWallet.accountStore.currentlySelectedNetwork.networkName;
+
+    let isBonded = ref(false);
+
+    let statusCode = ref('StakingInfo');
 
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
 
@@ -92,6 +123,12 @@ export default defineComponent({
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
             stakingAddressBalance.value = stakingData.liquidBalance;
+            minimumStakingAmount.value = Number(stakingData.minimumBondAmount);
+            isBonded.value = stakingData.isStashAccountBonded;
+
+            if(isBonded.value == true) {
+                statusCode.value = 'BondExtra';
+            }
         }
 
     }else {
@@ -106,20 +143,28 @@ export default defineComponent({
         amountToStake.value = Number(value);
     }
 
+    function setCode(code: string) {
+        statusCode.value = code;
+    }
+
     return {
         transferToStakingAccount,
         stakingAddressBalance,
+        minimumStakingAmount,
         accountBalance,
+        currentNetwork,
         stakingAddress,
         statusCode,
         asset,
         txFee,
+        
 
         currentTxState,
         blockHash,
         txStates,
 
         amount: amount,
+        setCode: setCode,
         quitModal: quitModal,
     }
   }
@@ -138,9 +183,16 @@ hr {
 }
 .smallerHr {
     background-color: var(--bg_color_2);
-    height: 2px;
+    height: 1px;
     border-radius: 10px;
-    width: 90%;
+    width: 100%;
+}
+.seperatorHr {
+    width: 100%;
+    background-color: var(--bg_color_2);
+    height: 1px;
+    margin-bottom: 5px;
+    margin-top: 5px;
 }
 .outline {
     display: flex;
@@ -221,7 +273,7 @@ hr {
 .addressText {
     box-sizing: border-box;
     outline: none;
-    font-size: 20px;
+    font-size: 16px;
     outline-color: var(--bg_color_2);
     
     outline-width: 2px;
