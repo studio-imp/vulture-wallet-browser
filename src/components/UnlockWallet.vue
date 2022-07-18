@@ -22,7 +22,7 @@
                 </div>
             </div>
             <div style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 25px; padding-right: 25px; top: 510px; font-size: 16px">
-                <a href="https://vulturewallet.net" target="_blank" style="text-decoration: none;">vulturewallet.net</a>
+                <a href="https://vulturewallet.net" target="_blank" >vulturewallet.net</a>
             </div>
         </div>
 
@@ -70,6 +70,13 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+a {
+    color: var(--bg_color_2);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--accent_color);
+}
 .vultureLogo {
     fill: var(--bg_color);
     filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.6));
@@ -79,7 +86,7 @@ export default {
 }
 .lockIcon {
     color: var(--bg_color);
-    text-shadow: 0px 0px 5px rgb(0,0,0,0.7);
+    text-shadow: 0px 0px 6px rgb(0,0,0,0.6);
     font-size: 50px;
 }
 .textSmol {

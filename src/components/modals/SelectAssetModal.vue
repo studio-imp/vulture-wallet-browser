@@ -32,7 +32,7 @@
         </div>
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 15px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
-            <DefaultButton buttonHeight="40px" buttonWidth="154px" buttonText="Default" @button-click="selectToken('')"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="154px" :buttonText="nativeAsset" @button-click="selectToken('')" v-if="vultureWallet.getTokens().length > 0"/>
             <DefaultButton buttonHeight="40px" buttonWidth="154px" buttonText="Return" @button-click="quitModal()"/>
         </div>
             
@@ -71,6 +71,8 @@ export default defineComponent({
   },
   setup(props, context) {
 
+    let nativeAsset = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
+
     function quitModal() {
         props.modalSystem.closeModal();
     }
@@ -79,6 +81,8 @@ export default defineComponent({
         quitModal();
     }
     return {
+        nativeAsset,
+        
         quitModal: quitModal,
         selectToken: selectToken,
     }
@@ -123,7 +127,7 @@ hr {
 
 .vultureLogo {
     fill: var(--bg_color);
-    filter: drop-shadow(0px 0px 3px rgb(2,2,2));
+    filter: drop-shadow(0px 0px 6px rgba(0,0,0, 0.5));
 }
 .styled {
     color: var(--accent_color);

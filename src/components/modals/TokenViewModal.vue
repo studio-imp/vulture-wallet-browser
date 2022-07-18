@@ -128,7 +128,7 @@
 
             <div class="infoSection" v-if="Number(token.balance) <= 0">
                 <div style="text-align: center; font-size: 18px;">
-                    You currently don't own a "<span class="accentColored">{{token.name}}</span>" NFT/Token.
+                    This account has no "<span class="accentColored">{{token.name}}</span>" NFTs.
                 </div>
             </div> 
 

@@ -6,7 +6,7 @@
       </div>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="View Staking Info" @click="getStakingInfoTEST()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="transferBetweenAccounts()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="stakeFunds()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Nominate Validator"  @click="getStakingInfoTEST()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="getStakingInfoTEST()"/>
     </div>
@@ -46,7 +46,11 @@ export default defineComponent({
     function transferBetweenAccounts() {
       props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
     }
+    function stakeFunds() {
+      props.modalSystem.openModal(ModalEvents.BOND_FUNDS, null);
+    }
     return {
+      stakeFunds: stakeFunds,
       transferBetweenAccounts: transferBetweenAccounts,
       getStakingInfoTEST: getStakingInfoTEST,
     }

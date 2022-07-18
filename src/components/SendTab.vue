@@ -195,6 +195,10 @@ export default defineComponent({
   border-bottom-color: var(--accent_color);
   border-bottom-width: 2px;
   border-radius: 10px;
+
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .clickyAssetBox {
   cursor: pointer;

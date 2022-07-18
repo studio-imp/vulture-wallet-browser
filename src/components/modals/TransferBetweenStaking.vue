@@ -546,7 +546,7 @@ hr {
 }
 
 .blinkAccent {
-    animation: blink 1.15s infinite;
+    animation: blink 1s infinite;
 }
 .accentColored {
     color: var(--accent_color);
