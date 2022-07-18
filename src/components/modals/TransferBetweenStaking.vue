@@ -25,7 +25,9 @@
                 </div>
 
 
-                <div class="transferArrow" :class="transferToStakingAccount == true ? 'stakingDirection' : ''">
+                <div class="transferArrow"
+                :class="[transferToStakingAccount == true ? 'stakingDirection' : '',
+                 statusCode == 'verifyTransfer' ? 'blinkAccent' : '', statusCode == 'Sent' ? 'accentColored' : '']">
                     &#xe5d8;
                 </div>
 
@@ -51,13 +53,14 @@
                             <div class="circle">
                                 {{amountToTransfer}} <span style="font-size: 15px;">&nbsp;{{asset}}</span>
                             </div>
-                            <span class="accentColored" style="font-size: 20px;">+</span>
-                            <div class="circle">
+                            <span style="font-size: 20px;">+</span>
+                            <div class="circle" style="overflow-x: scroll-x;">
                                 {{Math.round(Number(txFee) *  Math.pow(10, 5)) / Math.pow(10, 5)}} &nbsp; <span style="font-size: 15px;">(tx fee)</span>
                             </div>
                         </div>
                         <hr class="smallerHr">
-                        <div class="amountStatusText">Please Confirm</div>
+                        <div class="amountStatusText" v-if="transferToStakingAccount == false">Send To Deposit address <br> Please Confirm</div>
+                        <div class="amountStatusText" v-if="transferToStakingAccount == true">Send to Staking address <br> Please Confirm</div>
                     </div>
 
                     <div class="transferBetweenBox" v-if="statusCode == 'Sent' || statusCode == 'Sending'">
@@ -82,7 +85,9 @@
                 </div>
 
 
-                <div class="transferArrow" :class="transferToStakingAccount == true ? 'stakingDirection' : ''">
+                <div class="transferArrow"
+                :class="[transferToStakingAccount == true ? 'stakingDirection' : '',
+                 statusCode == 'verifyTransfer' ? 'blinkAccent' : '', statusCode == 'Sent' ? 'accentColored' : '']">
                     &#xe5d8;
                 </div>
                 <!--
@@ -497,18 +502,24 @@ hr {
     justify-content: center;
     align-items: center;
     font-size: 22px;
-    min-width: 50px;
+    max-width: 115px;
+    width: auto;
     height: 30px;
+    max-height: 30px;
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
-    width: auto;
     margin: 10px;
     outline-style: solid;
     border-radius: 10px;
     outline-width: 2px;
     outline-color: var(--bg_color_2);
     color: var(--accent_color);
+
+    white-space: nowrap;
+
+    overflow-y: hidden;
+    overflow-x: auto;
 }
 .stakingDirection {
     transform: rotate(180deg);
@@ -534,6 +545,24 @@ hr {
     display: none;
 }
 
+.blinkAccent {
+    animation: blink 1.15s infinite;
+}
+.accentColored {
+    color: var(--accent_color);
+}
+@keyframes blink {
+    0% {
+        color: var(--bg_color_2);
+    }
+    50% {
+        color: var(--accent_color);
+    }
+    100% {
+        color: var(--bg_color_2);
+    }
+}
+
 .showSection {
   transition-duration: 180ms;
   filter: opacity(1);
@@ -545,7 +574,7 @@ hr {
 
 *::-webkit-scrollbar {
   width: 3px;        
- 
+ height: 3px;
 }
 *::-webkit-scrollbar-track {
   box-shadow: 0px 0px 0px rgba(0,0,0,1);
