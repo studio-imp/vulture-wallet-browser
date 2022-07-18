@@ -2,7 +2,7 @@
   <div class="flexBox" style="align-items: center;">
       <div class=navbar>
            <div @click="onTabSwitch('send')" class="iconFont" :class="currentTab == 'send' ? 'selected' : ''">
-               &#xe163;
+               &#xef63;
                 <div class="navbarUnderline" :class="currentTab == 'send' ? 'showUnderline' : ''">
                 </div>
            </div>

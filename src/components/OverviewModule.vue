@@ -131,6 +131,8 @@ export default defineComponent({
 .overviewModule {
   z-index: 1;
   box-sizing: border-box;
+
+
   border-width: 2px;
   border-color: var(--bg_color_2);
   border-style: solid;
@@ -144,7 +146,7 @@ export default defineComponent({
 
   border-bottom-left-radius:  18px;
   border-bottom-right-radius: 18px;
-  box-shadow: 0px 0px 4px rgb(6,6,6);
+  box-shadow: 0px 0px 5px rgb(6,6,6);
   /*
    */
 }

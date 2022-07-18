@@ -129,7 +129,7 @@
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"
             v-if="statusCode == 'Sending' || statusCode == 'Sent'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="quitModal()"
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="stake()"
             v-if="statusCode == 'Sent' && currentTxState == txStates.SUCCESS"/>
 
         </div>
@@ -142,7 +142,7 @@ import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
-import { ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
+import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 import { NetworkFeatures, NetworkType } from "@/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { StakingInfo, SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
@@ -307,7 +307,9 @@ export default defineComponent({
         transferToStakingAccount.value = !transferToStakingAccount.value;
         amount(String(amountToTransfer.value));
     }
-
+    function stake() {
+        props.modalSystem.openModal(ModalEvents.BOND_FUNDS, null);
+    }
     return {
         transferToStakingAccount,
         stakingAddressBalance,
@@ -323,6 +325,7 @@ export default defineComponent({
         txStates,
         txTimer,
 
+        stake: stake,
         amount: amount,
         quitModal: quitModal,
         sendTransaction: sendTransaction,

@@ -16,21 +16,26 @@
                 </div>
 
                 <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'StakingInfo'">
-                    <div style="width: 100%; margin-bottom: 5px;">
-                        <div style="font-size: 24px;">
-                            Staking Info
+                    <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row; font-size: 24px;
+                    align-items: center; justify-content: center;">
+                        <div style="font-size: 24px; ">
+                        Read
                         </div>
-                        <hr>
+                        <div style="font-size: 24px; margin-left: 5px; margin-top: 1px;" class="fonticon">
+                            &#xe88e;
+                        </div>
                     </div>
+                    <hr style="width: 100%; margin-bottom: 10px;">
                     <div class="infoParagraph" style="font-size: 20px;">
                         You need at least  <span class="accentColored">{{minimumStakingAmount}} <span style="font-size: 16px;">{{asset}} </span></span>
                         to stake on "<span class="accentColored">{{currentNetwork}}</span>".
                        
                         <hr class="seperatorHr">
-                        You will need to fund the <span class="accentColored">Staking Address</span> with
-                        <span class="accentColored">{{asset}}</span> to stake.
+                        You need to fund the <span class="accentColored">Staking Address</span> with
+                        $<span class="accentColored">{{asset}}</span> to stake.
                         <hr class="seperatorHr">
-                        The staking address <span class="accentColored">and</span> the Deposit address may need extra funds to cover transaction fees.
+                        You  can send $<span class="accentColored">{{asset}}</span> directly,
+                        or <a style="cursor: pointer; text-decoration: underline;" @click="transfer()">transfer</a> from the deposit address.
                         <hr class="seperatorHr">
                         Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
                         <span class="accentColored">Proceed?</span>
@@ -77,7 +82,7 @@ import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
-import { ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
+import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 import { NetworkFeatures, NetworkType } from "@/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import { StakingInfo, SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
@@ -151,6 +156,9 @@ export default defineComponent({
     function amount(value: string) {
         amountToStake.value = Number(value);
     }
+    function transfer() {
+        props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
+    }
 
     function setCode(code: string) {
         statusCode.value = code;
@@ -174,6 +182,7 @@ export default defineComponent({
 
         amount: amount,
         setCode: setCode,
+        transfer: transfer,
         quitModal: quitModal,
     }
   }
@@ -200,8 +209,8 @@ hr {
     width: 100%;
     background-color: var(--bg_color_2);
     height: 1px;
-    margin-bottom: 5px;
-    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-top: 10px;
 }
 .outline {
     display: flex;
