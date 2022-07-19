@@ -346,6 +346,7 @@ html {
 }
 .fonticon {
   font-family: fonticonA;
+  vertical-align: middle;
   font-size: 24px;
 }
 .vultureLoader {

@@ -7,7 +7,7 @@ import { AbstractToken, TokenStore } from "../types/abstractToken";
 import { Network, NetworkFeatures } from "../types/networks/networkTypes";
 import { TokenTypes } from "../types/tokenTypes";
 import { VultureRequest } from "../vultureRPC";
-import { StakingInfo } from "../types/stakingInfo";
+import { StakingInfo, SubstrateBondData } from "../types/stakingInfo";
 import { DefaultNetworks } from "../types/networks/network";
 import BigNumber from "bignumber.js";
 
@@ -160,6 +160,11 @@ export interface VultureAccount {
      * docs: Todo
      */
     estimateTxFee(destination: string, amountWhole: number, token?: AbstractToken): Promise<any>;
+
+    /** I'll do todo's later
+     * 
+     */
+    bond(stakingData: SubstrateBondData): Promise<any>
 
     
     isAddressValid(address: string): Promise<void>;

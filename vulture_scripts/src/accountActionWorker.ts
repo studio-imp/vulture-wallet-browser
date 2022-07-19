@@ -58,6 +58,10 @@ self.addEventListener("message", async (event) => {
                      event.data.params.from == null ? null : event.data.params.from);
                 break;
             }
+            case VultureMessage.STAKE_FUNDS: {
+                await wallet?.stakeFunds(event.data.params.bondData);
+                break;
+            }
             // Gets a transaction-fee estimate without signing/sending a transaction.
             case VultureMessage.ESTIMATE_TX_FEE: {
                 await wallet?.estimateTxFee(event.data.params.recipent, event.data.params.amount, event.data.params.token == null ? null : event.data.params.token);

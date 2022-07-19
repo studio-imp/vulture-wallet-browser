@@ -14,6 +14,7 @@ export const VultureMessage = {
 
     /* Staking And Nominating */
     "GET_STAKING_INFO": "GET_STAKING_INFO",
+    "STAKE_FUNDS": "STAKE_FUNDS",
 
     // Will update the passed in key-pairs to be encoded in the correct cryptography & address format,
     // This method is used primarily when the user switches network (all accounts will need to be updated accordingally).

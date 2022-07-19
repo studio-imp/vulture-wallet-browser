@@ -16,6 +16,8 @@ import { getERC20Info, getERC20Balance } from './contractFunctions';
 const { ContractPromise } = require('@polkadot/api-contract');
 import { AccountActionHandler } from "../InetworkAPI";
 import { Network } from '../../../../src/vulture_backend/types/networks/networkTypes';
+import { SubstrateBondData } from '../../../../src/vulture_backend/types/stakingInfo';
+import BigNumber from 'bignumber.js';
 
 
 export class SubstrateInitData {
@@ -94,6 +96,125 @@ export class SubstrateActions implements AccountActionHandler {
             ));
         });
     }
+    async stakeFunds(bondData: SubstrateBondData) {
+        if(this.isCryptoWasmReady) {
+            let kp = this.keyring?.addFromUri(this.seed + bondData.stakingAddressDerivationPath);
+            if(kp == undefined) {
+                console.error("No signature keypair could be generated for staking address!");
+                return;
+            }
+
+            let stakedBalance: BigNumber;
+            let minBond: BigNumber;
+
+            let minNominationAmount = await this.networkAPI?.query.staking.minNominatorBond();
+            if(minNominationAmount != undefined) {
+                minBond = new BigNumber((minNominationAmount.toHuman() as string).replaceAll(',', ''));
+            }else {
+                postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
+                    success: false,
+                }});
+                console.error("Failed getting minimum bond amount! This is dangerous.");
+                return;
+            }
+
+            // Get the staking information for the stakingAddress, by the controller address.
+            let ledger = await this.networkAPI?.query.staking.ledger(bondData.controllerAddress);
+            if(ledger != undefined) {
+                if(ledger.toJSON() == null) {
+                    stakedBalance = new BigNumber(0);
+                }else {
+                    stakedBalance = new BigNumber((ledger.toJSON() as any).active);
+
+                }
+            }else {
+                stakedBalance = new BigNumber(0);
+            }
+
+            // We are already bonded, we will add extra bond
+            if(stakedBalance.comparedTo(minBond) == 1 || stakedBalance.comparedTo(minBond) == 0) {
+                this.networkAPI?.tx.staking.bondExtra(bondData.bondAmountWhole).signAndSend(kp!, ({events = [], status}) => {
+                    if(status.isInBlock) {
+                        events.forEach(({event: {data, method, section}, phase}) => {
+                            if(method == 'ExtrinsicSuccess') {
+                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                  success: true,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            } else if(method == 'ExtrinsicFailed') {
+                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                  success: false,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            }
+                        });
+                    }else if(status.isDropped) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isFinalityTimeout) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isInvalid) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }
+                });
+
+            }else {
+                // We are not bonded, we will bond for the first time.
+                this.networkAPI?.tx.staking.bond(bondData.controllerAddress, bondData.bondAmountWhole, 'Staked').signAndSend(kp!, ({events = [], status}) => {
+                    if(status.isInBlock) {
+    
+                        events.forEach(({event: {data, method, section}, phase}) => {
+                            if(method == 'ExtrinsicSuccess') {
+                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                  success: true,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            } else if(method == 'ExtrinsicFailed') {
+                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                  success: false,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            }
+                        });
+                    }else if(status.isDropped) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isFinalityTimeout) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isInvalid) {
+                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }
+                });
+            }
+            
+        }else {
+            console.error("Cryptography WASM hasn't been initialized yet!");
+        }
+    }
     async generateAddress(derivationPath: string, accountIndex?: number) {
         if(this.isCryptoWasmReady){
             let kp = this.keyring!.addFromUri(this.seed + derivationPath);
@@ -107,7 +228,7 @@ export class SubstrateActions implements AccountActionHandler {
                 }
             ));
         }else{
-            throw new Error("Cryptography WASM hasn't been initialized yet!");
+            console.error("Cryptography WASM hasn't been initialized yet!");
         }
     }
     async getAddress() {
@@ -136,7 +257,7 @@ export class SubstrateActions implements AccountActionHandler {
             }
 
         }else {
-            throw new Error("Cryptography WASM hasn't been initialized yet!");
+            console.error("Cryptography WASM hasn't been initialized yet!");
         }
     }
     async updateAccountsToNetwork(accounts: AccountData[], network: Network) {
@@ -262,7 +383,7 @@ export class SubstrateActions implements AccountActionHandler {
               postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
                   success: false,
               }});
-              throw new Error("Cryptography WASM hasn't been initialized yet!");
+              console.error("Cryptography WASM hasn't been initialized yet!");
           }
     }
 }

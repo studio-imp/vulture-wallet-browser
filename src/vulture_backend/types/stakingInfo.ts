@@ -23,6 +23,13 @@ export interface SubstrateStakingInfo {
     currentEra: string,
 }
 
+export interface SubstrateBondData {
+    controllerAddress: string,
+    stakingAddressDerivationPath: string,
+    bondAmountWhole: string, // no decimals!!!
+    //rewardDestination: 
+}
+
 export enum StakingInfo {
     Substrate = 'Substrate',
 }

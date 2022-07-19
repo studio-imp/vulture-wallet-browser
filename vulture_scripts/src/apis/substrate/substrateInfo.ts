@@ -93,7 +93,7 @@ export class SubstrateInfo implements AccountInfoHandler {
             let bonded = await this.networkAPI?.query.staking.bonded(stakingAddress);
             if(bonded != undefined && bonded.toHuman() == null) {
                 stakingInfo.isStashAccountBonded = false;
-            }else if (bonded != undefined && bonded.toHuman() == stakingAddress) {
+            }else if (bonded != undefined && bonded.toHuman() == address) {
                 stakingInfo.isStashAccountBonded = true;
             }else {
                 success = false;
@@ -113,19 +113,8 @@ export class SubstrateInfo implements AccountInfoHandler {
                 if(data.toJSON() == null) {
                     stakingInfo.stakedBalance = '0';
                 }else {
-                    console.log(data.toJSON());
                     stakingInfo.stakedBalance = (data.toJSON() as any).active;
                 }
-                /*                
-                if(data.toJSON()) {
-                    stakingInfo.isStashAccountBonded = false;
-                }else if (data.toHuman() == stakingAddress) {
-                    stakingInfo.isStashAccountBonded = true;
-                }else {
-                    success = false;
-                    console.error("Failed getting staking information!");
-                }
-                */
             });
 
 

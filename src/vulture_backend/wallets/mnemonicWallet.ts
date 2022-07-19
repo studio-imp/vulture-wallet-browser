@@ -9,7 +9,7 @@ import { VultureMessage } from "../vultureMessage";
 import { AbstractToken } from "../types/abstractToken";
 import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/substrateActions";
 import { Network, NetworkFeatures } from "../types/networks/networkTypes";
-import { StakingInfo, SubstrateStakingInfo } from "../types/stakingInfo";
+import { StakingInfo, SubstrateBondData, SubstrateStakingInfo } from "../types/stakingInfo";
 
 
 
@@ -142,6 +142,22 @@ export class MnemonicWallet implements VultureAccount {
         this.infoWorker.terminate();
         clearInterval(this.updateTokenBalance);
     }
+    async bond(stakingData: SubstrateBondData) {
+        // The event callback from the worker, containing the Transaction info.
+        this.actionWorker.onmessage = (event) => {
+            if(event.data.method == VultureMessage.STAKE_FUNDS) {
+                // Emit the transation info data to accountEvents, so the front-end can use it!
+                this.accountEvents.emit(VultureMessage.STAKE_FUNDS, event.data.params);
+            }
+        };
+        // Posting a tx request to the worker.
+        this.actionWorker.postMessage({
+            method: VultureMessage.STAKE_FUNDS,
+            params: {
+                bondData: stakingData,
+            }
+        });
+    }
     async transferAssets(destination: String, amountWhole: number, token?: AbstractToken, from?: {address: string, derivationPath: string}) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {
@@ -242,15 +258,19 @@ export class MnemonicWallet implements VultureAccount {
                 if(event.data.method == VultureMessage.GET_STAKING_INFO) {
                     if(event.data.params.success == true && event.data.params.stakingInfo.stakingAddress == this.accountData.stakingAddress!) {
                         let stakingInfo = event.data.params.stakingInfo as SubstrateStakingInfo;
-                        let oldStakingInfo: SubstrateStakingInfo = this.accountData.stakingInfo.get(StakingInfo.Substrate);
+
+                        // This is fking stupid, I could make a util method to do all this shit I know, I will on the refactoring stage.
+                        let stakedBalance = new BigNumber(new BigNumber(stakingInfo.stakedBalance).div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)));
+                        let frozenBalance = new BigNumber(new BigNumber(stakingInfo.frozenBalance).div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)));
+                        let liquidBalance = new BigNumber(new BigNumber(stakingInfo.liquidBalance).div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)));
 
                         let newStakingInfo: SubstrateStakingInfo = {
                             stakingAddress: stakingInfo.stakingAddress,
                             controllerAddress: stakingInfo.controllerAddress,
                             isStashAccountBonded: stakingInfo.isStashAccountBonded,
-                            frozenBalance: oldStakingInfo.frozenBalance, // temporary
-                            stakedBalance: oldStakingInfo.stakedBalance, // temporary
-                            liquidBalance: oldStakingInfo.liquidBalance, // temporary
+                            frozenBalance: frozenBalance.toString(),
+                            stakedBalance: stakedBalance.toString(),
+                            liquidBalance: liquidBalance.toString(),
                             minimumBondAmount: new BigNumber(new BigNumber(stakingInfo.minimumBondAmount.replaceAll(',', '')).div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals))).toString(),
                             unlocking: stakingInfo.unlocking,
                             currentEra: stakingInfo.currentEra

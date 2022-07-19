@@ -1,5 +1,6 @@
 import { AbstractToken } from "../../../src/vulture_backend/types/abstractToken";
 import { Network } from "../../../src/vulture_backend/types/networks/networkTypes";
+import { SubstrateBondData } from "../../../src/vulture_backend/types/stakingInfo";
 import { TokenTypes } from "../../../src/vulture_backend/types/tokenTypes";
 import { AccountData } from "../../../src/vulture_backend/wallets/vultureWallet";
 
@@ -36,6 +37,7 @@ export interface AccountActionHandler {
     updateAccountsToNetwork(accounts: AccountData[], network: Network): Promise<void>,
     generateAddress(derivationPath: string, accountIndex: number): Promise<void>,           // This last parameter is specifically needed when an account has two addresses. 
     transferAssets(recipentAddress: string, amount: string, token?: AbstractToken, from?: {address: string, derivationPath: string} ): Promise<void>;
+    stakeFunds(bondData: SubstrateBondData): Promise<void>;
     estimateTxFee(recipent: string, amount: string, token?: AbstractToken): Promise<void>;
     getAddress(): Promise<void>;
 }
