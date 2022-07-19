@@ -43,7 +43,7 @@
                     </div>
                 </div>
 
-                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'">
+                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond' || statusCode == 'Sent'">
                     <div class="infoParagraph addressSection">
                         Staking Address: <span class="accentColored addressText"> {{stakingAddress}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
                     </div>
@@ -81,12 +81,27 @@
 
                 </div>
 
+                <div class="infoSection" v-if="statusCode == 'Sent'">
+                     <div class="infoParagraph">
+                        Status:
+                        <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
+                        <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
+                        <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <span class="fonticon" style="font-size: 18px;">&#xe876;</span><br></span>
+                        <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
+                    </div>
+                    <div class="infoParagraph">
+                        Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
+                    </div>
+                    <div class="infoParagraph" v-if="currentTxState == txStates.SUCCESS">
+                        Staked: <span class="accentColored">{{amountToStake}}<span style="font-size: 15px;">&nbsp;{{asset}}</span></span> 
+                    </div>
+                </div>
+
                 <div>
                     <div class="birdsOnBranch" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'" >
                     <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="190" height="122" viewBox="0, 0, 400,244"><g id="svgg"><path id="path0" d="M61.600 28.120 C 64.460 30.787,66.207 32.777,65.482 32.541 C 63.287 31.828,52.800 30.958,52.800 31.489 C 52.800 31.761,55.988 33.585,59.884 35.542 L 66.968 39.100 67.804 43.328 C 68.599 47.345,68.504 47.827,65.920 52.959 C 60.168 64.381,64.137 81.339,75.527 94.000 C 78.628 97.448,78.969 98.157,77.997 99.137 C 76.470 100.676,76.205 100.520,59.761 88.401 L 45.652 78.003 49.226 74.374 C 54.155 69.369,54.570 69.726,37.400 64.219 C 17.784 57.929,18.804 56.952,24.352 76.704 C 29.508 95.059,28.739 93.980,33.418 89.414 L 37.200 85.723 59.200 101.717 C 71.300 110.513,84.814 120.300,89.232 123.466 L 97.264 129.222 138.832 127.066 C 161.694 125.881,182.382 124.886,184.804 124.855 L 189.208 124.800 226.004 153.216 C 262.311 181.255,262.843 181.627,266.000 181.259 C 267.760 181.053,287.560 179.552,310.000 177.923 L 350.800 174.962 374.991 186.281 C 388.296 192.506,399.366 197.600,399.591 197.600 C 399.816 197.600,400.000 194.968,400.000 191.750 L 400.000 185.901 375.717 174.636 L 351.434 163.372 308.322 166.773 L 265.209 170.174 228.405 141.753 L 191.600 113.333 157.200 115.117 C 138.280 116.098,119.609 117.115,115.708 117.377 L 108.617 117.853 109.175 114.326 C 109.482 112.387,111.053 108.470,112.666 105.623 L 115.600 100.445 122.645 97.815 L 129.691 95.186 135.563 96.690 C 139.013 97.574,145.018 100.158,150.118 102.953 C 159.808 108.264,161.600 109.061,161.600 108.061 C 161.600 106.514,153.813 98.880,145.962 92.733 C 136.756 85.524,136.531 85.214,140.000 84.520 C 144.478 83.624,145.042 84.411,122.205 59.717 C 114.481 51.365,110.157 46.047,109.677 44.309 C 108.630 40.516,97.964 28.234,94.877 27.266 C 87.042 24.810,85.624 24.699,78.716 25.993 C 71.951 27.261,71.866 27.256,65.238 25.234 C 55.973 22.408,55.705 22.621,61.600 28.120 M90.916 103.279 C 94.488 103.901,97.775 103.916,102.165 103.329 C 105.576 102.873,108.490 102.623,108.639 102.773 C 109.458 103.592,105.160 109.668,101.656 112.644 L 97.602 116.087 89.669 110.332 C 79.291 102.802,79.557 101.301,90.916 103.279 " stroke="none" fill-rule="evenodd"></path></g></svg>                    </div>
                 </div>
             </div>
-
         </div>
 
 
@@ -97,7 +112,7 @@
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('Bond')" v-if="statusCode == 'StakingInfo'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="stake()" v-if="transferState == 'Ready'"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="stake()" v-if="transferState == 'Ready' && statusCode != 'Sent'"/>
 
         </div>
     </div>
@@ -149,6 +164,7 @@ export default defineComponent({
 
     let statusCode = ref('StakingInfo');
     let transferState = ref('');
+    
 
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
 
@@ -160,6 +176,8 @@ export default defineComponent({
     let currentTxState = ref(TxState.NONE);
     let blockHash = ref('');
     let txStates = TxState;
+
+    let txTimer = ref(0);
 
     if(stakingSupport.value == true) {
         stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
@@ -199,9 +217,9 @@ export default defineComponent({
                 transferState.value = 'InsufficientFunds';
             }
         }else if(statusCode.value == 'Bond'){
-            if(amountToStake.value > minimumStakingAmount.value && amountToStake.value >= minimumStakingAmount.value) {
+            if(amountToStake.value >= minimumStakingAmount.value && stakingAddressBalance.value >= amountToStake.value) {
                 transferState.value = 'Ready';
-            }else if(amountToStake.value > minimumStakingAmount.value && amountToStake.value < minimumStakingAmount.value) {
+            }else if(amountToStake.value >= minimumStakingAmount.value && stakingAddressBalance.value < amountToStake.value) {
                 transferState.value = 'InsufficientFunds';
             }else {
                 transferState.value = 'InsufficientStake';
@@ -218,25 +236,33 @@ export default defineComponent({
     }
 
     function stake() {
+
+        let timer = setInterval(async () => {
+            txTimer.value += 0.01;
+        }, 10);
+
         currentTxState.value = TxState.SENDING;
         props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.STAKE_FUNDS);
         props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.STAKE_FUNDS, (params) => {
-            console.log(params);
             if(params.status == false) {
                 currentTxState.value = TxState.FAILED;
                 blockHash.value = params.blockHash;
+                clearInterval(timer);
             } else if(params.status == 'InBlock') {
                 if(params.method == 'ExtrinsicSuccess') {
                     currentTxState.value = TxState.SUCCESS;
                     blockHash.value = params.blockHash;
                     stakedBalance.value += amountToStake.value;
                     stakingAddressBalance.value -= amountToStake.value;
+                    clearInterval(timer);
                 }else if(params.method == 'ExtrinsicFailed'){
                     currentTxState.value = TxState.FAILED;
                     blockHash.value = params.blockHash;
+                    clearInterval(timer);
                 }else {
                     currentTxState.value = TxState.FAILED;
                     blockHash.value = "Not included in block.";
+                    clearInterval(timer);
                 }
             }
             if(params.status == 'Ready') {
@@ -246,7 +272,7 @@ export default defineComponent({
                 currentTxState.value = TxState.PENDING;
             }
         });
-
+        statusCode.value = 'Sent';
         props.vultureWallet.currentWallet.bond({
             controllerAddress: props.vultureWallet.currentWallet.accountData.address,
             stakingAddressDerivationPath: "//staking_" + props.vultureWallet.currentWallet.accountData.accountIndex,
@@ -265,6 +291,7 @@ export default defineComponent({
         transferState,
         stakedBalance,
         statusCode,
+        txTimer,
         asset,
         txFee,
         
