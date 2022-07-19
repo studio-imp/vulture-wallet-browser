@@ -8,12 +8,18 @@
         overflow-wrap: break-word;">
 
             <div class="outline">
-                <div style="width: 100%;">
-                    <div style="font-size: 26px;">
-                        Transfer Between
+
+                <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
+                    align-items: center; justify-content: center;">
+                    <div style="font-size: 24px; ">
+                    Transfer Between
                     </div>
-                    <hr>
+                    <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        &#xea18;
+                    </div>
                 </div>
+                <hr style="width: 100%;">
+
                 <div class="infoSection" style="margin-bottom: auto; margin-top: 20px;">
                     <div class="infoParagraph addressSection">
                         Deposit Address: <span class="accentColored addressText"> {{vultureWallet.currentWallet.accountData.address.slice(0,10) + '...'}}</span>
@@ -341,6 +347,9 @@ hr {
     height: 1px;
     border-radius: 5px;
     background-color: var(--fg_color_2);
+}
+.fonticon {
+    color: var(--fg_color_2);
 }
 .smallerHr {
     background-color: var(--bg_color_2);

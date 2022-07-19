@@ -4,11 +4,16 @@
         flex-direction: column; align-items: center; margin-top: 25px; box-sizing: border-box; font-size: 20px;
         overflow-wrap: break-word;">
             
-            <div style="width: 100%; text-align: center; margin-bottom: 0px; margin-top: 0px;  font-size: 24px; margin-bottom: 15px;">
+            <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
+                align-items: center; justify-content: center;">
+                <div style="font-size: 24px; ">
                 Send Assets
-                <br>
-                <hr>
+                </div>
+                <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                    &#xef63;
+                </div>
             </div>
+            <hr style="width: 100%; margin-bottom: 15px;">
 
             <div class="outline">
                 <div class="infoParagraph">
@@ -202,6 +207,7 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 hr {
     margin-top: 5px;
     margin-bottom: 5px;
@@ -215,6 +221,9 @@ hr {
     background-color: var(--bg_color_2);
     height: 2px;
     width: 100%;
+}
+.fonticon {
+    color: var(--fg_color_2);
 }
 .outline {
     display: flex;

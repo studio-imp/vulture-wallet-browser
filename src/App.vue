@@ -270,6 +270,9 @@ html {
   --bg_color_2: rgb(38, 38, 38);
 
   --incorrect_color: rgb(255, 0, 65);
+  --warning_color: rgb(255, 173, 106);
+  --info_color:rgb(137, 145, 255);
+  
   
   --fg_color: rgb(255,255,255);
   --fg_color_2: rgb(150, 150, 150);
@@ -291,6 +294,12 @@ html {
 }
 ::selection {
   background: var(--accent_color);
+}
+.infoColored {
+  color: var(--info_color);
+}
+.warningColored {
+  color: var(--warning_color);
 }
 .flexBox {
   display: flex;

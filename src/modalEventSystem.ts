@@ -45,9 +45,11 @@ export enum ModalEvents{
     
     // Staking
     TRANSFER_BETWEEN_STAKING_ACCOUNT = "TRANSFER_BETWEEN_STAKING_ACCOUNT", 
+    NOMINATE_VALIDATOR = "NOMINATE_VALIDATOR",
     BOND_FUNDS = "BOND_FUNDS",
     UNBOND = "UNBOND",
 
+    // Wallet settings n stuff.
     RESET_WALLET = "RESET_WALLET",
     NONE = "NONE",
 }
