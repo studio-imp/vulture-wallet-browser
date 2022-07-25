@@ -68,6 +68,11 @@ self.addEventListener("message", async (event) => {
                 await keylessWallet?.getStakingInfo(event.data.params.address, event.data.params.stakingAddress);
                 break;
             }
+            // Gets a list of validators along with their relevant staking info, such as their commission.
+            case VultureMessage.GET_VALIDATOR_LIST: {
+                await keylessWallet?.getValidatorInfo();
+                break;
+            }
             // Subscribes token address to changes, used to know when we should attempt to update balance. Quite inefficient since
             // it doesn't support raw storage subscriptions, but when that is supported it will be added.
             case VultureMessage.ADD_TOKEN_TO_SUBSCRIPTION: {

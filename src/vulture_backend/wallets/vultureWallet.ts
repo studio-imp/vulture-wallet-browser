@@ -593,6 +593,35 @@ export class VultureWallet {
             });
         });
     }
+    async getValidatorInfo(): Promise<any> {
+        if(this.supportsFeature(NetworkFeatures.STAKING)) {
+            let wallet = this.currentWallet;
+            return new Promise(function(resolve, reject) {
+    
+                wallet.infoWorker.onmessage = (event: any) => {
+                    if(event.data.method == VultureMessage.GET_VALIDATOR_LIST) {
+                        if(event.data.params.success == true) {
+                            resolve(event.data);
+                        }else {
+                            console.error("Failed getting staking info!");
+                            reject(new VultureRequest(VultureMessage.GET_VALIDATOR_LIST, {
+                                success: false,
+                                error: "Failed getting staking info!"
+                            }));
+                        }
+                    }
+                };
+    
+                wallet.infoWorker.postMessage({
+                    method: VultureMessage.GET_VALIDATOR_LIST,
+                    params: {
+                    }
+                });
+            });
+        }else {
+            console.error("Current network does not support staking!");
+        }
+    }
     /** ## getStakingInfo
      * Calls a worker method which retrieves staking/nomination information, this is abstract due to
      * the fact that staking works differently depending on each network, but for now we are focusing on

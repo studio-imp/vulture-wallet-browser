@@ -13,6 +13,7 @@ export const VultureMessage = {
     "TRANSFER_ASSETS": "TRANSFER_ASSETS",
 
     /* Staking And Nominating */
+    "GET_VALIDATOR_LIST": "GET_VALIDATOR_LIST",
     "GET_STAKING_INFO": "GET_STAKING_INFO",
     "STAKE_FUNDS": "STAKE_FUNDS",
 

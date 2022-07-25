@@ -49,9 +49,10 @@ export interface AccountInfoHandler {
     subscribeToAddressEvents(address?: string): Promise<void>;
     addTokenToSubscription(tokenAddress: string, tokenType: string): Promise<void>;
     getBalanceOfToken(tokenAddress: string, tokenType: string): Promise<void>;
-    getStakingInfo(address: string, stakingAddress: string): Promise<void>;
+    getValidatorInfo(): Promise<void>;
     getTokenMetadata(tokenAddress: string, tokenType: TokenTypes, tokenId?: number): Promise<void>;
     validateAddress(address: string): Promise<void>;
+    getStakingInfo(address: string, stakingAddress: string): Promise<void>;
     getTokenData(tokenAddress: string, tokenType: string): Promise<void>;
     getBalanceOf(address: string): Promise<void>;
     setAddress(address: string): Promise<void>;

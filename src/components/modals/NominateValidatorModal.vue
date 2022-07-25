@@ -119,6 +119,13 @@ export default defineComponent({
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
     let accountAddress = ref(props.vultureWallet.currentWallet.accountData.address);
 
+    let validatorInfo;
+
+    props.vultureWallet.getValidatorInfo().then((data) => {
+        console.log(data);
+    });
+    
+
     if(stakingSupport.value == true) {
 
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {

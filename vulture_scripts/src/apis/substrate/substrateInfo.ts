@@ -66,6 +66,77 @@ export class SubstrateInfo implements AccountInfoHandler {
             ));
         });
     }
+    async getValidatorInfo() {
+        if(this.isCryptoReady) {
+            let success: boolean = true;
+
+            // K-V Store between a validator address, and it's corresponding data.
+            // Looks wonky, I might create an type for this in the future.
+            let validatorInfo: Map<String, {
+                comission: number,
+                identity?: {
+                    webURI?: string,
+                    twitter?: string,
+                    email?: string, 
+                }
+            }> = new Map<String, {
+                comission: number,
+                identity?: {
+                    webURI?: string,
+                    twitter?: string,
+                    email?: string, 
+                }
+            }>();
+
+            let validators = await this.networkAPI?.query.session.validators();
+            if(validators != undefined && validators.toJSON() != null) {
+                let currentValidators: string[] = (validators.toJSON() as string[]);
+                // Get the current era.
+                let era = await this.networkAPI?.query.staking.currentEra();
+
+                let currentEra: string | undefined = undefined;
+                if(era != undefined && era.toHuman() != null) {
+                    currentEra = (era.toHuman() as string);
+                }else {
+                    console.error("Failed to get era!");
+                    success = false;
+                }
+                if(currentEra != undefined) {
+                    // For each validator, get relevant info and instert it into the validatorInfo map.
+                    for(let i = 0; i < currentValidators.length; i++) {
+                        let validatorComission: number;
+
+                        let validatorPrefs = await this.networkAPI?.query.staking.erasValidatorPrefs(currentEra, currentValidators[i]);
+                        if(validatorPrefs != undefined && validatorPrefs.toJSON() != null) {
+                            validatorComission = Number((validatorPrefs.toJSON() as any).commission.toHuman());
+                            validatorInfo.set(currentValidators[i], {
+                                comission: validatorComission,
+                                identity: undefined,
+                            });
+                        }else {
+                            console.error("Failed to get validator info for: " + currentValidators[i]);
+                        }
+                    }
+                }
+            }else {
+                success = false;
+            }
+
+            if(success == true) {
+                postMessage({method: VultureMessage.GET_VALIDATOR_LIST, params: {
+                    success: true,
+                    validatorInfo: validatorInfo,
+                }});
+            }else {
+                postMessage({method: VultureMessage.GET_VALIDATOR_LIST, params: {
+                    success: false,
+                }});
+            }
+
+        }else {
+            throw new Error("Cryptography WASM hasn't been initialized yet!");
+        }
+    }
     async getStakingInfo(address: string, stakingAddress: string) {
         if(this.isCryptoReady) {
             let stakingInfo: SubstrateStakingInfo = {
