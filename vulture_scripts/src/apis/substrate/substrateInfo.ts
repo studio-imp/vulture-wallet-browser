@@ -104,18 +104,39 @@ export class SubstrateInfo implements AccountInfoHandler {
                 if(currentEra != undefined) {
                     // For each validator, get relevant info and instert it into the validatorInfo map.
                     for(let i = 0; i < currentValidators.length; i++) {
-                        let validatorComission: number;
+                        let validatorComission: number = 0;
 
                         let validatorPrefs = await this.networkAPI?.query.staking.erasValidatorPrefs(currentEra, currentValidators[i]);
                         if(validatorPrefs != undefined && validatorPrefs.toJSON() != null) {
-                            validatorComission = Number((validatorPrefs.toJSON() as any).commission.toHuman());
-                            validatorInfo.set(currentValidators[i], {
-                                comission: validatorComission,
-                                identity: undefined,
-                            });
+                            validatorComission = Number((validatorPrefs.toJSON() as any).commission);
                         }else {
                             console.error("Failed to get validator info for: " + currentValidators[i]);
                         }
+
+                        let identity: {
+                            email?: string,
+                            webURI?: string,
+                            twitter?: string,
+                        } = {
+                            email: undefined,
+                            webURI: undefined,
+                            twitter: undefined,
+                        };
+                        // Get validator  identity.
+                        let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
+                        if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
+                            let res = (validatorIdentity.toHuman() as any);
+                            identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
+                            identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
+                            identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
+
+                            console.log(res);
+                        }
+
+                        validatorInfo.set(currentValidators[i], {
+                            comission: validatorComission,
+                            identity: identity,
+                        });
                     }
                 }
             }else {
