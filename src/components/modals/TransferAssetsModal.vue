@@ -21,7 +21,7 @@
                     
                 </div>
                 <div class="infoParagraph addressSection">
-                    To: <span class="accentColored addressText">{{assetTransferData.recipent}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
+                    To: <span class="accentColored addressText">{{assetTransferData.recipent}}</span> <span class="fonticon">&#xe177;</span>
                 </div>
                 <hr class="smallerHr">
                 <div class="infoParagraph">
@@ -224,6 +224,7 @@ hr {
 }
 .fonticon {
     color: var(--fg_color_2);
+    font-size: 20px;
 }
 .outline {
     display: flex;

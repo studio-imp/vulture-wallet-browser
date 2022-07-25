@@ -73,15 +73,17 @@ export class SubstrateInfo implements AccountInfoHandler {
             // K-V Store between a validator address, and it's corresponding data.
             // Looks wonky, I might create an type for this in the future.
             let validatorInfo: Map<String, {
-                comission: number,
-                identity?: {
+                comission: string,
+                identity: {
+                    name?: string,
                     webURI?: string,
                     twitter?: string,
                     email?: string, 
                 }
             }> = new Map<String, {
-                comission: number,
-                identity?: {
+                comission: string,
+                identity: {
+                    name?: string,
                     webURI?: string,
                     twitter?: string,
                     email?: string, 
@@ -104,33 +106,35 @@ export class SubstrateInfo implements AccountInfoHandler {
                 if(currentEra != undefined) {
                     // For each validator, get relevant info and instert it into the validatorInfo map.
                     for(let i = 0; i < currentValidators.length; i++) {
-                        let validatorComission: number = 0;
 
+                        // Get validator preferences (basically just the commission).
+                        let validatorComission: string = '0';
                         let validatorPrefs = await this.networkAPI?.query.staking.erasValidatorPrefs(currentEra, currentValidators[i]);
                         if(validatorPrefs != undefined && validatorPrefs.toJSON() != null) {
-                            validatorComission = Number((validatorPrefs.toJSON() as any).commission);
+                            validatorComission = String((validatorPrefs.toJSON() as any).commission);
                         }else {
                             console.error("Failed to get validator info for: " + currentValidators[i]);
                         }
 
+                        // Get validator identity (in the case that it has one).
                         let identity: {
+                            name?: string,
                             email?: string,
                             webURI?: string,
                             twitter?: string,
                         } = {
+                            name: undefined,
                             email: undefined,
                             webURI: undefined,
                             twitter: undefined,
                         };
-                        // Get validator  identity.
                         let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
                         if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
                             let res = (validatorIdentity.toHuman() as any);
                             identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
-                            identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
+                            identity.name = res.info.display.Raw == null ? undefined : res.info.display.Raw;
                             identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
-
-                            console.log(res);
+                            identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
                         }
 
                         validatorInfo.set(currentValidators[i], {

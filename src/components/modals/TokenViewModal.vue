@@ -5,13 +5,13 @@
         
         <!--  ERC20   -->
         <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
-        flex-direction: column; align-items: center;  box-sizing: border-box; font-size: 18px;
+        flex-direction: column; align-items: center;  box-sizing: border-box; font-size: 20px;
         overflow-wrap: break-word;"
          v-if="vultureWallet.tokenStore != null && tokenData.tokenType == tokenTypes.ERC20">
 
             <div class="outline">
 
-                <div style="width: 100%; margin-bottom: auto;">
+                <div style="width: 100%; margin-bottom: 10px;">
                     <div style="font-size: 26px;">Token: 
                         {{token.name}}
                     </div>
@@ -39,13 +39,17 @@
                 </div>
                 <div class="infoSection">
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span> <span class="fonticon">&#xe177;</span>
                         <br>
                     </div>
                 </div>
 
-                <div class="infoSection" style="margin-bottom: auto;">
-                    <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+                <div class="infoSection" style="margin-top: auto;">
+                    <div class="flexBox" style="flex-direction: row; margin-top: 8px; align-items: center;">
+                        <span class="fonticon" style="margin: 5px; margin-right: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
+                        <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+                        <span class="fonticon" style="margin: 5px;  margin-left: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
+                    </div>
                     <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
                         Remove this token from the token token list. You will have to re-add it to see it again in the wallet!
                     </i>
@@ -57,7 +61,7 @@
 
         <!--    ERC721    -->
         <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
-        flex-direction: column; align-items: center; box-sizing: border-box; font-size: 18px;
+        flex-direction: column; align-items: center; box-sizing: border-box; font-size: 20px;
         overflow-wrap: break-word;"
          v-if="vultureWallet.tokenStore != null && tokenData.tokenType == tokenTypes.ERC721">
 
@@ -120,14 +124,14 @@
                         <hr class="smallerHr">
                     </span>
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span> <span class="fonticon">&#xe177;</span>
                         <br>
                     </div>
                 </div>
             </div>
 
             <div class="infoSection" v-if="Number(token.balance) <= 0">
-                <div style="text-align: center; font-size: 18px;">
+                <div style="text-align: center; font-size: 20px;">
                     This account has no "<span class="accentColored">{{token.name}}</span>" NFTs.
                 </div>
             </div> 
@@ -141,14 +145,19 @@
                     <hr class="smallerHr">
                 </span>
                     <div class="infoParagraph addressSection">
-                        Token Address: <span class="accentColored addressText">{{token.address}}</span>
+                        Token Address: <span class="accentColored addressText">{{token.address}}</span> <span class="fonticon">&#xe177;</span>
                         <br>
                     </div>
                 </div>
             </div>
 
-            <div class="infoSection">
-                <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+
+            <div class="infoSection" style="">
+                <div class="flexBox" style="flex-direction: row; margin-top: 8px; align-items: center;">
+                    <span class="fonticon" style="margin: 5px; margin-right: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
+                    <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
+                    <span class="fonticon" style="margin: 5px;  margin-left: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
+                </div>
                 <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
                     Remove this NFT from the NFT token list. You will have to re-add it to see it again in the wallet!
                 </i>
@@ -161,11 +170,11 @@
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Back" @button-click="previousToken()"
-            v-if="tokenData.tokenType == tokenTypes.ERC721"/>
+            v-if="tokenData.tokenType == tokenTypes.ERC721 && Number(token.balance) > 0"/>
             <DefaultButton buttonHeight="40px" buttonWidth="120px" buttonText="Return" @button-click="quitModal()"/>
 
             <DefaultButton buttonHeight="40px" buttonWidth="80px" buttonText="Next" @button-click="nextToken()"
-            v-if="tokenData.tokenType == tokenTypes.ERC721"/>
+            v-if="tokenData.tokenType == tokenTypes.ERC721 && Number(token.balance) > 0"/>
         </div>
     </div>
 </template>
@@ -355,6 +364,10 @@ hr {
     border-radius: 5px;
     background-color: var(--fg_color_2);
 }
+.fonticon {
+    color: var(--fg_color_2);
+    font-size: 20px;
+}
 .smallerHr {
     background-color: var(--bg_color_2);
     height: 1px;
@@ -430,7 +443,7 @@ hr {
     width: 100%;
 }
 .sectionDescription {
-    font-size: 22px;
+    font-size: 20px;
     margin-right: auto;
     margin-left: auto;
 }
@@ -441,7 +454,7 @@ hr {
 .infoParagraph {
     width: 100%;
     text-align: left;
-    font-size: 22px;
+    font-size: 20px;
 }
 .addressSection {
     word-break: break-all;
@@ -457,7 +470,7 @@ hr {
 .metadataParagraph {
     width: 100%;
     text-align: left;
-    font-size: 19px;
+    font-size: 20px;
 }
 .description {
     font-size: 16px;

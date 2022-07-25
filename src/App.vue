@@ -270,7 +270,7 @@ html {
   --bg_color_2: rgb(38, 38, 38);
 
   --incorrect_color: rgb(255, 0, 65);
-  --warning_color: rgb(255, 173, 106);
+  --warning_color: rgb(255, 130, 58);
   --info_color:rgb(137, 145, 255);
   
   
