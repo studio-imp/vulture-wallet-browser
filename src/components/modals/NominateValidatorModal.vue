@@ -34,7 +34,7 @@
                     <div class="infoParagraph" style="font-size: 19px;">
                         You need to nominate a <span class="accentColored">validator</span> to earn staking rewards.
                         <hr class="seperatorHr">
-                        The <span class="accentColored">validator</span> becomes more powerful as a result of your stake.
+                        The <span class="accentColored">validator</span> gains more power in the network as a result of your stake.
 
                         <hr class="seperatorHr">
                         You will earn less rewards if the <span class="accentColored">validator</span> behaves maliciously.
@@ -42,6 +42,32 @@
                         Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
                         <hr class="seperatorHr">
                         <div class="accentColored" style="text-align: center; font-size: 24px;">Proceed?</div>
+                    </div>
+                </div>
+
+                <div class="validatorBox" v-if="statusCode == 'SelectValidator'">
+                    <div style="display: flex; width: 100%; flex-direction: row;
+                    align-items: center; justify-content: center;">
+                        <div style="font-size: 22px;margin: 7px;">
+                        Select Validator
+                        </div>
+                        <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                            &#xe177;
+                        </div>
+                    </div>
+                    <hr class="smallerHr" style="margin-top: 0px; margin-bottom: 0px;">
+                    <div class="validatorScroll" v-if="isValidatorInfoPending == false">
+                        <ValidatorModule v-for="(validator, index) in allValidators" v-bind:key="(validator, index)"
+                        :address="validator.address"
+                        :comission="validator.comission"
+                        :name="validator.name"
+                        :webURI="validator.webURI"
+                        :email="validator.email"
+                        :index="index"/>
+                    </div>
+                    <div v-else class="flexBox" style="width: 100%; height: 100%; align-items: center;">
+                        <div class="vultureLoader" style="margin-top: auto; margin-bottom: auto;">
+                        </div>
                     </div>
                 </div>
 
@@ -65,10 +91,9 @@
 
 
 
-        <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
+        <div class="flexBox" style="flex-grow: 0; margin-bottom: 8px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
-
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('SelectValidator')" v-if="statusCode == 'NominationInfo'"/>
         </div>
     </div>
@@ -78,6 +103,7 @@
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
+import ValidatorModule from "../ValidatorModule.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
@@ -91,6 +117,7 @@ export default defineComponent({
   name: "StakeFundsModal",
   components: {
     DropdownSelection,
+    ValidatorModule,
     DefaultButton,
     MinimalInput,
   },
@@ -121,8 +148,31 @@ export default defineComponent({
 
     let validatorInfo;
 
+    let isValidatorInfoPending = ref(true);
+
+    let allValidators: {
+        address: string,
+        comission: number,
+        email?: string
+        name?: string,
+        webURI?: string,
+    }[] = [];
+
     props.vultureWallet.getValidatorInfo().then((data) => {
-        console.log(data);
+        let validators = Array.from(data.validatorInfo.keys()) as string[];
+        for(let i = 0; i < validators.length; i++) {
+            let validator = data.validatorInfo.get(validators[i]);
+            let comission = Number(validator.comission) / Math.pow(10, 9);
+            allValidators.push({
+                address: validators[i],
+                comission: comission,
+                email: validator.identity.email == undefined ? undefined : validator.identity.email,
+                webURI: validator.identity.webURI == undefined ? undefined : validator.identity.webURI,
+                name: validator.identity.name == undefined ? undefined : validator.identity.name,
+            });
+        }
+        isValidatorInfoPending.value = false;
+        console.log(allValidators);
     });
     
 
@@ -153,13 +203,14 @@ export default defineComponent({
 
 
     return {
+        isValidatorInfoPending,
         accountBalance,
         currentNetwork,
         stakedBalance,
         accountAddress,
+        allValidators,
         statusCode,
         asset,
-
         setCode: setCode,
         quitModal: quitModal,
     }
@@ -198,6 +249,35 @@ hr {
     height: 1px;
     margin-bottom: 10px;
     margin-top: 10px;
+}
+
+.validatorBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--bg_color_2);
+    box-sizing: border-box;
+
+
+    height: 100%;
+    width: 100%;
+
+    margin-top: 15px;
+    
+    overflow: hidden;
+
+    border-radius: 5px;
+}
+.validatorScroll {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    overflow-y: auto;
 }
 .outline {
     display: flex;
@@ -423,7 +503,7 @@ hr {
 }
 
 *::-webkit-scrollbar {
-    width: 3px;        
+    width: 5px;        
     height: 3px;
 }
 *::-webkit-scrollbar-track {

@@ -128,13 +128,19 @@ export class SubstrateInfo implements AccountInfoHandler {
                             webURI: undefined,
                             twitter: undefined,
                         };
-                        let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
-                        if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
-                            let res = (validatorIdentity.toHuman() as any);
-                            identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
-                            identity.name = res.info.display.Raw == null ? undefined : res.info.display.Raw;
-                            identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
-                            identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
+                        try {
+                            let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
+                            if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
+                                let res = (validatorIdentity.toHuman() as any);
+                                identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
+                                identity.name = res.info.display.Raw == null ? undefined : res.info.display.Raw;
+                                identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
+                                identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
+                            }
+    
+                        }catch(error){
+                            // Do nothing, identityof isn't a necessary function.
+                            // Might do a check if the method exists in the future.
                         }
 
                         validatorInfo.set(currentValidators[i], {
@@ -201,10 +207,19 @@ export class SubstrateInfo implements AccountInfoHandler {
                 stakingInfo.minimumBondAmount = (minNominationAmount.toHuman() as string);
             }else {
                 success = false;
-                console.error("Failed getting minimum bond amount! This is dangerous.");
+                console.error("Failed getting minimum bond amount! This is fatal.");
             }
 
             // Get the staking information for the stakingAddress, by the controller address.
+
+            let stakingStatus = await this.networkAPI?.query.staking.ledger(address);
+            if(stakingStatus != undefined && stakingStatus.toJSON() != null) {
+                stakingInfo.stakedBalance = (stakingStatus.toJSON() as any).active;
+            }else {
+                stakingInfo.stakedBalance = '0';
+            }
+
+            /* // Remove when above is confirmed working, its just cleaner.
             this.networkAPI?.query.staking.ledger(address).then((data) => {
                 if(data.toJSON() == null) {
                     stakingInfo.stakedBalance = '0';
@@ -212,6 +227,18 @@ export class SubstrateInfo implements AccountInfoHandler {
                     stakingInfo.stakedBalance = (data.toJSON() as any).active;
                 }
             });
+             */
+
+            // Attempt to get the validator the stash is currently staked to, in case that it is already nominating.
+            let nominationData = await this.networkAPI?.query.staking.nominators(stakingAddress);
+            if(nominationData != undefined && nominationData.toJSON() != null) {
+                console.log(nominationData.toJSON());
+                if((nominationData.toJSON() as any).targets.length > 1) {
+                    stakingInfo.nominationAddress = (nominationData.toJSON() as any).targets[0];
+                }
+            }else {
+                console.info("Failed to get staking address nominations. Likely due to the staking address not having a nomination.");
+            }
 
 
             let account = await this.networkAPI?.query.system.account(stakingAddress);

@@ -601,7 +601,7 @@ export class VultureWallet {
                 wallet.infoWorker.onmessage = (event: any) => {
                     if(event.data.method == VultureMessage.GET_VALIDATOR_LIST) {
                         if(event.data.params.success == true) {
-                            resolve(event.data);
+                            resolve(event.data.params);
                         }else {
                             console.error("Failed getting staking info!");
                             reject(new VultureRequest(VultureMessage.GET_VALIDATOR_LIST, {
