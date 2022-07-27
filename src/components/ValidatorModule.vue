@@ -1,14 +1,21 @@
 <template>
   <div @click="moduleClick()" class="module" v-bind:class="selected == true ? 'selectedAccount' : ''">
-    <div class="icon">
-      &#xea3d;
-    </div>
-      <div class="flexBox left" style="flex-direction: row;">
-        "<div class="overflowEllipsis">{{name == null ? address : name}}</div>"
-      </div>
-      <div class="right">
-        {{comission * 100}}%
-      </div>
+        <div class="flexBox" style="flex-direction: row; width: 100%; align-items: center;">
+
+          <div class="expandButton">
+              &#xe5cf;
+          </div>
+          <div class="flexBox left" style="flex-direction: row;">
+            "<div class="overflowEllipsis">{{name == null ? address : name}}</div>"
+          </div>
+          <div class="right">
+            {{comission * 100}}%
+          </div>
+        </div>
+
+        <div class="flexBox" style="width: 100%; align-items: center; padding: 3px; display: none;">
+
+        </div>
   </div>
 </template>
 
@@ -54,7 +61,7 @@ export default {
   text-align: right;
 }
 .left {
-  margin: 5px;
+  margin: 10px;
   font-size: 17px;
   max-width: 58%;
   text-align: left;
@@ -73,13 +80,33 @@ export default {
   width: 100%;
   align-self: left;
 }
+.expandButton {
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 25px;
+    margin: 10px;
+    border-width: 1px;
+    border-style: solid;
+
+    font-family: fonticonA;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 24px;
+
+    width: 25px;
+    height: 25px;
+}
 .module {
   display: flex;
+  flex-direction: column;
   align-items: center;
 
-  margin: 20px;
-  margin-top: 5px;
-  margin-bottom: 8px;
+  margin: 15px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+
 
   box-sizing: border-box;
   border-color: var(--bg_color_2);
@@ -87,12 +114,15 @@ export default {
   border-radius: 12px;
   border-style: solid;
 
+
   box-shadow: 0px 0px 3px rgb(6,6,6);
 
   width: 90%;
-  min-height: 52px;
+  height: auto;
 
   cursor: pointer;
+
+  user-select: none;
 
   transition-duration: 160ms;
 }

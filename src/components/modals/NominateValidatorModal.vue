@@ -12,7 +12,7 @@
                 <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
                     align-items: center; justify-content: center;">
                     <div style="font-size: 24px; ">
-                    Nominating
+                    Nominate
                     </div>
                     <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
                         &#xe175;
