@@ -79,7 +79,41 @@
                     <hr class="smallerHr">
                     <div class="infoParagraph addressSection">
                         Balance: <span class="accentColored"> {{Math.round(Number(accountBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
-                        <span style="font-size: 14px;" >$<span class="accentColored">{{asset}}</span></span> <span class="fonticon" style="font-size: 20px;">&#xe898;</span>
+                        <span style="font-size: 14px;" >$<span class="accentColored">{{asset}}</span></span>
+                    </div>
+
+                </div>
+
+                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'ConfirmNomination' && selectedValidator != null">
+                    <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row;
+                    align-items: center; justify-content: center;">
+                        <div style="font-size: 24px; ">
+                        Nominee Info
+                        </div>
+                        <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                            &#xe88e;
+                        </div>
+                    </div>
+                    <hr style="width: 100%; margin-bottom: 10px;">
+
+                    <div class="infoParagraph addressSection">
+                        Address: <span class="addressText accentColored">{{selectedValidator.address.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span> 
+                    </div>
+                    <hr class="smallerHr">
+                    <div class="infoParagraph sizedText" v-if="selectedValidator.name != ''">
+                        Name: <span class="sizedText accentColored">{{selectedValidator.name.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe56a;</span> 
+                    </div>
+                    <hr class="smallerHr">
+                    <div class="infoParagraph sizedText" v-if="selectedValidator.webURI != ''">
+                        Web: <span class="addressText accentColored" style="font-size: 20px;">
+                            {{selectedValidator.webURI.value}}
+                            </span> <span class="fonticon" style="font-size: 20px;">&#xef42;</span> 
+                    </div>
+                    <hr class="smallerHr">
+                    <div class="infoParagraph">
+                        Comission: <span class="addressText accentColored" style="font-size: 20px;">
+                            {{selectedValidator.comission.value * 100}}%
+                            </span>
                     </div>
                 </div>
 
@@ -94,8 +128,14 @@
 
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 8px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()" v-if="statusCode != 'ConfirmNomination'"/>
+            
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Back" @button-click="setCode('SelectValidator')" v-if="statusCode == 'ConfirmNomination'"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Nominate" @button-click="nominate()" v-if="statusCode == 'ConfirmNomination'"/>
+
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('SelectValidator')" v-if="statusCode == 'NominationInfo'"/>
+
+
         </div>
     </div>
 </template>
@@ -159,13 +199,13 @@ export default defineComponent({
         webURI?: string,
     }[] = [];
 
-    let selectedValidator: {
-        address: string,
-        comission: number,
-        email?: string
-        name?: string,
-        webURI?: string, 
-    } | null = null;
+    let selectedValidator = {
+        address: ref(''),
+        comission: ref(0),
+        email: ref(''),
+        name: ref(''),
+        webURI: ref(''), 
+    };
 
     props.vultureWallet.getValidatorInfo().then((data) => {
         let validators = Array.from(data.validatorInfo.keys()) as string[];
@@ -209,12 +249,21 @@ export default defineComponent({
         statusCode.value = code;
     }
     function selectValidator(index: number) {
-        selectedValidator = allValidators[index];
-        console.log(selectedValidator);
-    }
+        selectedValidator.address.value = allValidators[index].address;
+        console.log(allValidators[index].address);
+        selectedValidator.comission.value = allValidators[index].comission;
+        selectedValidator.email.value = allValidators[index].email == null ? '' : allValidators[index].email!;
+        selectedValidator.webURI.value = allValidators[index].webURI == null ? '' : allValidators[index].webURI!;
+        selectedValidator.name.value = allValidators[index].name == null ? '' : allValidators[index].name!;
 
+        statusCode.value = 'ConfirmNomination';
+    }
+    function nominate() {
+        
+    }
     return {
         isValidatorInfoPending,
+        selectedValidator,
         accountBalance,
         currentNetwork,
         stakedBalance,
@@ -222,7 +271,9 @@ export default defineComponent({
         allValidators,
         statusCode,
         asset,
+
         setCode: setCode,
+        nominate: nominate,
         quitModal: quitModal,
         selectValidator: selectValidator,
     }
@@ -242,6 +293,11 @@ hr {
 }
 .fonticon {
     color: var(--fg_color_2);
+}
+.sizedText {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .birdsOnBranch {
     position: absolute;
