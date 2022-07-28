@@ -102,21 +102,21 @@
 
                     <div class="infoParagraph addressSection">
                         Address: <span class="addressText accentColored">{{selectedValidator.address.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span> 
-                    </div>
                     <hr class="smallerHr">
-                    <div class="infoParagraph sizedText" v-if="selectedValidator.name != ''">
-                        Name: <span class="sizedText accentColored">{{selectedValidator.name.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe56a;</span> 
                     </div>
-                    <hr class="smallerHr">
-                    <div class="infoParagraph sizedText" v-if="selectedValidator.webURI != ''">
-                        Web: <span class="addressText accentColored" style="font-size: 20px;">
-                            {{selectedValidator.webURI.value}}
-                            </span>
-                    </div>
-                    <hr class="smallerHr">
                     <div class="infoParagraph">
                         Comission: <span class="addressText accentColored" style="font-size: 20px;">
                             {{selectedValidator.comission.value * 100}}%
+                            </span>  <span class="fonticon" style="font-size: 20px;">&#xf05b;</span> 
+                        <hr class="smallerHr">
+                    </div>
+                    <div class="infoParagraph sizedText" v-if="selectedValidator.name.value != ''">
+                        Name: <span class="sizedText accentColored">{{selectedValidator.name.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe56a;</span> 
+                    <hr class="smallerHr">
+                    </div>
+                    <div class="infoParagraph sizedText" v-if="selectedValidator.webURI.value != ''">
+                        Web: <span class="addressText accentColored" style="font-size: 20px;">
+                            {{selectedValidator.webURI.value}}
                             </span>
                     </div>
                 </div>
@@ -267,11 +267,10 @@ export default defineComponent({
     }
     function selectValidator(index: number) {
         selectedValidator.address.value = allValidators[index].address;
-        console.log(allValidators[index].address);
         selectedValidator.comission.value = allValidators[index].comission;
-        selectedValidator.email.value = allValidators[index].email == null ? '' : allValidators[index].email!;
-        selectedValidator.webURI.value = allValidators[index].webURI == null ? '' : allValidators[index].webURI!;
-        selectedValidator.name.value = allValidators[index].name == null ? '' : allValidators[index].name!;
+        selectedValidator.email.value = allValidators[index].email;
+        selectedValidator.webURI.value = allValidators[index].webURI;
+        selectedValidator.name.value = allValidators[index].name;
 
         statusCode.value = 'ConfirmNomination';
     }
@@ -293,7 +292,6 @@ export default defineComponent({
         }else {
             filteredValidators.value = allValidators;
         }
-        console.log(filteredValidators);
     }
     function nominate() {
 

@@ -90,65 +90,64 @@ export class SubstrateInfo implements AccountInfoHandler {
                 }
             }>();
 
-            let validators = await this.networkAPI?.query.session.validators();
+            // Get the current era.
+            let era = await this.networkAPI?.query.staking.currentEra();
+            let currentEra: string | undefined = undefined;
+            if(era != undefined && era.toHuman() != null) {
+                currentEra = (era.toHuman() as string);
+            }else {
+                success = false;
+                postMessage({method: VultureMessage.GET_VALIDATOR_LIST, params: {
+                    success: false,
+                }});
+                console.error("Failed to get era!");
+                return;
+            }
+            let validators = await this.networkAPI?.query.staking.erasRewardPoints(Number(currentEra) - 1);
             if(validators != undefined && validators.toJSON() != null) {
-                let currentValidators: string[] = (validators.toJSON() as string[]);
-                // Get the current era.
-                let era = await this.networkAPI?.query.staking.currentEra();
-
-                let currentEra: string | undefined = undefined;
-                if(era != undefined && era.toHuman() != null) {
-                    currentEra = (era.toHuman() as string);
-                }else {
-                    console.error("Failed to get era!");
-                    success = false;
-                }
-                if(currentEra != undefined) {
-                    // For each validator, get relevant info and instert it into the validatorInfo map.
-                    for(let i = 0; i < currentValidators.length; i++) {
-
-                        // Get validator preferences (basically just the commission).
-                        let validatorComission: string = '0';
-                        let validatorPrefs = await this.networkAPI?.query.staking.erasValidatorPrefs(currentEra, currentValidators[i]);
-                        if(validatorPrefs != undefined && validatorPrefs.toJSON() != null) {
-                            validatorComission = String((validatorPrefs.toJSON() as any).commission);
-                        }else {
-                            console.error("Failed to get validator info for: " + currentValidators[i]);
-                        }
-
-                        // Get validator identity (in the case that it has one).
-                        let identity: {
-                            name?: string,
-                            email?: string,
-                            webURI?: string,
-                            twitter?: string,
-                        } = {
-                            name: undefined,
-                            email: undefined,
-                            webURI: undefined,
-                            twitter: undefined,
-                        };
-                        try {
-                            let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
-                            if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
-                                let res = (validatorIdentity.toHuman() as any);
-                                identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
-                                identity.name = res.info.display.Raw == null ? undefined : res.info.display.Raw;
-                                identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
-                                identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
-                            }
-    
-                        }catch(error){
-                            // Do nothing, identityof isn't a necessary function.
-                            // Might do a check if the method exists in the future.
-                        }
-
-                        validatorInfo.set(currentValidators[i], {
-                            comission: validatorComission,
-                            identity: identity,
-                        });
+                let currentValidators: string[] = Object.keys((validators.toJSON() as any).individual);
+                // For each validator, get relevant info and instert it into the validatorInfo map.
+                for(let i = 0; i < currentValidators.length; i++) {
+                    // Get validator preferences (basically just the commission).
+                    let validatorComission: string = '0';
+                    let validatorPrefs = await this.networkAPI?.query.staking.erasValidatorPrefs(currentEra, currentValidators[i]);
+                    if(validatorPrefs != undefined && validatorPrefs.toJSON() != null) {
+                        validatorComission = String((validatorPrefs.toJSON() as any).commission);
+                    }else {
+                        console.error("Failed to get validator info for: " + currentValidators[i]);
                     }
+                    // Get validator identity (in the case that it has one).
+                    let identity: {
+                        name?: string,
+                        email?: string,
+                        webURI?: string,
+                        twitter?: string,
+                    } = {
+                        name: undefined,
+                        email: undefined,
+                        webURI: undefined,
+                        twitter: undefined,
+                    };
+                    try {
+                        let validatorIdentity = await this.networkAPI?.query.identity.identityOf(currentValidators[i]);
+                        if(validatorIdentity != undefined && validatorIdentity.toJSON() != null) {
+                            let res = (validatorIdentity.toHuman(true) as any);
+                            identity.twitter = res.info.twitter.Raw == null ? undefined : res.info.twitter.Raw;
+                            identity.name = res.info.display.Raw == null ? undefined : res.info.display.Raw;
+                            identity.email = res.info.email.Raw == null ? undefined : res.info.email.Raw;
+                            identity.webURI = res.info.web.Raw == null ? undefined : res.info.web.Raw;
+                        }
+
+                    }catch(error){
+                        // Do nothing, identityof isn't a necessary function.
+                        // Might do a check if the method exists in the future.
+                    }
+                    validatorInfo.set(currentValidators[i], {
+                        comission: validatorComission,
+                        identity: identity,
+                    });
                 }
+                
             }else {
                 success = false;
             }
