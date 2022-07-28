@@ -1,6 +1,8 @@
 <template>
-  <div @click="toggleExpand()" class="module">
-        <div class="flexBox" style="flex-direction: row; width: 100%; align-items: center;">
+  <div class="module" :class="isHovering == true ? 'moduleHover' : ''">
+        <div class="flexBox" @mouseenter="isHovering = true" @mouseleave="isHovering = false" @click="toggleExpand()"
+        :class="isExpanded == true ? 'moduleHeaderOpen' : 'moduleHeaderCollapsed'"
+        style="flex-direction: row; width: 100%; align-items: center; padding:  5px;">
 
           <div class="icon">
               &#xe7fd;
@@ -13,7 +15,7 @@
           </div>
         </div>
 
-        <div class="flexBox" style="width: 100%; align-items: center; padding: 3px;" v-if="isExpanded == true">
+        <div class="flexBox" style="width: 100%; align-items: center; padding: 10px;" v-if="isExpanded == true">
             <div v-if="name != null" class="infoParagraph">
                 Name: <span class="accentColored">{{name}}</span>
             </div>
@@ -27,9 +29,10 @@
                 Website: <span class="accentColored">{{webURI}}</span>
             </div>
             <div  class="infoParagraph addressSection">
-                Address: <span class="addressText accentColored">{{address}}</span>
+                Address: <span class="addressText accentColored">{{address}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
             </div>
-            <div style="margin-top: 10px; margin-bottom: 5px;">
+            <hr class="smallerHr">
+            <div class="flexBox" style="margin-top: 5px; margin-bottom: 2px; z-index: 10;">
                 <DefaultButton buttonHeight="35px" buttonWidth="190px" buttonText="Select Validator" fontSize="20px" @button-click="selectValidator()"/>
             </div>
         </div>
@@ -59,14 +62,17 @@ export default defineComponent({
   setup(props, context) {
     let isExpanded = ref(false);
 
+    let isHovering = ref(false);
+
     function toggleExpand() {
         isExpanded.value = !isExpanded.value;
     }
     function selectValidator() {
-
+      context.emit("selectValidator", props.index);
     }
     return {
         isExpanded,
+        isHovering,
         
         toggleExpand: toggleExpand,
         selectValidator: selectValidator,
@@ -86,8 +92,23 @@ export default defineComponent({
 .selectedAccount {
   color: var(--accent_color);
 }
-
-
+.fonticon {
+    color: var(--fg_color_2);
+}
+hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: none;
+    height: 1px;
+    border-radius: 5px;
+    background-color: var(--fg_color_2);
+}
+.smallerHr {
+    background-color: var(--bg_color_2);
+    height: 1px;
+    border-radius: 10px;
+    width: 100%;
+}
 .right {
   margin: 10px;
   font-size: 18px;
@@ -117,8 +138,9 @@ export default defineComponent({
 }
 .infoParagraph {
     width: 100%;
+    margin-bottom: 3px;
     text-align: left;
-    font-size: 18px;
+    font-size: 19px;
 }
 .addressSection {
     word-break: break-all;
@@ -131,6 +153,31 @@ export default defineComponent({
     
     outline-width: 2px;
 }
+.moduleHeaderCollapsed {
+  border-radius: 12px;
+  background-color: var(--bg_color);
+  user-select: none;
+  cursor: pointer;
+}
+.moduleHeaderOpen {
+  background-color: rgb(18,18,18);
+  border-radius: 12px;
+  border-bottom-style: solid;
+  border-width: 2px;
+  border-color: var(--bg_color_2);
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  user-select: none;
+  cursor: pointer;
+}
+.moduleHeaderOpen:active {
+  transition-duration: 160ms;
+  filter: brightness(75%);
+}
+.moduleHeaderCollapsed:active {
+  transition-duration: 80ms;
+  filter: brightness(75%);
+}
 .module {
   display: flex;
   flex-direction: column;
@@ -139,9 +186,6 @@ export default defineComponent({
   margin: 15px;
   margin-top: 6px;
   margin-bottom: 6px;
-
-  padding: 5px;
-
 
   box-sizing: border-box;
   border-color: var(--bg_color_2);
@@ -155,20 +199,12 @@ export default defineComponent({
   width: 90%;
   height: auto;
 
-  cursor: pointer;
-
-  user-select: none;
-
   transition-duration: 160ms;
 }
-.module:hover {
+.moduleHover {
   transition-duration: 160ms;
   box-shadow: 0px 0px 8px rgb(6,6,6);
   border-color: var(--accent_color);
 }
-.module:active {
-  transition-duration: 160ms;
-  box-shadow: 0px 0px 8px rgb(6,6,6);
-  filter: brightness(75%);
-}
+
 </style>

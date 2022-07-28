@@ -63,7 +63,8 @@
                         :name="validator.name"
                         :webURI="validator.webURI"
                         :email="validator.email"
-                        :index="index"/>
+                        :index="index"
+                        @selectValidator="selectValidator($event)"/>
                     </div>
                     <div v-else class="flexBox" style="width: 100%; height: 100%; align-items: center;">
                         <div class="vultureLoader" style="margin-top: auto; margin-bottom: auto;">
@@ -158,6 +159,14 @@ export default defineComponent({
         webURI?: string,
     }[] = [];
 
+    let selectedValidator: {
+        address: string,
+        comission: number,
+        email?: string
+        name?: string,
+        webURI?: string, 
+    } | null = null;
+
     props.vultureWallet.getValidatorInfo().then((data) => {
         let validators = Array.from(data.validatorInfo.keys()) as string[];
         for(let i = 0; i < validators.length; i++) {
@@ -172,7 +181,6 @@ export default defineComponent({
             });
         }
         isValidatorInfoPending.value = false;
-        console.log(allValidators);
     });
     
 
@@ -200,7 +208,10 @@ export default defineComponent({
     function setCode(code: string) {
         statusCode.value = code;
     }
-
+    function selectValidator(index: number) {
+        selectedValidator = allValidators[index];
+        console.log(selectedValidator);
+    }
 
     return {
         isValidatorInfoPending,
@@ -213,6 +224,7 @@ export default defineComponent({
         asset,
         setCode: setCode,
         quitModal: quitModal,
+        selectValidator: selectValidator,
     }
   }
 });
@@ -276,6 +288,8 @@ hr {
     flex-direction: column;
     height: 100%;
     width: 100%;
+    padding-bottom: 10px;
+    padding-top: 10px;
     overflow: hidden;
     overflow-y: auto;
 }
