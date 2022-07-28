@@ -56,8 +56,12 @@
                         </div>
                     </div>
                     <hr class="smallerHr" style="margin-top: 0px; margin-bottom: 0px;">
+                    <div class="validatorSearch" v-if="isValidatorInfoPending == false">
+                        <DefaultInput inputWidth="260px" inputHeight="30px" fontSize="16px" inputPlaceholder="validator address or name"
+                        @on-enter="filterValidators($event)"/>
+                    </div>
                     <div class="validatorScroll" v-if="isValidatorInfoPending == false">
-                        <ValidatorModule v-for="(validator, index) in allValidators" v-bind:key="(validator, index)"
+                        <ValidatorModule v-for="(validator, index) in filteredValidators" v-bind:key="(validator, index)"
                         :address="validator.address"
                         :comission="validator.comission"
                         :name="validator.name"
@@ -107,7 +111,7 @@
                     <div class="infoParagraph sizedText" v-if="selectedValidator.webURI != ''">
                         Web: <span class="addressText accentColored" style="font-size: 20px;">
                             {{selectedValidator.webURI.value}}
-                            </span> <span class="fonticon" style="font-size: 20px;">&#xef42;</span> 
+                            </span>
                     </div>
                     <hr class="smallerHr">
                     <div class="infoParagraph">
@@ -145,6 +149,7 @@ import DefaultButton from "../building_parts/DefaultButton.vue";
 import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import ValidatorModule from "../ValidatorModule.vue";
+import DefaultInput from "../building_parts/DefaultInput.vue";
 import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
@@ -160,6 +165,7 @@ export default defineComponent({
     DropdownSelection,
     ValidatorModule,
     DefaultButton,
+    DefaultInput,
     MinimalInput,
   },
   props: {
@@ -187,17 +193,27 @@ export default defineComponent({
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
     let accountAddress = ref(props.vultureWallet.currentWallet.accountData.address);
 
-    let validatorInfo;
-
     let isValidatorInfoPending = ref(true);
+
+    let validatorSearch = '';
 
     let allValidators: {
         address: string,
         comission: number,
-        email?: string
-        name?: string,
-        webURI?: string,
+        email: string
+        name: string,
+        webURI: string,
     }[] = [];
+
+    let filteredValidators = ref([
+        {
+            address: 'string',
+            comission: 0,
+            email: 'string',
+            name: 'string',
+            webURI: 'string',
+        }
+    ]);
 
     let selectedValidator = {
         address: ref(''),
@@ -215,11 +231,12 @@ export default defineComponent({
             allValidators.push({
                 address: validators[i],
                 comission: comission,
-                email: validator.identity.email == undefined ? undefined : validator.identity.email,
-                webURI: validator.identity.webURI == undefined ? undefined : validator.identity.webURI,
-                name: validator.identity.name == undefined ? undefined : validator.identity.name,
+                email: validator.identity.email == undefined ? '' : validator.identity.email,
+                webURI: validator.identity.webURI == undefined ? '' : validator.identity.webURI,
+                name: validator.identity.name == undefined ? '' : validator.identity.name,
             });
         }
+        getValidators();
         isValidatorInfoPending.value = false;
     });
     
@@ -258,17 +275,37 @@ export default defineComponent({
 
         statusCode.value = 'ConfirmNomination';
     }
+    function filterValidators(filterText: string) {
+        if(filterText != '' && filterText != null) {
+            validatorSearch = filterText;
+        }else {
+            validatorSearch = '';
+        }
+        getValidators();
+    }
+    function getValidators() {
+        if(validatorSearch != '') {
+            let validators = allValidators.filter(function(validator) {
+                return validator.address.toUpperCase().includes(validatorSearch.toUpperCase()) ||
+                        validator.name?.toUpperCase().includes(validatorSearch.toUpperCase());
+            });
+            filteredValidators.value = validators;
+        }else {
+            filteredValidators.value = allValidators;
+        }
+        console.log(filteredValidators);
+    }
     function nominate() {
-        
+
     }
     return {
         isValidatorInfoPending,
+        filteredValidators,
         selectedValidator,
         accountBalance,
         currentNetwork,
         stakedBalance,
         accountAddress,
-        allValidators,
         statusCode,
         asset,
 
@@ -276,6 +313,7 @@ export default defineComponent({
         nominate: nominate,
         quitModal: quitModal,
         selectValidator: selectValidator,
+        filterValidators: filterValidators,
     }
   }
 });
@@ -304,6 +342,20 @@ hr {
     bottom: 34px;
     pointer-events: none;
     fill: rgba(0,0,0,0.2);
+}
+.validatorSearch {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 100%;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: var(--bg_color_2);
+
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 .smallerHr {
     background-color: var(--bg_color_2);

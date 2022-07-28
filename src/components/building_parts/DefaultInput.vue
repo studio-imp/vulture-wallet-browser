@@ -1,5 +1,5 @@
 <template>
-  <div style="margin-bottom: 15px;">
+  <div style="margin-bottom: 5px;">
       <div :v-if="inputName != ''" class="inputName">{{inputName}}</div>
       <input class="inputCustom" @input="onEnter()" @keyup.enter="onEnter(); onEnterKey();" ref="inputField" min=0 :type="inputType"
        :placeholder="inputPlaceholder" :style="{height: inputHeight, width: inputWidth, fontSize: fontSize}" v-model="text"/>

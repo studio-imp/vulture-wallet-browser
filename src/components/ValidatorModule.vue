@@ -8,7 +8,7 @@
               &#xe7fd;
           </div>
           <div class="flexBox left" style="flex-direction: row;">
-            "<div class="overflowEllipsis">{{name == null ? address : name}}</div>"
+            "<div class="overflowEllipsis">{{name == '' ? address : name}}</div>"
           </div>
           <div class="right">
             {{comission * 100}}%
@@ -16,16 +16,16 @@
         </div>
 
         <div class="flexBox" style="width: 100%; align-items: center; padding: 10px;" v-if="isExpanded == true">
-            <div v-if="name != null" class="infoParagraph">
+            <div v-if="name != ''" class="infoParagraph">
                 Name: <span class="accentColored">{{name}}</span>
             </div>
             <div  class="infoParagraph">
                 Comission: <span class="accentColored">{{comission * 100}}%</span>
             </div>
-            <div v-if="email != null"  class="infoParagraph">
+            <div v-if="email != ''"  class="infoParagraph">
                 Email: <span class="accentColored">{{email}}</span>
             </div>
-            <div v-if="webURI != null"  class="infoParagraph">
+            <div v-if="webURI != ''"  class="infoParagraph">
                 Website: <span class="accentColored">{{webURI}}</span>
             </div>
             <div  class="infoParagraph addressSection">
