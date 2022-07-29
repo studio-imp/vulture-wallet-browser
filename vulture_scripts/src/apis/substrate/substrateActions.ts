@@ -134,6 +134,11 @@ export class SubstrateActions implements AccountActionHandler {
                       status: status.type,
                   }});
                 }
+            }).catch((error) => {
+                console.error(error);
+                postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                    success: false,
+                }});
             });
 
         }else {
@@ -212,7 +217,12 @@ export class SubstrateActions implements AccountActionHandler {
                           status: status.type,
                       }});
                     }
-                });
+                }).catch((error) => {
+                    console.error(error);
+                    postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                        success: false,
+                    }});
+                });;
 
             }else {
                 // We are not bonded, we will bond for the first time.
@@ -252,7 +262,12 @@ export class SubstrateActions implements AccountActionHandler {
                           status: status.type,
                       }});
                     }
-                });
+                }).catch((error) => {
+                    console.error(error);
+                    postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                        success: false,
+                    }});
+                });;
             }
             
         }else {

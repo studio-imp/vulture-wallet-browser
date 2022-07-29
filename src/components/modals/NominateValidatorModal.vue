@@ -127,8 +127,8 @@
                         Status:
                         <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
                         <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
-                        <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <span class="fonticon" style="font-size: 18px;">&#xe876;</span><br></span>
-                        <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
+                        <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success<br></span>
+                        <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed<br></span> 
                     </div>
                     <div class="infoParagraph">
                         Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
@@ -336,8 +336,7 @@ export default defineComponent({
         currentTxState.value = TxState.SENDING;
         props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.NOMINATE_VALIDATOR);
         props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.NOMINATE_VALIDATOR, (params) => {
-            console.log(params);
-            if(params.status == false) {
+            if(params.success == false) {
                 currentTxState.value = TxState.FAILED;
                 blockHash.value = params.blockHash;
                 clearInterval(timer);
