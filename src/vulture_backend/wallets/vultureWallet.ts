@@ -164,7 +164,9 @@ export interface VultureAccount {
     /** I'll do todo's later
      * 
      */
-    bond(stakingData: SubstrateBondData): Promise<any>
+    bond(stakingData: SubstrateBondData): Promise<any>;
+
+    nominate(nomineeAddress: string): Promise<any>;
 
     
     isAddressValid(address: string): Promise<void>;

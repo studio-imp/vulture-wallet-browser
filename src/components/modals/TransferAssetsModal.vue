@@ -29,7 +29,8 @@
                 </div>
             </div>
 
-            <div v-bind:class="currentTxState != txStates.NONE ? 'show' : 'hide' " class="outline txState">
+            <div v-bind:class="currentTxState != txStates.NONE ? 'show' : 'hide' " class="outline txState"
+            style="margin-top: auto; margin-bottom: auto;">
                 <div class="infoParagraph">
                     Status:
                     <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>

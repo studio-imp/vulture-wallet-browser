@@ -67,6 +67,10 @@ self.addEventListener("message", async (event) => {
                 await wallet?.estimateTxFee(event.data.params.recipent, event.data.params.amount, event.data.params.token == null ? null : event.data.params.token);
                 break;
             }
+            case VultureMessage.NOMINATE_VALIDATOR: {
+                await wallet?.nominateValidator(event.data.params.nominee);
+                break;
+            }
             default: {
                 console.log("Vulture accountActionWorker does not have a '" + event.data.method + "' event, which was called.");
                 break;

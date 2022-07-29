@@ -14,6 +14,7 @@ export const VultureMessage = {
 
     /* Staking And Nominating */
     "GET_VALIDATOR_LIST": "GET_VALIDATOR_LIST",
+    "NOMINATE_VALIDATOR": "NOMINATE_VALIDATOR",
     "GET_STAKING_INFO": "GET_STAKING_INFO",
     "STAKE_FUNDS": "STAKE_FUNDS",
 

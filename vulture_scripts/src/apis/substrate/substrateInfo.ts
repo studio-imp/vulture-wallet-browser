@@ -231,8 +231,7 @@ export class SubstrateInfo implements AccountInfoHandler {
             // Attempt to get the validator the stash is currently staked to, in case that it is already nominating.
             let nominationData = await this.networkAPI?.query.staking.nominators(stakingAddress);
             if(nominationData != undefined && nominationData.toJSON() != null) {
-                console.log(nominationData.toJSON());
-                if((nominationData.toJSON() as any).targets.length > 1) {
+                if((nominationData.toJSON() as any).targets.length >= 1) {
                     stakingInfo.nominationAddress = (nominationData.toJSON() as any).targets[0];
                 }
             }else {

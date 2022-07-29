@@ -88,11 +88,11 @@
 
                 </div>
 
-                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'ConfirmNomination' && selectedValidator != null">
+                <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'ConfirmNomination' && selectedValidator != null">
                     <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row;
                     align-items: center; justify-content: center;">
                         <div style="font-size: 24px; ">
-                        Nominee Info
+                        <span v-if="currentNominee != ''">New</span> Nominee Info
                         </div>
                         <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
                             &#xe88e;
@@ -102,24 +102,54 @@
 
                     <div class="infoParagraph addressSection">
                         Address: <span class="addressText accentColored">{{selectedValidator.address.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span> 
-                    <hr class="smallerHr">
                     </div>
                     <div class="infoParagraph">
+                    <hr class="smallerHr">
                         Comission: <span class="addressText accentColored" style="font-size: 20px;">
                             {{selectedValidator.comission.value * 100}}%
                             </span>  <span class="fonticon" style="font-size: 20px;">&#xf05b;</span> 
-                        <hr class="smallerHr">
                     </div>
                     <div class="infoParagraph sizedText" v-if="selectedValidator.name.value != ''">
+                        <hr class="smallerHr">
                         Name: <span class="sizedText accentColored">{{selectedValidator.name.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe56a;</span> 
-                    <hr class="smallerHr">
                     </div>
                     <div class="infoParagraph sizedText" v-if="selectedValidator.webURI.value != ''">
+                        <hr class="smallerHr">
                         Web: <span class="addressText accentColored" style="font-size: 20px;">
                             {{selectedValidator.webURI.value}}
                             </span>
                     </div>
                 </div>
+
+                <TransitionGroup>
+                <div class="infoSection" v-if="statusCode == 'Sent'" style="margin-top: auto; margin-bottom: auto;">
+                     <div class="infoParagraph">
+                        Status:
+                        <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
+                        <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
+                        <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <span class="fonticon" style="font-size: 18px;">&#xe876;</span><br></span>
+                        <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <span class="fonticon" style="font-size: 18px;">&#xe645;</span><br></span> 
+                    </div>
+                    <div class="infoParagraph">
+                        Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
+                    </div>
+
+                    <div class="flexBox" style="align-items: center; justify-content: center; width: 100%;"
+                    v-if="currentTxState == txStates.SENDING || currentTxState == txStates.PENDING">
+                        <hr class="smallerHr" style="width: 100%; margin-bottom: 5px;"> 
+                        <div class="vultureLoader showLoader"></div>
+                    </div>
+
+                    <div class="infoParagraph addressSection" v-if="currentTxState == txStates.SUCCESS">
+                        <hr class="smallerHr" style="width: 100%; margin-bottom: 5px;"> 
+                        Nominee: <span class="accentColored addressText">{{selectedValidator.address.value}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span> 
+                    </div>
+                    <div class="infoText" v-if="currentTxState == txStates.SUCCESS">
+                        <hr class="smallerHr" style="width: 100%; margin-bottom: 5px;"> 
+                        It may take a couple days until your new nomination has an effect.
+                    </div>
+                </div>
+                </TransitionGroup>
 
                 <div>
                     <div class="birdsOnBranch" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'" >
@@ -197,6 +227,12 @@ export default defineComponent({
 
     let validatorSearch = '';
 
+    let currentTxState = ref(TxState.NONE);
+    let blockHash = ref('');
+    let txStates = TxState;
+
+    let txTimer = ref(0);
+
     let allValidators: {
         address: string,
         comission: number,
@@ -245,12 +281,11 @@ export default defineComponent({
 
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
-            
             stakedBalance.value = Number(stakingData.stakedBalance);
 
             currentNominee.value = stakingData.nominationAddress == null ? '' : stakingData.nominationAddress;
             if(currentNominee.value != '') {
-                statusCode.value = 'SelectValidator'
+                statusCode.value = 'SelectValidator';
             }
         }
 
@@ -294,7 +329,42 @@ export default defineComponent({
         }
     }
     function nominate() {
+        let timer = setInterval(async () => {
+            txTimer.value += 0.01;
+        }, 10);
 
+        currentTxState.value = TxState.SENDING;
+        props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.NOMINATE_VALIDATOR);
+        props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.NOMINATE_VALIDATOR, (params) => {
+            console.log(params);
+            if(params.status == false) {
+                currentTxState.value = TxState.FAILED;
+                blockHash.value = params.blockHash;
+                clearInterval(timer);
+            } else if(params.status == 'InBlock') {
+                if(params.method == 'ExtrinsicSuccess') {
+                    currentTxState.value = TxState.SUCCESS;
+                    blockHash.value = params.blockHash;
+                    clearInterval(timer);
+                }else if(params.method == 'ExtrinsicFailed'){
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = params.blockHash;
+                    clearInterval(timer);
+                }else {
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = "Not included in block.";
+                    clearInterval(timer);
+                }
+            }
+            if(params.status == 'Ready') {
+                currentTxState.value = TxState.SENDING;
+            }
+            if(params.status == 'Broadcast') {
+                currentTxState.value = TxState.PENDING;
+            }
+        });
+        statusCode.value = 'Sent';
+        props.vultureWallet.currentWallet.nominate(selectedValidator.address.value);
     }
     return {
         isValidatorInfoPending,
@@ -306,6 +376,13 @@ export default defineComponent({
         accountAddress,
         statusCode,
         asset,
+
+        currentNominee,
+
+        currentTxState,
+        blockHash,
+        txStates,
+        txTimer,
 
         setCode: setCode,
         nominate: nominate,
@@ -398,6 +475,12 @@ hr {
     padding-top: 10px;
     overflow: hidden;
     overflow-y: auto;
+}
+.infoText {
+    width: 100%;
+
+    color: var(--fg_color_2);
+    font-size: 16px;
 }
 .outline {
     display: flex;

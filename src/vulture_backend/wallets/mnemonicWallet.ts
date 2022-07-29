@@ -143,6 +143,23 @@ export class MnemonicWallet implements VultureAccount {
         this.infoWorker.terminate();
         clearInterval(this.updateTokenBalance);
     }
+
+    async nominate(nomineeAddress: string) {
+        // The event callback from the worker, containing the Transaction info.
+        this.actionWorker.onmessage = (event) => {
+            if(event.data.method == VultureMessage.NOMINATE_VALIDATOR) {
+                // Emit the transation info data to accountEvents, so the front-end can use it!
+                this.accountEvents.emit(VultureMessage.NOMINATE_VALIDATOR, event.data.params);
+            }
+        };
+        // Posting a tx request to the worker.
+        this.actionWorker.postMessage({
+            method: VultureMessage.NOMINATE_VALIDATOR,
+            params: {
+                nominee: nomineeAddress,
+            }
+        });
+    }
     async bond(stakingData: SubstrateBondData) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {
@@ -269,6 +286,7 @@ export class MnemonicWallet implements VultureAccount {
                             stakingAddress: stakingInfo.stakingAddress,
                             controllerAddress: stakingInfo.controllerAddress,
                             isStashAccountBonded: stakingInfo.isStashAccountBonded,
+                            nominationAddress: stakingInfo.nominationAddress,
                             frozenBalance: frozenBalance.toString(),
                             stakedBalance: stakedBalance.toString(),
                             liquidBalance: liquidBalance.toString(),

@@ -96,6 +96,50 @@ export class SubstrateActions implements AccountActionHandler {
             ));
         });
     }
+    async nominateValidator(nominee: string) {
+        if(this.isCryptoWasmReady) {
+
+            this.networkAPI?.tx.staking.nominate([{Id: nominee}]).signAndSend(this.keypair!, ({events = [], status}) => {
+                if(status.isInBlock) {
+                    events.forEach(({event: {data, method, section}, phase}) => {
+                        if(method == 'ExtrinsicSuccess') {
+                          postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                              success: true,
+                              status: status.type,
+                              blockHash: status.asInBlock.toHex(),
+                              method: method,
+                          }});
+                        } else if(method == 'ExtrinsicFailed') {
+                          postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                              success: false,
+                              status: status.type,
+                              blockHash: status.asInBlock.toHex(),
+                              method: method,
+                          }});
+                        }
+                    });
+                }else if(status.isDropped) {
+                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }else if(status.isFinalityTimeout) {
+                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }else if(status.isInvalid) {
+                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }
+            });
+
+        }else {
+            console.error("Cryptography WASM hasn't been initialized yet!");
+        }
+    }
     async stakeFunds(bondData: SubstrateBondData) {
         if(this.isCryptoWasmReady) {
             let kp = this.keyring?.addFromUri(this.seed + bondData.stakingAddressDerivationPath);

@@ -37,21 +37,21 @@
                         </span>
                     </div>
                 </div>
-                <div class="infoSection">
+                <div class="infoSection" style="margin-bottom: auto;">
                     <div class="infoParagraph addressSection">
                         Token Address: <span class="accentColored addressText">{{token.address}}</span> <span class="fonticon">&#xe177;</span>
                         <br>
                     </div>
                 </div>
 
-                <div class="infoSection" style="margin-top: auto;">
+                <div class="infoSection" style="margin-bottom: auto;">
                     <div class="flexBox" style="flex-direction: row; margin-top: 8px; align-items: center;">
                         <span class="fonticon" style="margin: 5px; margin-right: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
                         <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>
                         <span class="fonticon" style="margin: 5px;  margin-left: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
                     </div>
                     <i style="font-size: 13px;  color: var(--fg_color_2); margin-top: 10px; margin-bottom: 5px;" >
-                        Remove this token from the token token list. You will have to re-add it to see it again in the wallet!
+                        Remove this token from the token list. You will have to re-add it to see it again in the wallet!
                     </i>
                 </div>
 
@@ -107,7 +107,7 @@
                     <div class="vultureLoader"> </div>
                 </div>
             </div>
-            <div class="infoSection" v-if="Number(token.balance) > 0">
+            <div class="infoSection" v-if="Number(token.balance) > 0" style="margin-bottom: auto;">
 
                 <div class="sectionTitleContainer" style="flex-direction: row;">
                     <div class="sectionDescription">
@@ -132,11 +132,11 @@
 
             <div class="infoSection" v-if="Number(token.balance) <= 0">
                 <div style="text-align: center; font-size: 20px;">
-                    This account has no "<span class="accentColored">{{token.name}}</span>" NFTs.
+                    This account has no <span class="accentColored">{{token.name}}</span>.
                 </div>
             </div> 
 
-            <div class="infoSection" v-if="Number(token.balance) <= 0">
+            <div class="infoSection" v-if="Number(token.balance) <= 0" style="margin-bottom: auto;">
                 <div class="sectionDescription">Token Info <hr> </div>
                 <div class="metadataParagraph">
                 NFT Name:
@@ -152,7 +152,7 @@
             </div>
 
 
-            <div class="infoSection" style="">
+            <div class="infoSection" style="margin-bottom: auto;">
                 <div class="flexBox" style="flex-direction: row; margin-top: 8px; align-items: center;">
                     <span class="fonticon" style="margin: 5px; margin-right: 10px; color: var(--warning_color); font-size: 25px;">&#xe002;</span>
                     <DefaultButton buttonHeight="30px" buttonWidth="150px" fontSize="17px" buttonText="Remove From List" @button-click="removeTokenFromList()"/>

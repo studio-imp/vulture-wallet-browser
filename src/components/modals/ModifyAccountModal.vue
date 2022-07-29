@@ -13,6 +13,11 @@
                 <div class="sectionTitleContainer" style="flex-direction: row;">
                     <div class="sectionDescription">
                         Account Info
+                        <span style="font-size: 16px;">
+                            $<span class="accentColored">
+                                {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                            </span>
+                        </span>
                     </div>
                 </div>
                 <hr>
@@ -20,27 +25,23 @@
                 <div class="infoParagraph">
                     Account Index: <span class="accentColored">{{vultureWallet.accountStore.allAccounts[selectedAccount - 1].accountIndex}}</span> <br>
                     
-                    <i style="font-size: 13px;  color: var(--fg_color_2)">Accounts will always be the same at the given index.</i>
-                    <hr class="smallerHr">
+                    <i>Accounts will always be the same at each given index.</i>
+                </div>
+                <hr class="smallerHr">
+
+                <div class="infoParagraph addressSection">
+                    Deposit Address
+                    <span style="color: var(--accent_color); font-size: 15px;">{{address}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
+                    <br>
+                    <i>Addresses will vary depending on the selected network.</i>
+                    <hr class="smallerHr" style="margin-top: 10px;">
                 </div>
 
                 <div class="infoParagraph">
                     Balance: <span class="accentColored">{{Math.round(Number(accountBalance) *  Math.pow(10, 5)) / Math.pow(10, 5)}}</span>
                     <span class="accentColored" style="font-size: 14px;">
-                        {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                        &nbsp;{{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
                     </span>
-                    <hr class="smallerHr">
-                </div>
-
-                <div class="infoParagraph">
-                    Deposit Address |
-                    
-                    <span style="font-size: 15px;">
-                    {{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}:
-                    </span>
-                    <span style="color: var(--accent_color); font-size: 15px;">{{address}}</span>
-                    <br>
-                    <i style="font-size: 13px;  color: var(--fg_color_2)">Address varies depending on the selected network.</i>
                 </div>
 
             </div>
@@ -53,14 +54,29 @@
                 </div>
                 <hr>
 
-                <div class="infoParagraph">
+                <div class="infoParagraph addressSection">
                     Staking Address:
-                    <span style="color: var(--accent_color); font-size: 15px;">{{stakingAddress}}</span>
+                    <span style="color: var(--accent_color); font-size: 15px;">{{stakingAddress}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
                     <br>
-                    <i style="font-size: 13px;  color: var(--fg_color_2)">You can stake in the Wallet Tab. Read more
-                        <a href="https://docs.vulturewallet.net/staking" target="_blank">here.</a>
+                    <i>
+                        You can stake in the Wallet Tab.
                     </i>
                     <hr class="smallerHr">
+                    <div class="infoParagraph">
+                        Staked: <span class="accentColored">{{Math.round(Number(stakingAddressStaked) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        <span class="accentColored" style="font-size: 14px;">
+                            &nbsp;{{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                        </span>
+                    </div>
+                    <div class="infoParagraph">
+                        Free: <span class="accentColored">{{Math.round(Number(stakingAddressFree) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
+                        <span class="accentColored" style="font-size: 14px;">
+                            &nbsp;{{vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix}}
+                        </span>
+                    </div>
+                    <i>
+                        You can transfer between staking and deposit address in the Wallet Tab.
+                    </i>
                 </div>
 
             </div>
@@ -83,9 +99,10 @@ import { VultureWallet, createNewAccount, WalletType} from "../../vulture_backen
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { VultureMessage } from "@/vulture_backend/vultureMessage";
 import BigNumber from "bignumber.js";
-import { NetworkFeatures } from "@/vulture_backend/types/networks/networkTypes";
+import { NetworkFeatures, NetworkType } from "@/vulture_backend/types/networks/networkTypes";
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
 import { ModalEventSystem, ModifyAccountData } from "@/modalEventSystem";
+import { StakingInfo, SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
 
 export default defineComponent({
   name: "ModifyAccount",
@@ -117,6 +134,8 @@ export default defineComponent({
 
     let address = ref(props.vultureWallet.accountStore.allAccounts[selectedAccount - 1].address);
     let stakingAddress = ref('');
+    let stakingAddressFree = ref(0);
+    let stakingAddressStaked = ref(0);
 
     let stakingSupport = ref(props.vultureWallet.supportsFeature(NetworkFeatures.STAKING));
 
@@ -135,6 +154,11 @@ export default defineComponent({
         }
     });
     if(stakingSupport.value == true) {
+        if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
+            let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo; 
+            stakingAddressFree.value = Number(stakingData.liquidBalance);
+            stakingAddressStaked.value = Number(stakingData.stakedBalance);
+        }
         stakingAddress.value = props.vultureWallet.currentWallet.accountData.stakingAddress!;
     }
 
@@ -160,6 +184,9 @@ export default defineComponent({
         networks,
         address,
 
+        stakingAddressFree,
+        stakingAddressStaked,
+
         quitModal: quitModal,
         setName: setName,
         saveAccount: saveAccount,
@@ -170,13 +197,35 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-hr {
+hr{
     margin-top: 5px;
     margin-bottom: 10px;
     border: none;
     height: 1px;
     background-color: var(--fg_color_2);
     width: 100%;
+}
+i{
+    display: flex;
+    box-sizing: border-box;
+    color: var(--fg_color_2);
+    word-wrap:normal;
+    word-break: keep-all;
+    white-space: normal;
+    margin-top: 5px;
+    font-size: 14px;
+    width: 100%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding-left: 6px;
+    
+    border-left-style: solid;
+    border-width: 1px;
+    border-color: var(--accent_color);
+    border-radius: 0px;
+}
+.fonticon {
+    color: var(--fg_color_2);
 }
 .infoSection {
     display: flex;
@@ -204,6 +253,17 @@ hr {
     font-size: 22px;
     margin-right: auto;
     margin-left: auto;
+}
+.addressSection {
+    word-break: break-all;
+}
+.addressText {
+    box-sizing: border-box;
+    outline: none;
+    font-size: 15px;
+    outline-color: var(--bg_color_2);
+    
+    outline-width: 2px;
 }
 .infoIcon {
     font-family: fonticonA;
