@@ -12,15 +12,16 @@
                 <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
                     align-items: center; justify-content: center;">
                     <div style="font-size: 24px; ">
-                    Staking
+                    Unstake
                     </div>
                     <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
-                        &#xe897;
+                        &#xe898;
                     </div>
                 </div>
                 <hr style="width: 100%; margin-bottom: 0px;">
 
-                <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'StakingInfo'">
+
+                <div class="infoSection" style="margin-bottom: auto;" v-if="statusCode == 'NothingToUnstake'">
                     <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row; font-size: 24px;
                     align-items: center; justify-content: center;">
                         <div style="font-size: 22px; ">
@@ -31,24 +32,15 @@
                         </div>
                     </div>
                     <hr style="width: 100%; margin-bottom: 10px;">
-                    <div class="infoParagraph" style="font-size: 19px;">
-                        You need at least  <span class="accentColored">{{minimumStakingAmount}} <span style="font-size: 16px;">{{asset}} </span></span>
-                        to stake on "<span class="accentColored">{{currentNetwork}}</span>".
-                       
-                        <hr class="seperatorHr">
-                        You need to fund the <span class="accentColored">Staking Address</span> with
-                        $<span class="accentColored">{{asset}}</span> to stake.
-                        <hr class="seperatorHr">
-                        You  can send $<span class="accentColored">{{asset}}</span> directly,
-                        or <a style="cursor: pointer; text-decoration: underline;" @click="transfer()">transfer</a> from the deposit address.
+                    <div class="infoParagraph" style="font-size: 19px; text-align: center;">
+                        There is nothing to un-stake.
                         <hr class="seperatorHr">
                         Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
-                        <hr class="seperatorHr">
-                        <div class="accentColored" style="text-align: center; font-size: 24px;">Proceed?</div>
                     </div>
                 </div>
 
-                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond' || statusCode == 'Sent'">
+
+                <div class="infoSection" style="margin-top: 10px; margin-auto: 10px;" v-if="statusCode == 'Unbond' || statusCode == 'Sent'">
                     <div class="infoParagraph addressSection">
                         Staking Address: <span class="accentColored addressText"> {{stakingAddress}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
                     </div>
@@ -61,27 +53,28 @@
                         Staked: <span class="accentColored"> {{Math.round(Number(stakedBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}}</span>
                         <span style="font-size: 14px;" >$<span class="accentColored">{{asset}}</span></span> <span class="fonticon" style="font-size: 20px;">&#xe897;</span>
                     </div>
+                    <div class="amountStatusText" v-if="statusCode == 'Unbond'">
+                    <hr class="smallerHr">
+                        Make sure you also have enough funds in your deposit address to cover tx fees.
+                    </div>
                 </div>
 
-                <div class="infoSection" style="margin-top: 10px;" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'">
+                <div class="infoSection" style="margin-top: 10px;" v-if="statusCode == 'Unbond'">
                     <MinimalInput style="margin-bottom: 10px;"
-                    @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="200px" inputHeight="38px" fontSize="20px" inputName="Amount To Stake/Bond"/>
+                    @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="200px" inputHeight="38px" fontSize="20px" inputName="Amount To Unstake"/>
                     
                     <div class="amountStatusText" v-if="transferState == ''">
-                        The amount you stake will be locked until you unstake.
+                        Your unstaked funds will not be available immediately
                     </div>
-                    <div class="amountStatusText" v-if="transferState == 'InsufficientStake'">
-                        The minimum stake is <span class="accentColored">{{minimumStakingAmount}}</span> {{asset}}!
+                    <div class="amountStatusText" v-if="transferState == 'ReadyWhole'">
+                        Minimum stake is <span class="accentColored">{{minimumStakingAmount}}</span>, this results in your entire staked amount will be unstaked.
                     </div>
-                    <div class="amountStatusText" v-if="transferState == 'InsufficientFunds'">
-                        The staking address doesn't have enough funds to cover this Tx.
+                    <div class="amountStatusText" v-if="transferState == 'NotEnoughStaked'">
+                        You can't unstake more than you have staked.
                     </div>
 
-                    <div class="amountStatusText" v-if="transferState == 'Ready' && statusCode == 'Bond'">
-                        <span class="accentColored">Ready to Stake</span>
-                    </div>
-                    <div class="amountStatusText" v-if="transferState == 'Ready' && statusCode == 'BondExtra'">
-                        <span class="accentColored">Ready to add extra Stake</span>
+                    <div class="amountStatusText" v-if="transferState == 'Ready'">
+                        <span class="accentColored">Ready to Un-Stake</span>
                     </div>
 
                 </div>
@@ -99,26 +92,33 @@
                         Time: <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
                     </div>
                     <div class="infoParagraph" v-if="currentTxState == txStates.SUCCESS">
-                        Staked: <span class="accentColored">{{amountToStake}}<span style="font-size: 15px;">&nbsp;{{asset}}</span></span> 
+                        Unstaked: <span class="accentColored">{{amountToStake}}<span style="font-size: 15px;">&nbsp;{{asset}}</span></span> 
                     </div>
                 </div>
 
-                <div class="infoSection" v-if="statusCode == 'Sent' && currentTxState == txStates.SUCCESS && currentNominee == ''">
+                <div class="infoSection" v-if="statusCode == 'Sent' && currentTxState == txStates.SUCCESS">
                     <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row; font-size: 24px;
                     align-items: center; justify-content: center;">
                         <div style="font-size: 24px; margin-top: 1px;" class="fonticon">
-                            <span class="warningColored">&#xe002;</span>
+                            <span class="warningColored">&#xe898;</span>
                         </div>
                     </div>
 
                      <div class="infoParagraph" style="text-align: center; font-size: 18px;">
-                        You need to Nominate a validator in order to earn rewards!
+                        You've scheduled
+                        <span v-if="transferState == 'Ready'" class="accentColored">
+                            {{amountToStake}} <span style="font-size: 15px;">&nbsp;{{asset}}</span>
+                        </span>
+                        <span v-if="transferState == 'ReadyWhole'" class="accentColored">
+                            {{Math.round(Number(stakedBalance) *  Math.pow(10, 3)) / Math.pow(10, 3)}} <span style="font-size: 15px;">&nbsp;{{asset}}</span>
+                        </span>
+                        to be un-staked.
                     </div>
                 </div>
                 </TransitionGroup>
 
                 <div>
-                    <div class="birdsOnBranch" v-if="statusCode == 'BondExtra' || statusCode == 'Bond'" >
+                    <div class="birdsOnBranch" v-if="statusCode == 'NothingToUnstake' || statusCode == 'Unstake'" >
                     <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="190" height="122" viewBox="0, 0, 400,244"><g id="svgg"><path id="path0" d="M61.600 28.120 C 64.460 30.787,66.207 32.777,65.482 32.541 C 63.287 31.828,52.800 30.958,52.800 31.489 C 52.800 31.761,55.988 33.585,59.884 35.542 L 66.968 39.100 67.804 43.328 C 68.599 47.345,68.504 47.827,65.920 52.959 C 60.168 64.381,64.137 81.339,75.527 94.000 C 78.628 97.448,78.969 98.157,77.997 99.137 C 76.470 100.676,76.205 100.520,59.761 88.401 L 45.652 78.003 49.226 74.374 C 54.155 69.369,54.570 69.726,37.400 64.219 C 17.784 57.929,18.804 56.952,24.352 76.704 C 29.508 95.059,28.739 93.980,33.418 89.414 L 37.200 85.723 59.200 101.717 C 71.300 110.513,84.814 120.300,89.232 123.466 L 97.264 129.222 138.832 127.066 C 161.694 125.881,182.382 124.886,184.804 124.855 L 189.208 124.800 226.004 153.216 C 262.311 181.255,262.843 181.627,266.000 181.259 C 267.760 181.053,287.560 179.552,310.000 177.923 L 350.800 174.962 374.991 186.281 C 388.296 192.506,399.366 197.600,399.591 197.600 C 399.816 197.600,400.000 194.968,400.000 191.750 L 400.000 185.901 375.717 174.636 L 351.434 163.372 308.322 166.773 L 265.209 170.174 228.405 141.753 L 191.600 113.333 157.200 115.117 C 138.280 116.098,119.609 117.115,115.708 117.377 L 108.617 117.853 109.175 114.326 C 109.482 112.387,111.053 108.470,112.666 105.623 L 115.600 100.445 122.645 97.815 L 129.691 95.186 135.563 96.690 C 139.013 97.574,145.018 100.158,150.118 102.953 C 159.808 108.264,161.600 109.061,161.600 108.061 C 161.600 106.514,153.813 98.880,145.962 92.733 C 136.756 85.524,136.531 85.214,140.000 84.520 C 144.478 83.624,145.042 84.411,122.205 59.717 C 114.481 51.365,110.157 46.047,109.677 44.309 C 108.630 40.516,97.964 28.234,94.877 27.266 C 87.042 24.810,85.624 24.699,78.716 25.993 C 71.951 27.261,71.866 27.256,65.238 25.234 C 55.973 22.408,55.705 22.621,61.600 28.120 M90.916 103.279 C 94.488 103.901,97.775 103.916,102.165 103.329 C 105.576 102.873,108.490 102.623,108.639 102.773 C 109.458 103.592,105.160 109.668,101.656 112.644 L 97.602 116.087 89.669 110.332 C 79.291 102.802,79.557 101.301,90.916 103.279 " stroke="none" fill-rule="evenodd"></path></g></svg>                    </div>
                 </div>
             </div>
@@ -130,13 +130,12 @@
 
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
 
-            <TransitionGroup>
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Nominate" @button-click="nominate()" v-if="statusCode == 'Sent' && currentTxState == txStates.SUCCESS && currentNominee == ''"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Unstake" @button-click="unstake()"
+            v-if="transferState == 'Ready' && statusCode != 'Sent'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Proceed" @button-click="setCode('Bond')" v-if="statusCode == 'StakingInfo'"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Unstake" @button-click="unstake()"
+            v-if="transferState == 'ReadyWhole' && statusCode != 'Sent'"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Stake" @button-click="stake()" v-if="transferState == 'Ready' && statusCode != 'Sent'"/>
-            </TransitionGroup>
         </div>
     </div>
 </template>
@@ -155,7 +154,7 @@ import { TxState } from "@/types/uiTypes";
 import { BigNumber } from "bignumber.js";
 
 export default defineComponent({
-  name: "StakeFundsModal",
+  name: "UnstakeFundsModal",
   components: {
     DropdownSelection,
     DefaultButton,
@@ -187,11 +186,12 @@ export default defineComponent({
 
     let isBonded = ref(false);
 
-    let statusCode = ref('StakingInfo');
+    let statusCode = ref('Unbond');
     let transferState = ref('');
     
 
     let accountBalance = ref(props.vultureWallet.currentWallet.accountData.freeAmountWhole);
+    let accountAddress = ref(props.vultureWallet.currentWallet.accountData.address);
 
     let amountToStake = ref(0);
     let txFee = ref(0);
@@ -207,22 +207,21 @@ export default defineComponent({
 
         if(props.vultureWallet.accountStore.currentlySelectedNetwork.networkType == NetworkType.Substrate) {
             let stakingData = props.vultureWallet.currentWallet.accountData.stakingInfo.get(StakingInfo.Substrate) as SubstrateStakingInfo;  
-            
             minimumStakingAmount.value = Number(stakingData.minimumBondAmount);
             stakingAddressBalance.value = Number(stakingData.liquidBalance);
             stakedBalance.value = Number(stakingData.stakedBalance);
 
             currentNominee.value = stakingData.nominationAddress == null ? '' : stakingData.nominationAddress;
             isBonded.value = stakingData.isStashAccountBonded;
+        }
 
-            if(isBonded.value == true) {
-                statusCode.value = 'BondExtra';
-                isBonded.value = true;
-            }
+        if(stakedBalance.value < minimumStakingAmount.value) {
+            statusCode.value = "NothingToUnstake";
         }
 
     }else {
         console.warn("The currently selected network doesn't support staking!");
+        quitModal();
     }
 
     function quitModal() {
@@ -236,40 +235,33 @@ export default defineComponent({
             return;
         }
 
-        if(stakedBalance.value >= minimumStakingAmount.value) {
-            if(amountToStake.value < stakingAddressBalance.value) {
-                transferState.value = 'Ready';
+
+        if(statusCode.value == 'Unbond'){
+            if(stakedBalance.value - amountToStake.value < minimumStakingAmount.value) {
+                transferState.value = 'ReadyWhole';
             }else {
-                transferState.value = 'InsufficientFunds';
+                transferState.value = 'Ready';
             }
-        }else{
-            if(amountToStake.value >= minimumStakingAmount.value && stakingAddressBalance.value >= amountToStake.value) {
-                transferState.value = 'Ready';
-            }else if(amountToStake.value >= minimumStakingAmount.value && stakingAddressBalance.value < amountToStake.value) {
-                transferState.value = 'InsufficientFunds';
-            }else {
-                transferState.value = 'InsufficientStake';
+            if(stakedBalance.value - amountToStake.value < 0) {
+                transferState.value = 'NotEnoughStaked';
             }
         }
 
-    }
-    function transfer() {
-        props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
     }
 
     function setCode(code: string) {
         statusCode.value = code;
     }
 
-    function stake() {
+    function unstake() {
 
         let timer = setInterval(async () => {
             txTimer.value += 0.01;
         }, 10);
 
         currentTxState.value = TxState.SENDING;
-        props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.STAKE_FUNDS);
-        props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.STAKE_FUNDS, (params) => {
+        props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.UNSTAKE_FUNDS);
+        props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.UNSTAKE_FUNDS, (params) => {
             if(params.success == false) {
                 currentTxState.value = TxState.FAILED;
                 blockHash.value = params.blockHash;
@@ -278,9 +270,9 @@ export default defineComponent({
                 if(params.method == 'ExtrinsicSuccess') {
                     currentTxState.value = TxState.SUCCESS;
                     blockHash.value = params.blockHash;
-                    stakedBalance.value += amountToStake.value;
-                    stakingAddressBalance.value -= amountToStake.value;
                     clearInterval(timer);
+
+
                 }else if(params.method == 'ExtrinsicFailed'){
                     currentTxState.value = TxState.FAILED;
                     blockHash.value = params.blockHash;
@@ -299,11 +291,9 @@ export default defineComponent({
             }
         });
         statusCode.value = 'Sent';
-        props.vultureWallet.currentWallet.bond({
-            controllerAddress: props.vultureWallet.currentWallet.accountData.address,
-            stakingAddressDerivationPath: "//staking_" + props.vultureWallet.currentWallet.accountData.accountIndex,
-            bondAmountWhole: new BigNumber(new BigNumber(amountToStake.value).times(new BigNumber(10).pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals))).toString()
-        });
+        props.vultureWallet.currentWallet.unbond(
+            new BigNumber(new BigNumber(amountToStake.value).times(new BigNumber(10).pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals))).toString()
+        );
     }
 
     function nominate() {
@@ -317,6 +307,7 @@ export default defineComponent({
         currentNetwork,
         stakingAddress,
         currentNominee,
+        accountAddress,
         amountToStake,
         transferState,
         stakedBalance,
@@ -330,11 +321,10 @@ export default defineComponent({
         blockHash,
         txStates,
 
-        stake: stake,
+        unstake: unstake,
         amount: amount,
         setCode: setCode,
         nominate: nominate,
-        transfer: transfer,
         quitModal: quitModal,
     }
   }

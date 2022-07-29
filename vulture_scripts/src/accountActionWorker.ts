@@ -67,8 +67,13 @@ self.addEventListener("message", async (event) => {
                 await wallet?.estimateTxFee(event.data.params.recipent, event.data.params.amount, event.data.params.token == null ? null : event.data.params.token);
                 break;
             }
+            // Nominates/Delegates a validator.
             case VultureMessage.NOMINATE_VALIDATOR: {
                 await wallet?.nominateValidator(event.data.params.nominee);
+                break;
+            }
+            case VultureMessage.UNSTAKE_FUNDS: {
+                await wallet?.unstakeFunds(event.data.params.amountToUnbondWhole);
                 break;
             }
             default: {

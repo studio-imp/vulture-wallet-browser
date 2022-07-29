@@ -165,6 +165,7 @@ export interface VultureAccount {
      * 
      */
     bond(stakingData: SubstrateBondData): Promise<any>;
+    unbond(unbondAmount: string): Promise<any>;
 
     nominate(nomineeAddress: string): Promise<any>;
 

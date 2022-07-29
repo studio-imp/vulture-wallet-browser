@@ -16,6 +16,7 @@ export const VultureMessage = {
     "GET_VALIDATOR_LIST": "GET_VALIDATOR_LIST",
     "NOMINATE_VALIDATOR": "NOMINATE_VALIDATOR",
     "GET_STAKING_INFO": "GET_STAKING_INFO",
+    "UNSTAKE_FUNDS": "UNSTAKE_FUNDS",
     "STAKE_FUNDS": "STAKE_FUNDS",
 
     // Will update the passed in key-pairs to be encoded in the correct cryptography & address format,

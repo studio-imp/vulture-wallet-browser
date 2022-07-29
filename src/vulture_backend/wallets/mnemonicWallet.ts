@@ -160,6 +160,22 @@ export class MnemonicWallet implements VultureAccount {
             }
         });
     }
+    async unbond(unbondAmount: string) {
+        // The event callback from the worker, containing the Transaction info.
+        this.actionWorker.onmessage = (event) => {
+            if(event.data.method == VultureMessage.UNSTAKE_FUNDS) {
+                // Emit the transation info data to accountEvents, so the front-end can use it!
+                this.accountEvents.emit(VultureMessage.UNSTAKE_FUNDS, event.data.params);
+            }
+        };
+        // Posting a tx request to the worker.
+        this.actionWorker.postMessage({
+            method: VultureMessage.UNSTAKE_FUNDS,
+            params: {
+                amountToUnbondWhole: unbondAmount,
+            }
+        });
+    }
     async bond(stakingData: SubstrateBondData) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {
@@ -372,6 +388,16 @@ export class MnemonicWallet implements VultureAccount {
                         amount: wholeAmount.toString(),
                         address: this.accountData.address,
                     });
+
+                    if(this.currentNetwork.networkFeatures & NetworkFeatures.STAKING) {
+                        this.infoWorker.postMessage({
+                            method: VultureMessage.GET_STAKING_INFO,
+                            params: {
+                                address: this.accountData.address,
+                                stakingAddress: this.accountData.stakingAddress!
+                            }
+                        });
+                    }
 
                     //Update tokens as well.
                     this.accountEvents.emit(VultureMessage.GET_TOKEN_BALANCE);

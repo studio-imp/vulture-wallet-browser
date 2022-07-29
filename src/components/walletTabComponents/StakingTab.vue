@@ -8,7 +8,7 @@
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="transferBetweenAccounts()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="stakeFunds()"/>
       <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Nominate Validator"  @click="nominate()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="getStakingInfoTEST()"/>
+      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="unstakeFunds()"/>
     </div>
 </template>
 
@@ -52,9 +52,13 @@ export default defineComponent({
     function nominate() {
       props.modalSystem.openModal(ModalEvents.NOMINATE_VALIDATOR, null);
     }
+    function unstakeFunds() {
+      props.modalSystem.openModal(ModalEvents.UNBOND, null);
+    }
     return {
       nominate: nominate,
       stakeFunds: stakeFunds,
+      unstakeFunds: unstakeFunds,
       transferBetweenAccounts: transferBetweenAccounts,
       getStakingInfoTEST: getStakingInfoTEST,
     }

@@ -39,6 +39,7 @@ export interface AccountActionHandler {
     generateAddress(derivationPath: string, accountIndex: number): Promise<void>,           // This last parameter is specifically needed when an account has two addresses. 
     transferAssets(recipentAddress: string, amount: string, token?: AbstractToken, from?: {address: string, derivationPath: string} ): Promise<void>;
     estimateTxFee(recipent: string, amount: string, token?: AbstractToken): Promise<void>;
+    unstakeFunds(amountToUnbondWhole: string): Promise<void>;
     getAddress(): Promise<void>;
     stakeFunds(bondData: SubstrateBondData): Promise<void>;
 }

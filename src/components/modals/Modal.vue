@@ -51,9 +51,14 @@
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"/>
 
-        <NominateValidatorModal v-if="currentModal == modalEvents.NOMINATE_VALIDATOR"
+
+        <UnstakeFundsModal v-if="currentModal == modalEvents.UNBOND"
         :modalSystem="modalSystem"
         :vultureWallet="vultureWallet"/>
+
+        <NominateValidatorModal v-if="currentModal == modalEvents.NOMINATE_VALIDATOR"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/> 
         
     </div>
 </template>
@@ -63,6 +68,7 @@ import DefaultButton from "../building_parts/DefaultButton.vue";
 import TokenViewModal from './TokenViewModal.vue';
 import StakeFundsModal from './StakeFundsModal.vue';
 import ResetWalletModal from './ResetWalletModal.vue';
+import UnstakeFundsModal from './UnstakeFundsModal.vue';
 import CreateAccountModal from './CreateAccountModal.vue';
 import ModifyAccountModal from './ModifyAccountModal.vue';
 import SelectAccountModal from './SelectAccountModal.vue';
@@ -93,6 +99,7 @@ export default defineComponent({
     SelectAccountModal,
     SelectNetworkModal,
     TransferAssetsModal,
+    UnstakeFundsModal,
     SelectAssetModal,
     StakeFundsModal,
     TokenViewModal,

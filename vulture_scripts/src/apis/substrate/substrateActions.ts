@@ -145,6 +145,188 @@ export class SubstrateActions implements AccountActionHandler {
             console.error("Cryptography WASM hasn't been initialized yet!");
         }
     }
+    async unstakeFunds(amountToUnstakeWhole: string) {
+        if(this.isCryptoWasmReady) {
+
+            // Check if the left-over bond is smaller than the minimum bond amount,
+            // if that's the case, we will chill() (stop nominating) and then unbond.
+            // This will also unbond the entire bonded amount.
+            let minimumBond: BigNumber;
+            let bondedAmount: string;
+            
+            let minNominationAmount = await this.networkAPI?.query.staking.minNominatorBond();
+            if(minNominationAmount != undefined) {
+                minimumBond = new BigNumber(minNominationAmount.toString());
+                console.log("Min bond: " + minNominationAmount.toString());
+            }else {
+                postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                    success: false,
+                }});
+                console.error("Failed getting minimum bond amount! This is fatal.");
+                return;
+            }
+
+            let stakingStatus = await this.networkAPI?.query.staking.ledger(this.address);
+            if(stakingStatus != undefined && stakingStatus.toJSON() != null) {
+                bondedAmount = (stakingStatus.toJSON() as any).active;
+                console.log("Bonded Amount: " + bondedAmount);
+            }else {
+                postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                    success: false,
+                }});
+                console.error("Failed to get the current staked amount, which is necessary info for unbonding.");
+                return;
+            }
+
+            let leftoverStake = new BigNumber(bondedAmount).minus(amountToUnstakeWhole);
+            if(leftoverStake.comparedTo(minimumBond) == -1) {
+                console.log("Left-over stake is: " + leftoverStake.toString());
+                console.log("Chilling, then un-bonding the whole amount.");
+                this.networkAPI?.tx.staking.chill().signAndSend(this.keypair!, ({events = [], status}) => {
+                    if(status.isInBlock) {  
+                        events.forEach(({event: {data, method, section}, phase}) => {
+                            if(method == 'ExtrinsicSuccess') {
+
+                                // We have chilled, time to un-bond.
+                                // Unbond whatever amount we wish to unbond.
+                                this.networkAPI?.tx.staking.unbond(bondedAmount).signAndSend(this.keypair!, ({events = [], status}) => {
+                                    if(status.isInBlock) {  
+                                        events.forEach(({event: {data, method, section}, phase}) => {
+                                            if(method == 'ExtrinsicSuccess') {
+                                              postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                                  success: true,
+                                                  status: status.type,
+                                                  blockHash: status.asInBlock.toHex(),
+                                                  method: method,
+                                              }});
+                                            } else if(method == 'ExtrinsicFailed') {
+                                                console.error(status.type);
+                                                console.error(method);
+                                                console.log(data.toHuman());
+                                              postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                                  success: false,
+                                                  status: status.type,
+                                                  blockHash: status.asInBlock.toHex(),
+                                                  method: method,
+                                              }});
+                                            }
+                                        });
+                                    }else if(status.isDropped) {
+                                        console.error(status.type);
+                                        console.error(method);
+                                        console.log(data.toHuman());
+                                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                          success: false,
+                                          status: status.type,
+                                      }});
+                                    }else if(status.isFinalityTimeout) {
+                                        console.error(status.type);
+                                        console.error(method);
+                                        console.log(data.toHuman());
+                                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                          success: false,
+                                          status: status.type,
+                                      }});
+                                    }else if(status.isInvalid) {
+                                        console.error(status.type);
+                                        console.error(method);
+                                        console.log(data.toHuman());
+                                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                          success: false,
+                                          status: status.type,
+                                      }});
+                                    }
+                                }).catch((error) => {
+                                    console.error(error);
+                                    postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                        success: false,
+                                    }});
+                                });
+
+                            } else if(method == 'ExtrinsicFailed') {
+                              postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                                  success: false,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            }
+                        });
+                    }else if(status.isDropped) {
+                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isFinalityTimeout) {
+                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isInvalid) {
+                      postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                        success: false,
+                    }});
+                });
+
+                return;
+            }
+
+            // Unbond whatever amount we wish to unbond.
+            this.networkAPI?.tx.staking.unbond(amountToUnstakeWhole).signAndSend(this.keypair!, ({events = [], status}) => {
+                if(status.isInBlock) {  
+                    events.forEach(({event: {data, method, section}, phase}) => {
+                        if(method == 'ExtrinsicSuccess') {
+                          postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                              success: true,
+                              status: status.type,
+                              blockHash: status.asInBlock.toHex(),
+                              method: method,
+                          }});
+                        } else if(method == 'ExtrinsicFailed') {
+                            console.error(status.type);
+                            console.error(method);
+                            console.log(data.toHuman());
+                          postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                              success: false,
+                              status: status.type,
+                              blockHash: status.asInBlock.toHex(),
+                              method: method,
+                          }});
+                        }
+                    });
+                }else if(status.isDropped) {
+                  postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }else if(status.isFinalityTimeout) {
+                  postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }else if(status.isInvalid) {
+                  postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                      success: false,
+                      status: status.type,
+                  }});
+                }
+            }).catch((error) => {
+                console.error(error);
+                postMessage({method: VultureMessage.UNSTAKE_FUNDS, params: {
+                    success: false,
+                }});
+            });
+        }else {
+            console.error("Cryptography WASM hasn't been initialized yet!");
+        }
+    }
     async stakeFunds(bondData: SubstrateBondData) {
         if(this.isCryptoWasmReady) {
             let kp = this.keyring?.addFromUri(this.seed + bondData.stakingAddressDerivationPath);
@@ -180,8 +362,23 @@ export class SubstrateActions implements AccountActionHandler {
                 stakedBalance = new BigNumber(0);
             }
 
-            // We are already bonded, we will add extra bond
-            if(stakedBalance.comparedTo(minBond) == 1 || stakedBalance.comparedTo(minBond) == 0) {
+            // Check if we are bonded (to the controller address).
+            let isStashBonded = false;
+            let bonded = await this.networkAPI?.query.staking.bonded(kp.address);
+            if(bonded != undefined && bonded.toHuman() == null) {
+                isStashBonded = false;
+            }else if (bonded != undefined && bonded.toHuman() == this.address) {
+                isStashBonded = true;
+            }else {
+                console.error("Staking account is bonded to an incorrect controller address!");
+                postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                    success: false,
+                }});
+                return;
+            }
+
+            // We are already bonded, we will add extra bond.
+            if(stakedBalance.comparedTo(minBond) == 1 || stakedBalance.comparedTo(minBond) == 0 || isStashBonded == true) {
                 this.networkAPI?.tx.staking.bondExtra(bondData.bondAmountWhole).signAndSend(kp!, ({events = [], status}) => {
                     if(status.isInBlock) {
                         events.forEach(({event: {data, method, section}, phase}) => {
@@ -193,6 +390,9 @@ export class SubstrateActions implements AccountActionHandler {
                                   method: method,
                               }});
                             } else if(method == 'ExtrinsicFailed') {
+                                console.error(status.type);
+                                console.error(method);
+                                console.log(data.toHuman());
                               postMessage({method: VultureMessage.STAKE_FUNDS, params: {
                                   success: false,
                                   status: status.type,
@@ -238,6 +438,9 @@ export class SubstrateActions implements AccountActionHandler {
                                   method: method,
                               }});
                             } else if(method == 'ExtrinsicFailed') {
+                                console.error(status.type);
+                                console.error(method);
+                                console.log(data.toHuman());
                               postMessage({method: VultureMessage.STAKE_FUNDS, params: {
                                   success: false,
                                   status: status.type,
@@ -370,7 +573,10 @@ export class SubstrateActions implements AccountActionHandler {
                               blockHash: (status as any).asInBlock.toHex(),
                               method: method,
                           }});
-                        } else if(method == 'ExtrinsicFailed') {                            
+                        } else if(method == 'ExtrinsicFailed') {   
+                            console.error((status as any).type);
+                            console.error(method);
+                            console.log((data as any).toHuman());                         
                           postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
                               success: false,
                               status: (status as any).type,
@@ -411,7 +617,10 @@ export class SubstrateActions implements AccountActionHandler {
                                 blockHash: status.asInBlock.toHex(),
                                 method: method,
                             }});
-                          } else if(method == 'ExtrinsicFailed') {                            
+                          } else if(method == 'ExtrinsicFailed') {           
+                            console.error(status.type);
+                            console.error(method);
+                            console.log(data.toHuman());                 
                             postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
                                 success: false,
                                 status: status.type,
