@@ -213,20 +213,21 @@ export class SubstrateInfo implements AccountInfoHandler {
 
             let stakingStatus = await this.networkAPI?.query.staking.ledger(address);
             if(stakingStatus != undefined && stakingStatus.toJSON() != null) {
-                stakingInfo.stakedBalance = (stakingStatus.toJSON() as any).active;
+                let ledger = stakingStatus.toJSON() as any;
+                stakingInfo.stakedBalance = ledger.active;
+
+                // Get all the unlocking bonds and push them.
+                if(ledger.unlocking != null && ledger.unlocking.length > 0) {
+                    for(let i = 0; i < ledger.unlocking.length; i++) {
+                        stakingInfo.unlocking.push({
+                            eraOfUnlock: String(ledger.unlocking[i].era),
+                            balanceToUnlock: String(ledger.unlocking[i].value)
+                        })
+                    }
+                }
             }else {
                 stakingInfo.stakedBalance = '0';
             }
-
-            /* // Remove when above is confirmed working, its just cleaner.
-            this.networkAPI?.query.staking.ledger(address).then((data) => {
-                if(data.toJSON() == null) {
-                    stakingInfo.stakedBalance = '0';
-                }else {
-                    stakingInfo.stakedBalance = (data.toJSON() as any).active;
-                }
-            });
-             */
 
             // Attempt to get the validator the stash is currently staked to, in case that it is already nominating.
             let nominationData = await this.networkAPI?.query.staking.nominators(stakingAddress);
