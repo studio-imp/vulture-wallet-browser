@@ -55,7 +55,7 @@
                     </div>
                     <div class="amountStatusText" v-if="statusCode == 'Unbond'">
                     <hr class="smallerHr">
-                        Make sure you also have enough funds in your deposit address to cover tx fees.
+                        Make sure you have enough funds in your deposit address to cover tx fees.
                     </div>
                 </div>
 

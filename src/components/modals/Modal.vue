@@ -61,7 +61,11 @@
 
         <StakeMenuModal v-if="currentModal == modalEvents.STAKE_MENU"
         :modalSystem="modalSystem"
-        :vultureWallet="vultureWallet"/>        
+        :vultureWallet="vultureWallet"/>
+
+        <PayoutsModal v-if="currentModal == modalEvents.PAYOUTS"
+        :modalSystem="modalSystem"
+        :vultureWallet="vultureWallet"/>
     </div>
 </template>
 
@@ -69,6 +73,7 @@
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import TokenViewModal from './TokenViewModal.vue';
 import StakeMenuModal from './StakeMenuModal.vue';
+import PayoutsModal from './PayoutsModal.vue';
 import StakeFundsModal from './StakeFundsModal.vue';
 import ResetWalletModal from './ResetWalletModal.vue';
 import UnstakeFundsModal from './UnstakeFundsModal.vue';
@@ -93,6 +98,7 @@ import { reactive, ref } from "vue";
 export default defineComponent({
   name: "Modal",
   components: {
+    PayoutsModal,
     DefaultButton,
     StakeMenuModal,
     ResetWalletModal,

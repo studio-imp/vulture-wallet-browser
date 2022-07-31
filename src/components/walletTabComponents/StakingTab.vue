@@ -41,6 +41,14 @@
                       {{stakedAmount}} <span class="asset">${{asset}}</span>
                  </div>
             </div>
+            <div class="flexBox infoRow" style="margin-top: 5px;">
+                <div class="infoTitleSmall">
+                    Reward Dest: 
+                </div>
+                <div class="infoValue" style="font-size: 19px;">
+                    Staking Address <!-- Switching reward destination coming soon ^-^ -->
+                </div>
+            </div>
         </div>
 
         <div class="flexBox outlineSection" v-if="stakingStatus == 'NotNominating'">

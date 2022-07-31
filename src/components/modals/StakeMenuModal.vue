@@ -51,7 +51,7 @@
                     </div>
                 </div>
                 <div class="buttonRow">
-                    <div class="stakeButton">
+                    <div class="stakeButton" @click="openModal(modal.PAYOUTS)">
                         <div class="buttonTitle">
                             Payouts
                         </div>
@@ -181,13 +181,13 @@ hr {
     border-radius: 10px;
     padding: 10px;
     border-color: var(--bg_color_2);
-    box-shadow: 0px 0px 8px rgba(0,0,0,0.45);
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.6);
     cursor: pointer;
     transition-duration: 150ms;
     user-select: none;
 }
 .stakeButton:hover {
-    transition-duration: 150ms;
+    transition-duration: 100ms;
     border-color: var(--accent_color);
 
 }

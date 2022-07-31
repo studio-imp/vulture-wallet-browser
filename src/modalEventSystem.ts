@@ -48,6 +48,7 @@ export enum ModalEvents{
     NOMINATE_VALIDATOR = "NOMINATE_VALIDATOR",
     STAKE_MENU = "STAKE_MENU",
     BOND_FUNDS = "BOND_FUNDS",
+    PAYOUTS = "PAYOUTS",
     UNBOND = "UNBOND",
 
     // Wallet settings n stuff.

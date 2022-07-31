@@ -483,7 +483,7 @@ export class VultureWallet {
 
                     this.saveAccounts();
                 }else {
-                    console.log("Failed updating accounts to use new network format!");
+                    console.error("Failed updating accounts to use new network format!");
                 }
             }
             if(reInitializeWallet) {
@@ -547,8 +547,6 @@ export class VultureWallet {
                         
                         //Our Whole asset amount is the result divided by 10 to the power of the denomination/smallest fraction.
                         let wholeAmount = liquidAmount.div(new BigNumber(10).pow(networkDecimals));
-
-                        console.log(wholeAmount.toNumber());
                     }
                 }
             };
@@ -638,7 +636,6 @@ export class VultureWallet {
                 wallet.infoWorker.onmessage = (event: any) => {
                     if(event.data.method == VultureMessage.GET_STAKING_INFO) {
                         if(event.data.params.success == true) {
-                            console.log(event.data);
                             resolve(event.data);
                         }else {
                             console.error("Failed getting staking info!");
@@ -804,7 +801,7 @@ export async function addTokenToStore(network: Network, isNFT: boolean, token: A
                     
                 }else {
                     store.NFTList.set(network.networkUri, new Map<string, AbstractToken>());
-                    console.log("Token doesn't exist in store because store doesn't exist! (creating store...)");
+                    console.info("Token doesn't exist in store because store doesn't exist! (creating store...)");
                 }
             }else {
                 if(store.tokenList.get(network.networkUri)) {
@@ -812,7 +809,7 @@ export async function addTokenToStore(network: Network, isNFT: boolean, token: A
                     
                 }else {
                     store.tokenList.set(network.networkUri, new Map<string, AbstractToken>());
-                    console.log("Token doesn't exist in store because store doesn't exist! (creating store...)");
+                    console.info("Token doesn't exist in store because store doesn't exist! (creating store...)");
                 }
             }
             localforage.setItem("tokenStore", store);
@@ -906,11 +903,11 @@ export async function removeLatestAccount() {
                 });
                 return true;
             } else {
-                console.log("You can't remove your main account...");
+                console.info("You can't remove your main account...");
                 return false;
             }
         }else {
-            console.log("Can't remove an account when u don't have one... Idiot?");
+            console.info("Can't remove an account when u don't have one... ur an actual idiot if this message reaches the console.");
             return true;
         }
     });

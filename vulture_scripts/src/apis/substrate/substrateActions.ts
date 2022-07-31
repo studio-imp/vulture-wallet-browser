@@ -426,7 +426,7 @@ export class SubstrateActions implements AccountActionHandler {
 
             }else {
                 // We are not bonded, we will bond for the first time.
-                this.networkAPI?.tx.staking.bond(bondData.controllerAddress, bondData.bondAmountWhole, 'Staked').signAndSend(kp!, ({events = [], status}) => {
+                this.networkAPI?.tx.staking.bond(bondData.controllerAddress, bondData.bondAmountWhole, 'Stash').signAndSend(kp!, ({events = [], status}) => {
                     if(status.isInBlock) {
     
                         events.forEach(({event: {data, method, section}, phase}) => {
