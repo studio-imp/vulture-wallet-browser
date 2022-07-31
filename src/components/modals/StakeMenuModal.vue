@@ -20,18 +20,18 @@
                     </div>
                 </div>
                 <div class="buttonRow">
-                    <div class="stakeButton">
+                    <div class="stakeButton" @click="openModal(modal.TRANSFER_BETWEEN_STAKING_ACCOUNT)">
                         Transfer Between
                     </div>
                 </div>
                 <div class="buttonRow">
-                    <div class="stakeButton">
+                    <div class="stakeButton" @click="openModal(modal.BOND_FUNDS)"> 
                         Stake
                     </div>
-                    <div class="stakeButton">
+                    <div class="stakeButton" @click="openModal(modal.UNBOND)">
                         Unstake
                     </div>
-                    <div class="stakeButton">
+                    <div class="stakeButton" @click="openModal(modal.NOMINATE_VALIDATOR)">
                         Nominate
                     </div>
                 </div>
@@ -71,10 +71,19 @@ export default defineComponent({
     },
   },
   setup(props, context) {
+
+    let modal = ModalEvents;
+
     function quitModal() {
         props.modalSystem.closeModal();
     }
+    function openModal(modal: ModalEvents) {
+        props.modalSystem.openModal(modal, null);
+    }
     return {
+        modal,
+
+        openModal: openModal,
         quitModal: quitModal
     }
   }
@@ -106,11 +115,23 @@ hr {
     width: 100%;
     height:  86px;
     border-style: solid;
-    border-width: 1px;
+    border-width: 2px;
     border-radius: 10px;
     padding: 10px;
     border-color: var(--bg_color_2);
-    box-shadow: 0px 0px 7px rgba(0,0,0,0.4);
+    box-shadow: 0px 0px 9px rgba(0,0,0,0.45);
+    cursor: pointer;
+    transition-duration: 150ms;
+    user-select: none;
+}
+.stakeButton:hover {
+    transition-duration: 150ms;
+    border-color: var(--accent_color);
+
+}
+.stakeButton:active {
+    filter: brightness(50%);
+    transition-duration: 100ms;
 }
 .outline {
     display: flex;

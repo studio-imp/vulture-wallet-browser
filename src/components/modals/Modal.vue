@@ -61,8 +61,7 @@
 
         <StakeMenuModal v-if="currentModal == modalEvents.STAKE_MENU"
         :modalSystem="modalSystem"
-        :vultureWallet="vultureWallet"/>
-        
+        :vultureWallet="vultureWallet"/>        
     </div>
 </template>
 
@@ -188,5 +187,14 @@ export default defineComponent({
     border-style: solid;
     border-radius: 12px;
     z-index: 2;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 100ms;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
