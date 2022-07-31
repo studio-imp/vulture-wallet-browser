@@ -7,16 +7,17 @@
         overflow-wrap: break-word;">
 
             <div class="outline">
-                <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
+                <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row;
                     align-items: center; justify-content: center;">
                     <div style="font-size: 24px; ">
                     Rewards &amp; Payouts
                     </div>
                 </div>
-                <hr style="width: 100%; margin-bottom: 15px;">
+                <hr style="width: 100%; height: 1px; margin-bottom: 15px;">
 
                 <div class="vultureLoader" v-if="isLoading == true"></div>
 
+                <!-- Will make a seperate component for this later, cleanup stage tings. -->
                 <div class="unlockingFundsBox"  v-for="(unlock, index) in unlockingEras" :key="(unlock, index)">
                     <div class="boxTitle">
                         <div class="fonticon">
@@ -29,7 +30,7 @@
                             Amount (<span class="asset">${{asset}}</span>):
                         </div>
                         <div class="value">
-                            {{unlock.balanceToUnlock}} 
+                            {{Math.round(Number(unlock.balanceToUnlock) *  Math.pow(10, 4)) / Math.pow(10, 4)}}
                         </div>
                     </div>
                     <div class="valueBox">
@@ -55,6 +56,7 @@
                         </div>
                     </div>
                 </div>
+
 
             </div>
         </div>
@@ -104,17 +106,18 @@ export default defineComponent({
     let stakingInfo: SubstrateStakingInfo | null = null;
     let unlockingEras: Ref<any> = ref([]);
 
-    let currentEra = ref('ERR');
+    let currentEra = ref(0);
     let asset: string = props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
 
     let hasUnlockableUnbonds = ref(false);
 
     props.vultureWallet.getStakingInfo().then((data) => {
         stakingInfo = data.params.stakingInfo as SubstrateStakingInfo;
-        currentEra.value = stakingInfo.currentEra;
+        currentEra.value = Number(stakingInfo.currentEra);
+        //currentEra.value = 101; For testing withdraw
         for(let i = 0; i < stakingInfo.unlocking.length; i++) {
             let e = {
-                eraOfUnlock: stakingInfo.unlocking[i].eraOfUnlock,
+                eraOfUnlock: Number(stakingInfo.unlocking[i].eraOfUnlock),
                 balanceToUnlock: new BigNumber(stakingInfo.unlocking[i].balanceToUnlock)
                                     .div(new BigNumber(10)
                                     .pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals))
@@ -204,6 +207,8 @@ hr {
     border-radius: 10px;
     width: 95%;
     height: fit-content;
+
+    margin-bottom: 10px;
 }
 .fonticon {
     color: var(--fg_color_2);

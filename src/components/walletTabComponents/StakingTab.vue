@@ -38,7 +38,7 @@
                       Staked:
                   </div>
                   <div class="infoValue">
-                      {{stakedAmount}} <span class="asset">${{asset}}</span>
+                      {{Math.round(Number(stakedAmount) *  Math.pow(10, 3)) / Math.pow(10, 3)}} <span class="asset">${{asset}}</span>
                  </div>
             </div>
             <div class="flexBox infoRow" style="margin-top: 5px;">
