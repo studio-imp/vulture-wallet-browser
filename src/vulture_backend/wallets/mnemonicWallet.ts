@@ -312,6 +312,8 @@ export class MnemonicWallet implements VultureAccount {
                         };
 
                         this.accountData.stakingInfo.set(StakingInfo.Substrate, newStakingInfo);
+                        // Emit the new staking info as a callback, which is used in some front-end places to update the UI.
+                        this.accountEvents.emit(VultureMessage.GET_STAKING_INFO, newStakingInfo);
                     }
                     if(event.data.params.success == false){
                         console.error("Error: Vulture worker failed to get staking info!");

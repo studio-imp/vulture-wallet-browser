@@ -339,6 +339,25 @@ html {
   width: 100px;
   height: 100px;
 }
+.quote {
+  display: flex;
+  box-sizing: border-box;
+  color: var(--fg_color_2);
+  word-wrap:normal;
+  word-break: keep-all;
+  white-space: normal;
+  margin-top: 5px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  padding-left: 6px;
+  
+  border-left-style: solid;
+  border-width: 1px;
+  border-color: var(--accent_color);
+  border-radius: 0px;
+}
 .vultureLoaderBig:after {
   content: " ";
   display: block;
