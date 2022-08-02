@@ -76,7 +76,6 @@ export class MnemonicWallet implements VultureAccount {
                     this.accountEvents.emit('infoWorkerReady');
 
                     // Subscribe to account events after our info worker is initialized.
-                    await this.subscribeToAccountEvents();
 
                     // If the current network supports staking, we initialize staking address and info.
                     if(network.networkFeatures & NetworkFeatures.STAKING) {
@@ -97,6 +96,8 @@ export class MnemonicWallet implements VultureAccount {
                                     this.accountData.stakingAddress = event.data.params.address;
                                     this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
                                     await this.subscribeToStakingEvents();
+                                    await this.subscribeToAccountEvents();
+
                                 }
                             }
                         };
@@ -108,6 +109,8 @@ export class MnemonicWallet implements VultureAccount {
                                 //accountIndex: accountIndex
                             }
                         });
+                    }else {
+                        await this.subscribeToAccountEvents();
                     }
 
                     // This is quite temporary.
@@ -358,7 +361,7 @@ export class MnemonicWallet implements VultureAccount {
                         stakingInfo.liquidBalance = liquidAmount.div(new BigNumber(10).pow(this.currentNetwork.networkAssetDecimals)).toString();
 
                         this.accountData.stakingInfo.set(StakingInfo.Substrate, stakingInfo);
-
+                        
                         this.infoWorker.postMessage({
                             method: VultureMessage.GET_STAKING_INFO,
                             params: {

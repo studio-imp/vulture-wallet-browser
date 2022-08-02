@@ -105,15 +105,18 @@ export default defineComponent({
         let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
         if(tokenArray == undefined) {
             console.error("Token array is undefined!");
-            if(props.addressOfTokenToTransfer != null || props.addressOfTokenToTransfer != '') {
-              return;
-            }
+          if(props.addressOfTokenToTransfer != '') {
+            console.error("Tried to transfer token, token isn't found!");
+            return;
+          }
         }
         if(currentAmount.value > 0) {
             // Either get a token or undefined depending on if props.addressOfTokenToTransfer is a thing or not.
             // If we don't have a token, we simply transfer the native asset.
-
-            let token = props.addressOfTokenToTransfer != '' ? tokenArray!.get(props.addressOfTokenToTransfer!)! : undefined;
+            let token = undefined;
+            if(tokenArray != undefined) {
+              token = props.addressOfTokenToTransfer != '' ? tokenArray!.get(props.addressOfTokenToTransfer!)! : undefined;
+            }
             
             // Get a fee-estimate and check if the user has enough funds to cover the tx + fee.
             props.vultureWallet.estimateTxFee(currentAddress.value, currentAmount.value, token).then((fee) => {
