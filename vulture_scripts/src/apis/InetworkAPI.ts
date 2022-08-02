@@ -35,6 +35,7 @@ export interface AccountActionHandler {
     networkURI: string,
 
     updateAccountsToNetwork(accounts: AccountData[], network: Network): Promise<void>,
+    withdrawAllPayouts(stakingAddress: string): Promise<void>;
     nominateValidator(nominee: string): Promise<void>;
     generateAddress(derivationPath: string, accountIndex: number): Promise<void>,           // This last parameter is specifically needed when an account has two addresses. 
     transferAssets(recipentAddress: string, amount: string, token?: AbstractToken, from?: {address: string, derivationPath: string} ): Promise<void>;

@@ -76,6 +76,10 @@ self.addEventListener("message", async (event) => {
                 await wallet?.unstakeFunds(event.data.params.amountToUnbondWhole);
                 break;
             }
+            case VultureMessage.WITHDRAW_ALL_PAYOUTS: {
+                await wallet?.withdrawAllPayouts(event.data.params.stakingAddress);
+                break;
+            }
             default: {
                 console.log("Vulture accountActionWorker does not have a '" + event.data.method + "' event, which was called.");
                 break;
