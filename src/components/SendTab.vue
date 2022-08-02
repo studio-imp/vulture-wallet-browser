@@ -105,7 +105,9 @@ export default defineComponent({
         let tokenArray = props.vultureWallet.tokenStore.tokenList.get(props.vultureWallet.accountStore.currentlySelectedNetwork.networkUri);
         if(tokenArray == undefined) {
             console.error("Token array is undefined!");
-            return;
+            if(props.addressOfTokenToTransfer != null || props.addressOfTokenToTransfer != '') {
+              return;
+            }
         }
         if(currentAmount.value > 0) {
             // Either get a token or undefined depending on if props.addressOfTokenToTransfer is a thing or not.
