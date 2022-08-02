@@ -100,8 +100,8 @@ export class SubstrateActions implements AccountActionHandler {
         if(this.isCryptoWasmReady) {
 
             // Get the num of slashing spans first.
-            let slashingSpans = '';
-            let spans = await this.networkAPI?.query.staking.slashingSpans();
+            let slashingSpans = '0';
+            let spans = await this.networkAPI?.query.staking.slashingSpans(stakingAddress);
             if(spans != undefined && spans.toJSON() != null) {
                 slashingSpans = String(spans.toJSON());
             }else {
@@ -113,14 +113,14 @@ export class SubstrateActions implements AccountActionHandler {
                 if(status.isInBlock) {
                     events.forEach(({event: {data, method, section}, phase}) => {
                         if(method == 'ExtrinsicSuccess') {
-                          postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                          postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                               success: true,
                               status: status.type,
                               blockHash: status.asInBlock.toHex(),
                               method: method,
                           }});
                         } else if(method == 'ExtrinsicFailed') {
-                          postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                          postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                               success: false,
                               status: status.type,
                               blockHash: status.asInBlock.toHex(),
@@ -129,24 +129,24 @@ export class SubstrateActions implements AccountActionHandler {
                         }
                     });
                 }else if(status.isDropped) {
-                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                  postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                       success: false,
                       status: status.type,
                   }});
                 }else if(status.isFinalityTimeout) {
-                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                  postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                       success: false,
                       status: status.type,
                   }});
                 }else if(status.isInvalid) {
-                  postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                  postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                       success: false,
                       status: status.type,
                   }});
                 }
             }).catch((error) => {
                 console.error(error);
-                postMessage({method: VultureMessage.NOMINATE_VALIDATOR, params: {
+                postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
                     success: false,
                 }});
             });

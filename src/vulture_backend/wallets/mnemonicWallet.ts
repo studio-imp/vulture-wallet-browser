@@ -176,6 +176,26 @@ export class MnemonicWallet implements VultureAccount {
             }
         });
     }
+    async withdrawAllPayouts() {
+        if(this.accountData.stakingAddress == null) {
+            console.error("No staking address! Cannot withdraw payouts for substrate.");
+            return;
+        }
+        // The event callback from the worker, containing the Transaction info.
+        this.actionWorker.onmessage = (event) => {
+            if(event.data.method == VultureMessage.WITHDRAW_ALL_PAYOUTS) {
+                // Emit the transation info data to accountEvents, so the front-end can use it!
+                this.accountEvents.emit(VultureMessage.WITHDRAW_ALL_PAYOUTS, event.data.params);
+            }
+        };
+        // Posting a tx request to the worker.
+        this.actionWorker.postMessage({
+            method: VultureMessage.WITHDRAW_ALL_PAYOUTS,
+            params: {
+                stakingAddress: this.accountData.stakingAddress!,
+            }
+        });
+    }
     async bond(stakingData: SubstrateBondData) {
         // The event callback from the worker, containing the Transaction info.
         this.actionWorker.onmessage = (event) => {

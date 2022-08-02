@@ -164,10 +164,10 @@ export interface VultureAccount {
     /** I'll do todo's later
      * 
      */
-    bond(stakingData: SubstrateBondData): Promise<any>;
-    unbond(unbondAmount: string): Promise<any>;
-
+    withdrawAllPayouts(): Promise<any>;
     nominate(nomineeAddress: string): Promise<any>;
+    unbond(unbondAmount: string): Promise<any>;
+    bond(stakingData: SubstrateBondData): Promise<any>;
 
     
     isAddressValid(address: string): Promise<void>;

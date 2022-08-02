@@ -17,6 +17,7 @@
 
                 <div class="vultureLoader" v-if="isLoading == true"></div>
 
+                <TransitionGroup>
                 <!-- Will make a seperate component for this later, cleanup stage tings. -->
                 <div class="unlockingFundsBox"  v-for="(unlock, index) in unlockingEras" :key="(unlock, index)">
                     <div class="boxTitle">
@@ -57,6 +58,45 @@
                     </div>
                 </div>
 
+                <!-- Will make a seperate component for this later, cleanup stage tings. -->
+                <div class="unlockingFundsBox" v-if="statusCode == 'Sent'">
+                    <div class="boxTitle">
+                        <div class="fonticon">
+                            &#xef6e;
+                        </div>
+                        Withdraw Status
+                    </div>
+                    <div class="valueBox">
+                        <div class="valueTitle">
+                            Status:
+                        </div>
+                        <div class="value">
+                            <span v-if="currentTxState == txStates.SENDING" style="color: var(--accent_color)">Sending<br></span>
+                            <span v-if="currentTxState == txStates.PENDING" style="color: var(--accent_color)">Pending<br></span>
+                            <span v-if="currentTxState == txStates.SUCCESS" style="color: #4dff97">Success <br></span>
+                            <span v-if="currentTxState == txStates.FAILED"  style="color: #ff0061">Failed <br></span> 
+                        </div>
+                    </div>
+
+                    <div class="valueBox">
+                        <div class="valueTitle">
+                            Time:
+                        </div>
+                        <div class="value">
+                            <span style="color: var(--accent_color);">{{txTimer.toFixed(2)}}s <br></span>
+                        </div>
+                    </div>
+
+                    <div class="valueBox" v-if="currentTxState == txStates.SUCCESS">
+                        <div class="valueTitle">
+                            Block ID:
+                        </div>
+                        <div class="addressValue">
+                            {{blockHash}}
+                        </div>
+                    </div>
+                </div>
+                </TransitionGroup>
 
             </div>
         </div>
@@ -65,7 +105,7 @@
         <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"/>
 
-            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Withdraw" @button-click="quitModal()" v-if="hasUnlockableUnbonds == true"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Withdraw" @button-click="withdrawPayouts()" v-if="hasUnlockableUnbonds == true"/>
         </div>
     </div>
 </template>
@@ -79,6 +119,8 @@ import { defineComponent, PropType, reactive, Ref, ref } from 'vue';
 import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 import { SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";
 import BigNumber from "bignumber.js";
+import { VultureMessage } from "@/vulture_backend/vultureMessage";
+import { TxState } from "@/types/uiTypes";
 
 export default defineComponent({
   name: "PayoutsModal",
@@ -111,31 +153,86 @@ export default defineComponent({
 
     let hasUnlockableUnbonds = ref(false);
 
-    props.vultureWallet.getStakingInfo().then((data) => {
-        stakingInfo = data.params.stakingInfo as SubstrateStakingInfo;
-        currentEra.value = Number(stakingInfo.currentEra);
-        //currentEra.value = 101; For testing withdraw
-        for(let i = 0; i < stakingInfo.unlocking.length; i++) {
-            let e = {
-                eraOfUnlock: Number(stakingInfo.unlocking[i].eraOfUnlock),
-                balanceToUnlock: new BigNumber(stakingInfo.unlocking[i].balanceToUnlock)
-                                    .div(new BigNumber(10)
-                                    .pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals))
-                                    .toString(),
-                isUnlockable: false
+    updateStakingInfo();
+    function updateStakingInfo() {
+        unlockingEras.value = [];
+        props.vultureWallet.getStakingInfo().then((data) => {
+            stakingInfo = data.params.stakingInfo as SubstrateStakingInfo;
+            currentEra.value = Number(stakingInfo.currentEra);
+            //currentEra.value = 101; For testing withdraw
+            for(let i = 0; i < stakingInfo.unlocking.length; i++) {
+                let e = {
+                    eraOfUnlock: Number(stakingInfo.unlocking[i].eraOfUnlock),
+                    balanceToUnlock: new BigNumber(stakingInfo.unlocking[i].balanceToUnlock)
+                                        .div(new BigNumber(10)
+                                        .pow(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetDecimals))
+                                        .toString(),
+                    isUnlockable: false
+                }
+                // Shows the withdraw buttons
+                if(e.eraOfUnlock <= currentEra.value) {
+                    e.isUnlockable = true;
+                    hasUnlockableUnbonds.value = true;
+                }
+                unlockingEras.value.push(e);
             }
-            // Shows the withdraw buttons
-            if(e.eraOfUnlock <= currentEra.value) {
-                e.isUnlockable = true;
-                hasUnlockableUnbonds.value = true;
-            }
-            unlockingEras.value.push(e);
-        }
-        isLoading.value = false;
-    });
+            isLoading.value = false;
+        });
+    }
+
 
     function quitModal() {
         props.modalSystem.closeModal();
+    }
+
+
+    let currentTxState = ref(TxState.NONE);
+    let blockHash = ref('');
+    let txStates = TxState;
+
+    let txTimer = ref(0);
+
+    let statusCode = ref('');
+
+    function withdrawPayouts(){
+        let timer = setInterval(async () => {
+            txTimer.value += 0.01;
+        }, 10);
+
+        currentTxState.value = TxState.SENDING;
+        props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.WITHDRAW_ALL_PAYOUTS);
+        props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.WITHDRAW_ALL_PAYOUTS, (params) => {
+            if(params.success == false) {
+                currentTxState.value = TxState.FAILED;
+                blockHash.value = params.blockHash;
+                clearInterval(timer);
+            } else if(params.status == 'InBlock') {
+                if(params.method == 'ExtrinsicSuccess') {
+                    currentTxState.value = TxState.SUCCESS;
+                    blockHash.value = params.blockHash;
+                    hasUnlockableUnbonds.value = false;
+                    updateStakingInfo();
+                    clearInterval(timer);
+
+                }else if(params.method == 'ExtrinsicFailed'){
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = params.blockHash;
+                    clearInterval(timer);
+                }else {
+                    currentTxState.value = TxState.FAILED;
+                    blockHash.value = "Not included in block.";
+                    clearInterval(timer);
+                }
+            }
+            if(params.status == 'Ready') {
+                currentTxState.value = TxState.SENDING;
+            }
+            if(params.status == 'Broadcast') {
+                currentTxState.value = TxState.PENDING;
+            }
+        });
+        statusCode.value = 'Sent';
+        props.vultureWallet.currentWallet.withdrawAllPayouts();
     }
     return {
         modal,
@@ -145,7 +242,14 @@ export default defineComponent({
         stakingInfo,
         unlockingEras,
         hasUnlockableUnbonds,
+        
+        currentTxState,
+        statusCode,
+        blockHash,
+        txStates,
+        txTimer,
 
+        withdrawPayouts: withdrawPayouts,
         quitModal: quitModal
     }
   }
@@ -188,6 +292,19 @@ hr {
 }
 .value {
     font-size: 18px;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: var(--bg_color_2);
+}
+.addressValue {    
+    display: flex;
+    flex-grow: 0;
+    flex-direction: row;
+    word-break: break-all;
+    color: var(--accent_color);
+    font-size: 14px;
+    width: 70%;
+
     border-bottom-style: solid;
     border-width: 1px;
     border-color: var(--bg_color_2);
@@ -237,5 +354,15 @@ hr {
     overflow-y: auto;
 
     border-radius: 0px;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 220ms;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

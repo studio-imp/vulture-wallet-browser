@@ -10,7 +10,7 @@
                 <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
                     align-items: center; justify-content: center;">
                     <div style="font-size: 24px; ">
-                    Stake Menu 🥩
+                    The Stake Menu 🥩
                     </div>
                 </div>
                 <hr style="width: 100%; margin-bottom: 15px;">
@@ -40,14 +40,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="buttonRow">
-                    <div class="stakeButton">
+                <div class="buttonRow ">
+                    <div class="disabledButton">
                         <div class="buttonTitle">
-                            Staking Info
+                            Staking Info 
                         </div>
+                        <div class="tempText">
+                            coming soon (╥﹏╥)
+                        </div>
+                        <!--
+
                         <div class="fonticon">
                             &#xe88e;
                         </div>
+                        -->
                     </div>
                 </div>
                 <div class="buttonRow">
@@ -194,6 +200,31 @@ hr {
 .stakeButton:active {
     filter: brightness(50%);
     transition-duration: 100ms;
+}
+.tempText {
+    color: var(--bg_color_2);
+    filter: brightness(180%);
+    margin-top: 8px;
+    font-size: 17px;
+}
+.disabledButton {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 5px;
+    width: 100%;
+    height:  86px;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    padding: 10px;
+    border-color: var(--bg_color_2);
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.6);
+    cursor:not-allowed;
+    transition-duration: 150ms;
+    user-select: none;
+    
+    filter: brightness(80%);
 }
 .outline {
     display: flex;
