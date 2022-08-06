@@ -17,7 +17,7 @@
 
                 <div class="vultureLoader" v-if="isLoading == true"></div>
 
-                <div class="unlockingFundsBox" v-if="unlockingEras.length <= 0">
+                <div class="unlockingFundsBox" v-if="isLoading != true && unlockingEras.length <= 0">
                     You have no pending payouts.
                     <div class="fonticon" style="margin-top: 10px;">
                         &#xe87d;
