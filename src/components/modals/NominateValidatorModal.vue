@@ -108,6 +108,10 @@
                         Comission: <span class="addressText accentColored" style="font-size: 20px;">
                             {{selectedValidator.comission.value * 100}}%
                             </span>  <span class="fonticon" style="font-size: 20px;">&#xf05b;</span> 
+
+                        <div class="infoText">
+                            The comission is the % of your reward the validator keeps. <i>100% = no rewards!</i>
+                        </div>
                     </div>
                     <div class="infoParagraph sizedText" v-if="selectedValidator.name.value != ''">
                         <hr class="smallerHr">
