@@ -16,20 +16,50 @@
         </div>
 
         <div class="flexBox" style="width: 100%; align-items: center; padding: 10px;" v-if="isExpanded == true">
-            <div v-if="name != ''" class="infoParagraph">
-                Name: <span class="accentColored">{{name}}</span>
+            
+            <div class="valueBox" v-if="name != ''">
+                <div class="valueTitle">
+                    Name:
+                </div>
+                <div class="value">
+                    {{name}}
+                </div>
             </div>
-            <div  class="infoParagraph">
-                Comission: <span class="accentColored">{{comission * 100}}%</span>
+
+            <div class="valueBox">
+                <div class="valueTitle">
+                    Comission:
+                </div>
+                <div class="value">
+                    {{(comission * 100).toFixed(2)}}%
+                </div>
             </div>
-            <div v-if="email != ''"  class="infoParagraph">
-                Email: <span class="accentColored">{{email}}</span>
+
+            <div class="valueBox" v-if="email != ''">
+                <div class="valueTitle">
+                    Email:
+                </div>
+                <div class="value">
+                    {{email}}
+                </div>
             </div>
-            <div v-if="webURI != ''"  class="infoParagraph">
-                Website: <span class="accentColored">{{webURI}}</span>
+
+            <div class="valueBox" v-if="webURI != ''">
+                <div class="valueTitle">
+                    Website:
+                </div>
+                <div class="value">
+                    {{webURI}}
+                </div>
             </div>
-            <div  class="infoParagraph addressSection">
-                Address: <span class="addressText accentColored">{{address}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
+
+            <div class="valueBox">
+                <div class="valueTitle">
+                    Address:
+                </div>
+                <div class="addressValue">
+                    {{address}}
+                </div>
             </div>
             <hr class="smallerHr">
             <div class="flexBox" style="margin-top: 5px; margin-bottom: 2px; z-index: 10;">
@@ -205,6 +235,38 @@ hr {
   transition-duration: 160ms;
   box-shadow: 0px 0px 8px rgb(6,6,6);
   border-color: var(--accent_color);
+}
+
+.valueBox {
+    display: flex;
+    box-sizing: border-box;
+    margin: 2px;
+    justify-content: space-between;
+    width: 100%;
+}
+.value {
+    font-size: 18px;
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: var(--bg_color_2);
+    color: var(--accent_color);
+}
+.addressValue {    
+    display: flex;
+    flex-grow: 0;
+    flex-direction: row;
+    word-break: break-all;
+    color: var(--accent_color);
+    font-size: 14px;
+    width: 70%;
+
+    border-bottom-style: solid;
+    border-width: 1px;
+    border-color: var(--bg_color_2);
+}
+.valueTitle {
+    font-size: 18px;
+    color: var(--fg_color_2);
 }
 
 </style>
