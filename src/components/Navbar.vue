@@ -1,24 +1,41 @@
 <template>
   <div class="flexBox" style="align-items: center;">
-      <div class=navbar>
-           <div @click="onTabSwitch('send')" class="iconFont" :class="currentTab == 'send' ? 'selected' : ''">
+      <div class="navbar">
+           <div @click="onTabSwitch('send')" class="iconFont tooltip" :class="currentTab == 'send' ? 'selected' : ''">
                &#xef63;
                 <div class="navbarUnderline" :class="currentTab == 'send' ? 'showUnderline' : ''">
+
+                </div>
+
+                <div class="tooltipText" style="margin-left: -16px;">
+                    send
                 </div>
            </div>
-            <div @click="onTabSwitch('wallet')" class="iconFont" :class="currentTab == 'wallet' ? 'selected' : ''">
+            <div @click="onTabSwitch('wallet')" class="iconFont tooltip" :class="currentTab == 'wallet' ? 'selected' : ''">
                &#xe850;
                 <div class="navbarUnderline" :class="currentTab == 'wallet' ? 'showUnderline' : ''">
                 </div>
+
+                <div class="tooltipText" style="margin-left: -21px;">
+                    wallet
+                </div>
            </div>
-            <div @click="onTabSwitch('accounts')" class="iconFont" :class="currentTab == 'accounts' ? 'selected' : ''">
+            <div @click="onTabSwitch('accounts')" class="iconFont tooltip" :class="currentTab == 'accounts' ? 'selected' : ''">
                &#xe03f;
                 <div class="navbarUnderline" :class="currentTab == 'accounts' ? 'showUnderline' : ''">
                 </div>
+
+                <div class="tooltipText" style="margin-left: -32px;">
+                    accounts
+                </div>
            </div>
-            <div @click="onTabSwitch('settings')" class="iconFont" :class="currentTab == 'settings' ? 'selected' : ''">
+            <div @click="onTabSwitch('settings')" class="iconFont tooltip" :class="currentTab == 'settings' ? 'selected' : ''">
                &#xe8b8;
                 <div class="navbarUnderline" :class="currentTab == 'settings' ? 'showUnderline' : ''">
+                </div>
+
+                <div class="tooltipText" style="margin-left: -28px;">
+                    settings
                 </div>
            </div>
       </div>
@@ -100,4 +117,59 @@ export default {
     opacity: 100;
 }
 
+
+
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: auto;
+  background-color: var(--bg_color);
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+
+  font-family: GardensC;
+  font-size: 18px;
+
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--bg_color_2);
+
+ 
+  position: absolute;
+  box-shadow: 0px 0px 12px rgba(0,0,0,0.3);
+  z-index: 1;
+  opacity: 0;
+
+  pointer-events: none;
+
+  color: var(--fg_color);
+
+  transition-duration: 115ms;
+  transform: scale(0.90,0.90);
+
+
+}
+
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  transition-delay: 0.2s;
+  transition-duration: 115ms;
+  transform: scale(1,1);
+  opacity: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:active .tooltipText {
+  visibility: hidden;
+  transition-delay: 0s;
+  transition-duration: 80ms;
+  transform: scale(0.90,0.90);
+  opacity: 0;
+}
 </style>

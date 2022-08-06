@@ -17,6 +17,12 @@
 
                 <div class="vultureLoader" v-if="isLoading == true"></div>
 
+                <div class="unlockingFundsBox" v-if="unlockingEras.length <= 0">
+                    You have no pending payouts.
+                    <div class="fonticon" style="margin-top: 10px;">
+                        &#xe87d;
+                    </div>
+                </div>
                 <TransitionGroup>
                 <!-- Will make a seperate component for this later, cleanup stage tings. -->
                 <div class="unlockingFundsBox"  v-for="(unlock, index) in unlockingEras" :key="(unlock, index)">

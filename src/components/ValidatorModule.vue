@@ -11,7 +11,7 @@
             "<div class="overflowEllipsis">{{name == '' ? address : name}}</div>"
           </div>
           <div class="right">
-            {{comission * 100}}%
+            {{(comission * 100).toFixed(2)}}%
           </div>
         </div>
 
