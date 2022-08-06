@@ -35,7 +35,8 @@ export async function fetchMetadata(URI: string, expectedMetadataFormat: TokenTy
             console.error("Metadata URI currently has to link to a JSON file!");
         }
     }else if(URI.indexOf("ipfs://") == 0) {
-        console.warn("IPFS not currently supported! (Just wait a smol bit :D)...");
+        console.warn("IPFS not currently supported! (Just wait a smol bit :D)... It might be broken.");
+        return await (await axios.get('https://ipfs.io/ipfs/' + URI.replace('ipfs://', '')))
     }
     return null;
 }
