@@ -120,7 +120,7 @@
 import DefaultButton from "../building_parts/DefaultButton.vue";
 import MinimalInput from "../building_parts/MinimalInput.vue"
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
-import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
+import { VultureWallet, createNewAccount } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, Ref, ref } from 'vue';
 import { ModalEvents, ModalEventSystem, ViewTokenInfoData } from "@/modalEventSystem";
 import { SubstrateStakingInfo } from "@/vulture_backend/types/stakingInfo";

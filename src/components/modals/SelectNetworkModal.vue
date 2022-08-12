@@ -52,7 +52,7 @@ import DefaultInput from "../building_parts/DefaultInput.vue";
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import NetworkModule from "../NetworkModule.vue"
 
-import { VultureWallet, createNewAccount, WalletType } from "../../vulture_backend/wallets/vultureWallet";
+import { VultureWallet, createNewAccount } from "../../vulture_backend/wallets/vultureWallet";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
 import { ModalEventSystem } from "@/modalEventSystem";

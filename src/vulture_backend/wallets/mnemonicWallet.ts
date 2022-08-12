@@ -1,8 +1,5 @@
-import { WalletType, VultureAccount, AccountData } from "./vultureWallet";
+import { AccountData } from "./vultureWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
-
-//import { KeyringPair } from "@polkadot/keyring/types";
-//import { cryptoWaitReady } from '@polkadot/util-crypto';
 
 import { BigNumber } from "bignumber.js";
 import { VultureMessage } from "../vultureMessage";
@@ -10,6 +7,7 @@ import { AbstractToken } from "../types/abstractToken";
 import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/substrateActions";
 import { Network, NetworkFeatures } from "../types/networks/networkTypes";
 import { StakingInfo, SubstrateBondData, SubstrateStakingInfo } from "../types/stakingInfo";
+import { VultureAccount } from "./IVultureAccount";
 
 
 
@@ -113,12 +111,6 @@ export class MnemonicWallet implements VultureAccount {
                         await this.subscribeToAccountEvents();
                     }
 
-                    // This is quite temporary.
-                    /*
-                    this.updateTokenBalance = setInterval(async () => {
-                        this.accountEvents.emit(VultureMessage.GET_TOKEN_BALANCE);
-                    }, 3000);
-                    */
                 }else {
                     console.error("Failed to initialize infoWorker: " + event.data.params.error);
                 }
