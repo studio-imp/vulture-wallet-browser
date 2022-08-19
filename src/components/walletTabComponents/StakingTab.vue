@@ -311,14 +311,17 @@ hr {
   align-items: center;
   flex-direction: column;
   width: 100%;
-  max-height: 300px;
+  max-height: 282px;
   height: 100%;
   padding: 10px;
+
 
   overflow-y: auto;
 }
 *::-webkit-scrollbar {
-  border-radius: 10px;
+  border-radius: 0px;
+  opacity: 0;
+  display: none;
 }
 
 *::-webkit-scrollbar-track {

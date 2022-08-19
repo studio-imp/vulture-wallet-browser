@@ -2,7 +2,7 @@
 <template>
     <div class="flexBox box">
 
-      <div class="itemBox" style="top: 0px; height: 335px; width: 90%;">
+      <div class="itemBox" style="top: 0px; height: 370px; width: 90%;">
         <div class="flexBox" style="width: 100%; align-items: center;" v-if="isWalletReady == true">
 
         <div v-if="supportsSmartContracts() == true && vultureWallet.accountStore != null && vultureWallet.tokenStore != null && currentTab != 'Staking'">

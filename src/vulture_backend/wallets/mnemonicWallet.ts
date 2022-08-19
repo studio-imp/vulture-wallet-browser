@@ -424,7 +424,6 @@ export class MnemonicWallet implements VultureAccount {
                 }
             }
         });
-
         this.infoWorker.postMessage({
             method: VultureMessage.SUBSCRIBE_TO_ACC_EVENTS,
             params: {

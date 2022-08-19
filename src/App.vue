@@ -143,19 +143,15 @@ export default {
       let assetPrefix = ref('...');
       let address = ref("LOADING");
       doesWalletExist().then((value) => {
-        if(value == true) {
-          walletState.value = WalletStates.WALLET;
-          loadVault().then((value: any) => {
-            vault.value = value as any;
-              walletState.value = WalletStates.PASSWORD_LOCKED;
-            //if(vault == null) {
-            //}
-          });
-
-        }else {
-          walletState.value = WalletStates.ONBOARDING;
-        }
-
+            if(value == true) {
+              walletState.value = WalletStates.WALLET;
+              loadVault().then((value: any) => {
+                vault.value = value as any;
+                  walletState.value = WalletStates.PASSWORD_LOCKED;
+              });
+            }else {
+              walletState.value = WalletStates.ONBOARDING;
+            }
       });
       
       async function initWallet(vaultE: Vault) {
@@ -164,7 +160,6 @@ export default {
           await vultureWallet.initWallet(vaultE, accounts as VultureAccountStore);
           walletState.value = WalletStates.WALLET;
           
-
           vultureWallet.walletEvents.on(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, (data) => {
             assetAmount.value = data.amount;
             assetPrefix.value = vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
@@ -395,6 +390,58 @@ html {
   
   animation: vultureLoaderFrames 0.87s infinite;
   box-shadow: 0px 0px 8px black inset;
+}
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: auto;
+  background-color: var(--bg_color);
+  color: #fff;
+  text-align: center;
+  border-radius: 8px;
+
+  font-family: GardensC;
+  font-size: 18px;
+
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--bg_color_2);
+
+ 
+  position: absolute;
+  box-shadow: 0px 0px 12px rgba(0,0,0,0.3);
+  z-index: 1;
+  opacity: 0;
+
+  pointer-events: none;
+
+  color: var(--fg_color);
+
+  transition-duration: 115ms;
+  transform: scale(0.90,0.90);
+
+
+}
+
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  transition-delay: 0.2s;
+  transition-duration: 115ms;
+  transform: scale(1,1);
+  opacity: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:active .tooltipText {
+  visibility: hidden;
+  transition-delay: 0s;
+  transition-duration: 80ms;
+  transform: scale(0.90,0.90);
+  opacity: 0;
 }
 @keyframes vultureLoaderFrames {
   0% {

@@ -3,6 +3,7 @@ import { NetworkType } from "../../src/vulture_backend/types/networks/networkTyp
 import { VultureMessage } from "../../src/vulture_backend/vultureMessage";
 
 import { AccountActionHandler } from './apis/InetworkAPI';
+import { ISigner } from "./apis/ISigner";
 import { SubstrateActions } from './apis/substrate/substrateActions';
 
 
@@ -16,6 +17,7 @@ import { SubstrateActions } from './apis/substrate/substrateActions';
  * a signature, unlike accountInfoWorker.ts
  */
 
+var signer: ISigner | null = null;
 var wallet: AccountActionHandler | null = null;
 
 self.addEventListener("message", async (event) => {

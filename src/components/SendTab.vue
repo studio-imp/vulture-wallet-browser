@@ -1,7 +1,7 @@
 
 <template>
     <div class="flexBox box">
-        <div class="flexBox" style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 20px; padding-right: 20px; top: 20px; align-items: center;" :key="updateKey">
+        <div class="flexBox" style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 20px; padding-right: 20px; top: 5px; align-items: center;" :key="updateKey">
             <MinimalInput @on-enter="address($event)" inputPlaceholder="Address" inputWidth="315px" inputHeight="38px" fontSize="12px" inputName="Recipent Address"/>
             <div class="flexBox" style="width: 100%; flex-direction: row; align-items: flex-end; justify-content: space-between;">
               <MinimalInput @on-enter="amount($event)" inputPlaceholder="0" inputType="number" inputWidth="147px" inputHeight="39px" fontSize="16px" inputName="Amount"/>
@@ -35,7 +35,7 @@
           <span v-if="canSend()" style="font-size: 16px;  color: var(--fg_color_2); margin-bottom: 5px;">Estimated Fee: <span style="color: var(--accent_color">{{ estimatedFee.toFixed(7) }}</span></span>
 
         </div>
-        <div style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 25px; padding-right: 25px; top: 285px;">
+        <div style="position: absolute; width: 100%; box-sizing: border-box; padding-left: 25px; padding-right: 25px; top: 325px;">
             <DefaultButton :buttonDisabled="!canSend()"
             @button-click="sendButton()" buttonText="Send" buttonHeight="40px" buttonWidth="100%"/>
         </div>

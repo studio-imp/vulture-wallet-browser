@@ -87,7 +87,8 @@ export default defineComponent({
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .box {
-    height: 320px;
+    min-height: 381px;
+    max-height: 381px;
     flex-direction: column;
 }
 .itemList {

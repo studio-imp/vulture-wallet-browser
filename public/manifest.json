@@ -1,7 +1,7 @@
 {
     "name": "Vulture",
-    "version": "0.2.5",
-    "description": "A sleek open-source, non-custodial and multi-chain crypto wallet.",
+    "version": "0.2.6",
+    "description": "A Sleek Open-Source, Non-Custodial and Multi-Chain crypto wallet.",
     "manifest_version": 2,
     "homepage_url": "https://vulturewallet.net",
     "browser_action": {

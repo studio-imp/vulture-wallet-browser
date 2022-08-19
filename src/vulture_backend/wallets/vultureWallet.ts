@@ -24,7 +24,6 @@ import { WalletType } from "./walletType";
 */
 
 
-
 /*@---------------------------------Wallet Interfaces/Enums-------------------------------@*/
 
 export interface Vault {
@@ -144,7 +143,6 @@ export class VultureWallet {
                 console.error("Error: Ledger wallets not currently supported!");
             }
         }
-    
     }
 
     async initWallet(vault: Vault, accountStore: VultureAccountStore) {
