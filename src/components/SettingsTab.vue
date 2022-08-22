@@ -1,7 +1,7 @@
 <template>
     <div class="flexBox box">
         <div class="itemList" style="top: 0px;">
-            <div class="container">
+            <div class="container" style="margin-top: 0px;">
                 Account Settings<br>
                 <hr>
                 <DefaultButton buttonText="Reset Wallet" buttonHeight="35px" buttonWidth="180px"

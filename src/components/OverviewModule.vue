@@ -150,8 +150,8 @@ export default defineComponent({
   font-weight: bold;
 }
 .underline {
-  background-color: var(--fg_color);
-  height: 1px;
+  background-color: var(--bg_color_2);
+  height: 2px;
   border-radius: 10px;
   margin-top: 5px;
   width: 100%;
@@ -166,7 +166,7 @@ export default defineComponent({
   padding: 2px;
 
 
-  background: linear-gradient(0deg, rgba(191,238,174,1) 0%, rgba(233,178,148,1) 100%);
+  background: linear-gradient(45deg, var(--gradient_1) 0%, var(--gradient_2) 100%);
 }
 .overviewModule {
   z-index: 1;

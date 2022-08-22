@@ -31,6 +31,7 @@ export interface Network {
     * A hex value of the color-theme of the network (mainly here for front-end visual purposes)...
     */
     networkColor: string;
+    networkGradient: {hex1: string, hex2: string,};
     networkLogoUri?: string;
     networkType: NetworkType;
     /** # addressFormat

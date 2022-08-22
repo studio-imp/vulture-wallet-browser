@@ -11,6 +11,10 @@ export class DefaultNetworks {
         networkType: NetworkType.Substrate,
         isTestnet: false,
         networkFeatures: (NetworkFeatures.STAKING),
+        networkGradient: {
+            hex1: "#b2fff2",
+            hex2: "#c8ffa6"
+        }
     }
     public Kusama: Network = {
         networkUri: 'wss://kusama-rpc.polkadot.io',
@@ -22,6 +26,10 @@ export class DefaultNetworks {
         networkFeatures: (NetworkFeatures.NONE),
         addressFormat: '2',
         isTestnet: false,
+        networkGradient: {
+            hex1: "#ff4f4f",
+            hex2: "#ff98e3"
+        }
     }
     public Polkadot: Network = {
         networkUri: 'wss://kusama-rpc.polkadot.io',
@@ -33,6 +41,10 @@ export class DefaultNetworks {
         networkFeatures: (NetworkFeatures.NONE),
         addressFormat: '0',
         isTestnet: false,
+        networkGradient: {
+            hex1: "#e8026d",
+            hex2: "#ffa6d0"
+        }
     }
     /* 
     public AvalancheCChain: Network = {
@@ -55,6 +67,10 @@ export class DefaultNetworks {
         networkType: NetworkType.Substrate,
         networkFeatures: (NetworkFeatures.STAKING | NetworkFeatures.SMART_CONTRACTS),
         isTestnet: true,
+        networkGradient: {
+            hex1: "#dff9aa",
+            hex2: "#ffe8a6"
+        }
     }
     public allNetworks: Map<string, Network> = new Map([
         [

@@ -1,5 +1,5 @@
 <template>
-<span :style="'--accent_color: ' +  currentAccentColor">
+<span :style="['--accent_color: ' +  currentAccentColor, '--gradient_1:' + gradientColor1, '--gradient_2:' + gradientColor2]">
   <div v-if="walletState == state.WALLET">
 
   <OverviewModule v-if="vultureWallet.accountStore != null" :address="address"
@@ -132,6 +132,8 @@ export default {
 
 
       let currentAccentColor = ref('#98ea79'); // default accent color :p
+      let gradientColor1 = ref('#dff9aa');
+      let gradientColor2 = ref('#ffe8a6'); 
 
       let selectedAccountIndex = ref(0);
 
@@ -164,6 +166,9 @@ export default {
             assetAmount.value = data.amount;
             assetPrefix.value = vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
             currentAccentColor.value = vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
+            gradientColor1.value = vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex1;
+            gradientColor2.value = vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex2;
+
             address.value = data.address;
           });
         });
@@ -210,6 +215,8 @@ export default {
 
         addressOfTokenToTransfer,
 
+        gradientColor1,
+        gradientColor2,
         currentAccentColor,
 
         initWallet: initWallet,
