@@ -109,6 +109,9 @@ export class SubstrateActions implements AccountActionHandler {
             }
             console.info("Slashing spans for withdrawing payouts: " + slashingSpans);
 
+            let e = this.networkAPI?.tx.staking.withdrawUnbonded(slashingSpans);
+            
+            
             this.networkAPI?.tx.staking.withdrawUnbonded(slashingSpans).signAndSend(this.keypair!, ({events = [], status}) => {
                 if(status.isInBlock) {
                     events.forEach(({event: {data, method, section}, phase}) => {

@@ -8,7 +8,7 @@
                 </div>
 
                 <div class="tooltipText" style="margin-left: -16px;">
-                    send
+                    Send
                 </div>
            </div>
             <div @click="onTabSwitch('wallet')" class="iconFont tooltip" :class="currentTab == 'wallet' ? 'selected' : ''">
@@ -17,7 +17,7 @@
                 </div>
 
                 <div class="tooltipText" style="margin-left: -21px;">
-                    wallet
+                    Wallet
                 </div>
            </div>
             <div @click="onTabSwitch('accounts')" class="iconFont tooltip" :class="currentTab == 'accounts' ? 'selected' : ''">
@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="tooltipText" style="margin-left: -32px;">
-                    accounts
+                    Accounts
                 </div>
            </div>
             <div @click="onTabSwitch('settings')" class="iconFont tooltip" :class="currentTab == 'settings' ? 'selected' : ''">
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="tooltipText" style="margin-left: -28px;">
-                    settings
+                    Settings
                 </div>
            </div>
       </div>
