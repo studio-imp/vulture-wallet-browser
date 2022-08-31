@@ -18,6 +18,10 @@ import { AccountActionHandler } from "../InetworkAPI";
 import { Network } from '../../../../src/vulture_backend/types/networks/networkTypes';
 import { SubstrateBondData } from '../../../../src/vulture_backend/types/stakingInfo';
 import BigNumber from 'bignumber.js';
+import { SubstrateSigner } from './substrateSigner';
+import { WalletType } from '../../../../src/vulture_backend/wallets/walletType';
+import { TransactionFormats } from '../IVultureTx';
+import { SubmittableExtrinsic } from '@polkadot/api-base/types';
 
 
 export class SubstrateInitData {
@@ -55,16 +59,21 @@ export class SubstrateActions implements AccountActionHandler {
     wsProvider?: WsProvider;
     networkAPI?: ApiPromise;
 
-    constructor(initData: SubstrateInitData) {
+    signer?: SubstrateSigner
+
+    constructor(initData: SubstrateInitData, walletType: WalletType) {
         this.networkURI = initData.wsNetworkURI;
         this.seed = initData.seedPhrase;
         this.ss58Format = initData.ss58Format;
         this.keyringType = initData.keyringType;
         this.derivationPath = initData.derivationPath;
+
+        
         cryptoWaitReady().then((ready) => {
             console.log("Cryptography Web-Assembly status: " + ready);
             this.isCryptoWasmReady = ready;
-
+            
+            this.signer = new SubstrateSigner(walletType, initData.seedPhrase, null, initData);
             this.keyring = new Keyring({
                 type: this.keyringType == "sr25519" ? 'sr25519' : 'sr25519',
                 ss58Format: Number(this.ss58Format),
@@ -110,8 +119,62 @@ export class SubstrateActions implements AccountActionHandler {
             console.info("Slashing spans for withdrawing payouts: " + slashingSpans);
 
             let e = this.networkAPI?.tx.staking.withdrawUnbonded(slashingSpans);
+
+            this.signer!.signTransaction({
+                transactionFormat: TransactionFormats.SubstrateExtrinsic,
+                transactionData: this.networkAPI?.tx.staking.withdrawUnbonded(slashingSpans)
+            }).then((signedTx) => {
+                (signedTx as SubmittableExtrinsic<'promise'>).send(({events = [], status}) => {
+                    if(status.isInBlock) {
+                        events.forEach(({event: {data, method, section}, phase}) => {
+                            if(method == 'ExtrinsicSuccess') {
+                              postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                                  success: true,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            } else if(method == 'ExtrinsicFailed') {
+                              postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                                  success: false,
+                                  status: status.type,
+                                  blockHash: status.asInBlock.toHex(),
+                                  method: method,
+                              }});
+                            }
+                        });
+                    }else if(status.isDropped) {
+                      postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isFinalityTimeout) {
+                      postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }else if(status.isInvalid) {
+                      postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                          success: false,
+                          status: status.type,
+                      }});
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                        success: false,
+                    }});
+                });
+
+            }).catch((error) => {
+                console.error(error);
+                postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                    success: false,
+                    status: error
+                }});
+            });
             
-            
+            /* TODO: Remove when above is confirmed working
             this.networkAPI?.tx.staking.withdrawUnbonded(slashingSpans).signAndSend(this.keypair!, ({events = [], status}) => {
                 if(status.isInBlock) {
                     events.forEach(({event: {data, method, section}, phase}) => {
@@ -153,6 +216,8 @@ export class SubstrateActions implements AccountActionHandler {
                     success: false,
                 }});
             });
+            
+            */
         }else {
             console.error("Cryptography WASM hasn't been initialized yet!");
         }
@@ -440,6 +505,65 @@ export class SubstrateActions implements AccountActionHandler {
 
             // We are already bonded, we will add extra bond.
             if(stakedBalance.comparedTo(minBond) == 1 || stakedBalance.comparedTo(minBond) == 0 || isStashBonded == true) {
+                
+                this.signer!.signTransactionBy(bondData.stakingAddressDerivationPath, {
+                    transactionFormat: TransactionFormats.SubstrateExtrinsic,
+                    transactionData: this.networkAPI?.tx.staking.bondExtra(bondData.bondAmountWhole)
+                }).then((signedTx) => {
+                    (signedTx as SubmittableExtrinsic<'promise'>).send(({events = [], status})  => {
+                        if(status.isInBlock) {
+                            events.forEach(({event: {data, method, section}, phase}) => {
+                                if(method == 'ExtrinsicSuccess') {
+                                  postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                      success: true,
+                                      status: status.type,
+                                      blockHash: status.asInBlock.toHex(),
+                                      method: method,
+                                  }});
+                                } else if(method == 'ExtrinsicFailed') {
+                                    console.error(status.type);
+                                    console.error(method);
+                                    console.log(data.toHuman());
+                                  postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                                      success: false,
+                                      status: status.type,
+                                      blockHash: status.asInBlock.toHex(),
+                                      method: method,
+                                  }});
+                                }
+                            });
+                        }else if(status.isDropped) {
+                          postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                              success: false,
+                              status: status.type,
+                          }});
+                        }else if(status.isFinalityTimeout) {
+                          postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                              success: false,
+                              status: status.type,
+                          }});
+                        }else if(status.isInvalid) {
+                          postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                              success: false,
+                              status: status.type,
+                          }});
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                        postMessage({method: VultureMessage.STAKE_FUNDS, params: {
+                            success: false,
+                        }});
+                    });
+                }).catch((error) => {
+                    console.error(error);
+                    postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                        success: false,
+                        status: error
+                    }});
+                });
+
+                /* TODO: remove when above is confirmed working
+                  
                 this.networkAPI?.tx.staking.bondExtra(bondData.bondAmountWhole).signAndSend(kp!, ({events = [], status}) => {
                     if(status.isInBlock) {
                         events.forEach(({event: {data, method, section}, phase}) => {
@@ -483,7 +607,8 @@ export class SubstrateActions implements AccountActionHandler {
                     postMessage({method: VultureMessage.STAKE_FUNDS, params: {
                         success: false,
                     }});
-                });;
+                });
+                 */
 
             }else {
                 // We are not bonded, we will bond for the first time.

@@ -1,6 +1,7 @@
 
 import { NetworkType } from "../../src/vulture_backend/types/networks/networkTypes";
 import { VultureMessage } from "../../src/vulture_backend/vultureMessage";
+import { WalletType } from "../../src/vulture_backend/wallets/walletType";
 
 import { AccountActionHandler } from './apis/InetworkAPI';
 import { ISigner } from "./apis/ISigner";
@@ -28,7 +29,7 @@ self.addEventListener("message", async (event) => {
             case VultureMessage.SET_CURRENT_WALLET: {
                 switch(event.data.params.networkType as NetworkType) {
                     case NetworkType.Substrate: {
-                        wallet = new SubstrateActions(event.data.params.initData);
+                        wallet = new SubstrateActions(event.data.params.initData, WalletType.MnemonicPhrase);
                         break;
                     }
                     case NetworkType.EVM: {
