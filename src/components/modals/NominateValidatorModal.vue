@@ -305,11 +305,11 @@ export default defineComponent({
         statusCode.value = code;
     }
     function selectValidator(index: number) {
-        selectedValidator.address.value = allValidators[index].address;
-        selectedValidator.comission.value = allValidators[index].comission;
-        selectedValidator.email.value = allValidators[index].email;
-        selectedValidator.webURI.value = allValidators[index].webURI;
-        selectedValidator.name.value = allValidators[index].name;
+        selectedValidator.address.value = filteredValidators.value[index].address;
+        selectedValidator.comission.value = filteredValidators.value[index].comission;
+        selectedValidator.email.value = filteredValidators.value[index].email;
+        selectedValidator.webURI.value = filteredValidators.value[index].webURI;
+        selectedValidator.name.value = filteredValidators.value[index].name;
 
         statusCode.value = 'ConfirmNomination';
     }

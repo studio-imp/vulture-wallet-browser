@@ -260,7 +260,7 @@ hr {
 
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: 185px;
 
     margin-bottom: 3px;
 }
