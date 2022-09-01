@@ -1,7 +1,7 @@
 import localforage from "localforage";
 import { VultureMessage } from "../vultureMessage";
 import { encrypt } from "@metamask/browser-passworder";
-import { MnemonicWallet } from "./mnemonicWallet";
+import { MnemonicSubstrateWallet } from "./substrate/mnemonicSubstrateWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
 import { AbstractToken, TokenStore } from "../types/abstractToken";
 import { Network, NetworkFeatures } from "../types/networks/networkTypes";
@@ -138,7 +138,7 @@ export class VultureWallet {
             this.vault = vault;
             this.nextDerivIndex = accountStore.nextAccountDerivIndex;
             if(accountStore.allAccounts[accountStore.currentlySelectedAccount - 1].walletType == WalletType.MnemonicPhrase) {
-                this.currentWallet = new MnemonicWallet(vault.seed, accountStore.allAccounts[accountStore.currentlySelectedAccount - 1], accountStore.currentlySelectedNetwork);
+                this.currentWallet = new MnemonicSubstrateWallet(vault.seed, accountStore.allAccounts[accountStore.currentlySelectedAccount - 1], accountStore.currentlySelectedNetwork);
             }else {
                 console.error("Error: Ledger wallets not currently supported!");
             }
@@ -164,15 +164,26 @@ export class VultureWallet {
         // The reason this check is necessary is due to updates possibly resetting the currentlySelectedAccount value. 
         if(accountStore.allAccounts[accountStore.currentlySelectedAccount - 1]) {
             if(accountStore.allAccounts[accountStore.currentlySelectedAccount - 1].walletType == WalletType.MnemonicPhrase) {
-                this.currentWallet = new MnemonicWallet(vault.seed, accountStore.allAccounts[accountStore.currentlySelectedAccount - 1], accountStore.currentlySelectedNetwork);
+                this.currentWallet = new MnemonicSubstrateWallet(vault.seed, accountStore.allAccounts[accountStore.currentlySelectedAccount - 1], accountStore.currentlySelectedNetwork);
             }else {
                 console.error("Error: Ledger wallets not currently supported!");
+
+                /*
+                if(networks.allNetworks.get(networkName)) {
+                    this.accountStore.currentlySelectedNetwork = networks.allNetworks.get(networkName) as Network;
+                    this.saveAccounts();
+                    this.updateAccountAddresses(true);
+                }else {
+                    console.error("Network: " + networkName + " Doesn't exist!");
+                    return;
+                }
+                */
             }
         }else {
             if(accountStore.allAccounts[0].walletType == WalletType.MnemonicPhrase) {
                 this.accountStore.currentlySelectedAccount = 0;
                 this.saveAccounts();
-                this.currentWallet = new MnemonicWallet(vault.seed, accountStore.allAccounts[0], accountStore.currentlySelectedNetwork);
+                this.currentWallet = new MnemonicSubstrateWallet(vault.seed, accountStore.allAccounts[0], accountStore.currentlySelectedNetwork);
             }else {
                 console.error("Error: Ledger wallets not currently supported!");
             }

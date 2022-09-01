@@ -1,4 +1,90 @@
 <template>
+
+    <div class="flexBox" style="height: 100%; width: 100%;">
+        
+        <div class="flexBox" style="flex-grow: 1; width: 100%; margin-top: 10px;
+        flex-direction: column; align-items: center;  box-sizing: border-box; font-size: 18px;
+        overflow-wrap: break-word;">
+
+            <div class="outline" v-if="currentMenu == 'SelectAccountType'">
+                <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
+                    align-items: center; justify-content: center;">
+                    <div style="font-size: 24px; ">
+                    Create Account
+                    </div>
+                    <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        &#xe7fe;
+                    </div>
+                </div>
+
+                <hr style="width: 100%; margin-bottom: 15px;">
+                <div class="buttonRow">
+                    <div class="accountButton" @click="setMenu('AddMnemonicAccount')">
+                        <div class="buttonTitle">
+                            Local Seed-phrase
+                        </div>
+                        <div class="tempText">
+                            Use the local seed-phrase
+                        </div>
+                        <div class="fonticon">
+                            &#xe873;
+                        </div>
+                    </div>
+                </div>
+                <div class="buttonRow">
+                    <div class="accountButton" @click="setMenu('AddMnemonicAccount')">
+                        <div class="buttonTitle">
+                            Ledger
+                        </div>
+                        <div class="tempText">
+                            Use a ledger hardware-wallet
+                        </div>
+                        <div class="fonticon">
+                            &#xe322;
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outline" v-if="currentMenu == 'AddMnemonicAccount'">
+                <div style="display: flex; width: 100%; margin-bottom: 0px; flex-direction: row;
+                    align-items: center; justify-content: center;">
+                    <div style="font-size: 24px; ">
+                    Create Account
+                    </div>
+                    <div style="font-size: 24px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        &#xe7fe;
+                    </div>
+                </div>
+
+                <hr style="width: 100%; margin-bottom: 15px;">
+                <DefaultInput @on-enter="setName($event)" inputWidth="280px" inputHeight="40px" fontSize="18px" inputName="Account Name" :inputPlaceholder='"\"" +getRandomAccountName() + "\""'/>
+                
+                <div style="width: 280px; text-align: left; margin-bottom: 18px; margin-top: 20px;">
+                    Account Index: <span style="color: var(--accent_color)">{{nextAccountIndex}}</span> <br>
+                    <i style="font-size: 13px;  color: var(--fg_color_2)">The account will always be the same at the given index.</i>
+                </div>
+            </div>
+
+            <div>
+                <div class="birdsOnBranch" style="margin-left: -110px;">
+                    <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="220" height="140" viewBox="0, 0, 400,244"><g id="svgg"><path id="path0" d="M176.571 17.139 C 165.281 20.171,159.294 33.472,164.299 44.404 C 166.904 50.093,174.358 60.906,186.358 76.400 C 191.469 83.000,196.474 89.570,197.480 91.000 C 200.052 94.656,199.450 95.168,212.518 78.200 C 234.195 50.052,238.119 43.274,237.390 35.233 C 235.744 17.086,218.390 10.989,202.600 23.010 L 200.000 24.990 197.188 22.845 C 190.411 17.676,182.612 15.517,176.571 17.139 M203.368 41.000 L 203.600 47.600 210.246 47.833 L 216.893 48.066 216.646 51.033 L 216.400 54.000 209.832 54.232 L 203.264 54.464 203.032 61.032 L 202.800 67.600 200.000 67.600 L 197.200 67.600 196.968 61.032 L 196.736 54.464 190.168 54.232 L 183.600 54.000 183.352 51.000 L 183.103 48.000 189.952 48.000 L 196.800 48.000 196.800 41.733 C 196.800 34.608,196.905 34.400,200.501 34.400 L 203.135 34.400 203.368 41.000 M307.286 90.349 C 300.668 93.437,300.472 93.475,293.486 93.022 C 286.338 92.559,283.981 93.502,288.200 95.137 C 289.190 95.521,291.620 96.801,293.600 97.983 L 297.200 100.130 290.600 99.646 C 280.621 98.915,281.463 100.243,293.600 104.379 C 301.302 107.003,303.129 110.569,301.649 120.085 C 299.597 133.276,307.525 148.198,321.155 156.800 C 326.141 159.947,326.394 160.575,323.699 163.107 C 321.951 164.749,321.384 164.838,316.660 164.205 C 311.109 163.461,243.201 172.793,233.600 175.619 C 231.180 176.331,228.515 177.110,227.677 177.350 C 226.327 177.736,232.054 165.359,234.284 163.070 C 234.568 162.779,238.220 163.210,242.400 164.028 C 252.291 165.964,252.379 165.960,253.502 163.497 C 254.748 160.761,255.207 160.986,244.707 159.181 C 231.547 156.918,230.727 157.319,222.453 170.082 L 216.177 179.764 198.688 184.662 C 182.289 189.256,149.944 197.963,147.135 198.540 C 146.392 198.693,140.118 193.508,131.935 185.979 L 118.000 173.157 106.152 170.431 L 94.303 167.705 85.501 169.109 C 73.321 171.051,71.207 169.617,79.400 164.971 C 90.420 158.721,97.493 147.171,95.982 137.890 C 94.812 130.700,96.935 127.781,104.726 125.866 C 112.463 123.965,113.126 122.433,106.267 122.307 C 103.480 122.256,101.920 122.049,102.800 121.846 C 112.215 119.681,112.548 118.896,104.600 117.597 C 100.981 117.006,96.957 115.651,93.900 113.995 C 84.391 108.843,70.397 111.556,65.147 119.569 C 64.430 120.663,57.133 125.020,47.561 130.069 C 31.084 138.761,29.841 139.757,32.844 141.861 C 34.715 143.171,35.478 142.768,22.800 147.167 C 16.038 149.514,10.400 152.474,10.400 153.679 C 10.400 154.645,11.262 154.598,19.200 153.200 C 39.554 149.615,50.804 157.436,47.365 172.782 L 46.742 175.564 34.771 177.421 L 22.800 179.278 19.824 182.639 C 14.730 188.392,10.776 188.459,61.782 181.925 L 103.165 176.623 121.986 192.329 L 140.806 208.035 161.666 202.768 C 173.138 199.872,183.127 197.275,183.862 196.998 C 184.598 196.720,177.033 204.914,167.052 215.207 C 157.070 225.499,149.082 234.208,149.299 234.560 C 149.517 234.912,152.133 235.200,155.113 235.200 L 160.532 235.200 179.770 214.943 L 199.009 194.687 225.304 188.161 L 251.600 181.635 293.251 177.503 L 334.902 173.371 353.820 180.630 L 372.739 187.889 386.170 182.498 L 399.600 177.107 399.837 171.754 C 400.116 165.434,400.451 165.541,393.284 169.672 L 387.608 172.945 376.404 171.629 C 358.796 169.562,359.410 169.713,358.933 167.310 C 357.609 160.638,361.175 153.585,368.527 148.339 L 373.514 144.781 380.957 144.738 C 385.976 144.709,390.289 145.207,394.200 146.268 L 400.000 147.840 400.000 145.222 C 400.000 142.625,399.914 142.566,389.215 137.933 L 378.431 133.263 380.815 131.753 C 385.188 128.984,386.931 130.341,343.770 102.909 C 342.984 102.409,342.133 101.183,341.880 100.185 C 341.582 99.012,338.465 96.395,333.067 92.785 C 322.325 85.602,318.281 85.220,307.286 90.349 M355.585 159.400 C 355.287 160.830,354.204 163.461,353.178 165.247 L 351.312 168.493 341.056 167.242 C 331.761 166.108,330.800 165.842,330.800 164.396 C 330.800 162.982,331.528 162.736,337.200 162.234 C 341.362 161.866,345.698 160.826,349.600 159.261 C 352.900 157.938,355.719 156.843,355.864 156.828 C 356.009 156.812,355.883 157.970,355.585 159.400 M65.184 168.729 C 67.775 169.208,70.008 169.600,70.147 169.600 C 70.286 169.600,70.400 170.078,70.400 170.662 C 70.400 171.379,68.258 172.041,63.800 172.703 C 60.170 173.243,56.642 173.846,55.961 174.045 C 54.504 174.469,51.200 168.308,51.200 165.167 L 51.200 163.177 55.837 165.518 C 58.388 166.805,62.594 168.251,65.184 168.729 " fill-rule="evenodd"></path></g></svg>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="flexBox" style="flex-grow: 0; margin-bottom: 9px; width: 100%; flex-direction: row; align-self: center; justify-content: space-evenly;">
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="quitModal()"
+            v-if="currentMenu == 'SelectAccountType'"/>
+            <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Return" @button-click="setMenu('SelectAccountType')"
+             v-if="currentMenu == 'AddMnemonicAccount' || currentMenu == 'AddLedgerAccount'"/>
+        </div>
+    </div>
+
+<!--
+
     <div class="flexBox" style="height: 100%; width: 100%;">
         <div class="flexBox" style="flex-grow: 1; padding-left: 15px; padding-right: 15px; width: 100%;
         flex-direction: column; align-items: center; margin-top: 20px; box-sizing: border-box; font-size: 18px;">
@@ -15,6 +101,7 @@
             <DefaultButton buttonHeight="40px" buttonWidth="150px" buttonText="Add" @button-click="createAccount()"/>
         </div>
     </div>
+-->
 </template>
 
 <script lang="ts">
@@ -53,13 +140,17 @@ export default defineComponent({
     const networks = new DefaultNetworks();
     let nextAccountIndex: number = props.vultureWallet.nextDerivIndex;
 
+    let currentMenu = ref('SelectAccountType');
+
     function quitModal() {
         props.modalSystem.closeModal();
     }
     function setName(name: string) {
         accountName = name;
     }
-
+    function setMenu(menu: string) {
+        currentMenu.value = menu;
+    }
     function createAccount() {
         props.vultureWallet.createAccount(accountName, WalletType.MnemonicPhrase);
         quitModal();
@@ -67,12 +158,14 @@ export default defineComponent({
 
     return {
         nextAccountIndex,
+        currentMenu,
         networks,
 
         getRandomAccountName: getRandomAccountName,
         createAccount: createAccount,
         quitModal: quitModal,
         setName: setName,
+        setMenu: setMenu,
     }
   }
 });
@@ -87,10 +180,7 @@ hr {
     height: 1px;
     background-color: var(--fg_color_2);
 }
-.vultureLogo {
-    fill: var(--bg_color);
-    filter: drop-shadow(0px 0px 5px rgb(2,2,2));
-}
+
 .styled {
     color: var(--accent_color);
 }
@@ -104,5 +194,119 @@ hr {
     border-style: solid;
     border-radius: 24px;
     z-index: 2;
+}
+
+hr {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: none;
+    height: 1px;
+    border-radius: 5px;
+    background-color: var(--fg_color_2);
+}
+.buttonTitle {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    font-size: 20px;
+    border-bottom-width: 1px;
+    padding-bottom: 4px;;
+    border-bottom-style: solid;
+    border-color: var(--bg_color_2);
+}
+.birdsOnBranch {
+    position: absolute;
+    bottom: 72px;
+    pointer-events: none;
+    fill: rgba(0,0,0,0.25);
+}
+.fonticon {
+    color: var(--bg_color_2);
+    filter: brightness(140%);
+    margin-top: 8px;
+    font-size: 28px;
+}
+.buttonRow {
+    display: flex;
+    flex-direction: row;
+    box-sizing: border-box;
+
+    width: 100%;
+}
+.accountButton {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 5px;
+    width: 100%;
+    height:  120px;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    padding: 10px;
+    border-color: var(--bg_color_2);
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition-duration: 150ms;
+    user-select: none;
+}
+.accountButton:hover {
+    transition-duration: 100ms;
+    border-color: var(--accent_color);
+
+}
+.accountButton:active {
+    filter: brightness(50%);
+    transition-duration: 100ms;
+}
+.tempText {
+    color: var(--bg_color_2);
+    filter: brightness(180%);
+    margin-top: 8px;
+    font-size: 17px;
+}
+.disabledButton {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    margin: 5px;
+    width: 100%;
+    height:  86px;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 10px;
+    padding: 10px;
+    border-color: var(--bg_color_2);
+    box-shadow: 0px 0px 4px rgba(0,0,0,0.6);
+    cursor:not-allowed;
+    transition-duration: 150ms;
+    user-select: none;
+    
+    filter: brightness(80%);
+}
+.outline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-width: 2px;
+    border-style: none;
+    border-bottom-style: solid;
+    border-color: var(--bg_color_2);
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 0px;
+
+
+    min-height: 475px;
+    max-height: 475px;
+
+    width: 100%;
+    
+    overflow: hidden;
+    overflow-y: auto;
+
+    border-radius: 0px;
 }
 </style>

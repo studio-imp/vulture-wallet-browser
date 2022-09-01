@@ -1,18 +1,18 @@
-import { AccountData } from "./vultureWallet";
+import { AccountData } from "../vultureWallet";
 import SafeEventEmitter from "@metamask/safe-event-emitter";
 
 import { BigNumber } from "bignumber.js";
-import { VultureMessage } from "../vultureMessage";
-import { AbstractToken } from "../types/abstractToken";
-import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/substrateActions";
-import { Network, NetworkFeatures } from "../types/networks/networkTypes";
-import { StakingInfo, SubstrateBondData, SubstrateStakingInfo } from "../types/stakingInfo";
-import { VultureAccount } from "./IVultureAccount";
-import { WalletType } from "./walletType";
+import { VultureMessage } from "../../vultureMessage";
+import { AbstractToken } from "../../types/abstractToken";
+import { SubstrateInitData } from "../../../../vulture_scripts/src/apis/substrate/substrateActions";
+import { Network, NetworkFeatures } from "../../types/networks/networkTypes";
+import { StakingInfo, SubstrateBondData, SubstrateStakingInfo } from "../../types/stakingInfo";
+import { VultureAccount } from "../IVultureAccount";
+import { WalletType } from "../walletType";
 
 
 
-export class MnemonicWallet implements VultureAccount {
+export class MnemonicSubstrateWallet implements VultureAccount {
 
     public actionWorker;
     public infoWorker;
