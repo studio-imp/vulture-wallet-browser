@@ -1,6 +1,6 @@
 
 <template>
-    <div class="flexBox stakingBox" v-if="stakingStatus != 'Loading'">
+    <div class="flexBox stakingBox" style="min-height: 333px;" v-if="stakingStatus != 'Loading'">
 
         <div class="flexBox outlineSection" v-if="stakingStatus == 'NotStaked'">
             <div class="flexBox infoRow">

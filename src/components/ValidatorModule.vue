@@ -53,7 +53,7 @@
                 </div>
             </div>
 
-            <div class="valueBox">
+            <div class="valueBox" style="margin-bottom: 5px;">
                 <div class="valueTitle">
                     Address:
                 </div>
@@ -61,7 +61,6 @@
                     {{address}}
                 </div>
             </div>
-            <hr class="smallerHr">
             <div class="flexBox" style="margin-top: 5px; margin-bottom: 2px; z-index: 10;">
                 <DefaultButton buttonHeight="35px" buttonWidth="190px" buttonText="Select Validator" fontSize="20px" @button-click="selectValidator()"/>
             </div>
@@ -199,6 +198,7 @@ hr {
   border-bottom-right-radius: 0px;
   user-select: none;
   cursor: pointer;
+
 }
 .moduleHeaderOpen:active {
   transition-duration: 160ms;
@@ -224,6 +224,7 @@ hr {
   border-style: solid;
 
 
+
   box-shadow: 0px 0px 3px rgb(6,6,6);
 
   width: 90%;
@@ -243,13 +244,25 @@ hr {
     margin: 2px;
     justify-content: space-between;
     width: 100%;
-}
-.value {
-    font-size: 18px;
+    margin-bottom: 2px;
+
     border-bottom-style: solid;
     border-width: 1px;
     border-color: var(--bg_color_2);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 2px;
+}
+.value {
+    font-size: 16px;
     color: var(--accent_color);
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+
+    margin-bottom: 3px;
 }
 .addressValue {    
     display: flex;
@@ -258,14 +271,11 @@ hr {
     word-break: break-all;
     color: var(--accent_color);
     font-size: 14px;
-    width: 70%;
+    width: 73%;
 
-    border-bottom-style: solid;
-    border-width: 1px;
-    border-color: var(--bg_color_2);
 }
 .valueTitle {
-    font-size: 18px;
+    font-size: 16px;
     color: var(--fg_color_2);
 }
 
