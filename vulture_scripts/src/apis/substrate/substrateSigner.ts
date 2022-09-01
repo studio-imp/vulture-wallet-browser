@@ -15,10 +15,10 @@ export class SubstrateSigner implements ISigner {
     keyring?: Keyring;
     currentKeypair?: KeyringPair;
 
-    constructor(walletType: WalletType, secret?: string, hardwareDevice?: any,
-    substrateData?: SubstrateInitData)
+    constructor(walletType: WalletType, substrateData: SubstrateInitData, hardwareDevice?: any)
     {
-        this.secret = secret == null ? undefined : secret;
+        // The seed phrase, will later on be completely hidden.
+        this.secret = substrateData.seedPhrase == null ? undefined : substrateData.seedPhrase;
         this.hardwareDevice = hardwareDevice == null ? undefined : hardwareDevice;
         this.currentSignerType = walletType;
 

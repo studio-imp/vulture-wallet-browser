@@ -29,7 +29,8 @@ self.addEventListener("message", async (event) => {
             case VultureMessage.SET_CURRENT_WALLET: {
                 switch(event.data.params.networkType as NetworkType) {
                     case NetworkType.Substrate: {
-                        wallet = new SubstrateActions(event.data.params.initData, WalletType.MnemonicPhrase);
+                        wallet = new SubstrateActions(event.data.params.initData, event.data.params.walletType,
+                            event.data.params.hwDevice == null ? null : event.data.params.hwDevice);
                         break;
                     }
                     case NetworkType.EVM: {

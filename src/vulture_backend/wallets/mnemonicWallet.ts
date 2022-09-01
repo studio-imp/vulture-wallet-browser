@@ -8,6 +8,7 @@ import { SubstrateInitData } from "../../../vulture_scripts/src/apis/substrate/s
 import { Network, NetworkFeatures } from "../types/networks/networkTypes";
 import { StakingInfo, SubstrateBondData, SubstrateStakingInfo } from "../types/stakingInfo";
 import { VultureAccount } from "./IVultureAccount";
+import { WalletType } from "./walletType";
 
 
 
@@ -129,6 +130,7 @@ export class MnemonicWallet implements VultureAccount {
                     this.currentNetwork.addressFormat == null ? "42" : this.currentNetwork.addressFormat,
                     "sr25519"
                 ),
+                walletType: WalletType.MnemonicPhrase,
                 networkType: this.currentNetwork.networkType
             } 
         });

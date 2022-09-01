@@ -61,7 +61,7 @@ export class SubstrateActions implements AccountActionHandler {
 
     signer?: SubstrateSigner
 
-    constructor(initData: SubstrateInitData, walletType: WalletType) {
+    constructor(initData: SubstrateInitData, walletType: WalletType, hwDevice?: any) {
         this.networkURI = initData.wsNetworkURI;
         this.seed = initData.seedPhrase;
         this.ss58Format = initData.ss58Format;
@@ -73,7 +73,7 @@ export class SubstrateActions implements AccountActionHandler {
             console.log("Cryptography Web-Assembly status: " + ready);
             this.isCryptoWasmReady = ready;
             
-            this.signer = new SubstrateSigner(walletType, initData.seedPhrase, null, initData);
+            this.signer = new SubstrateSigner(walletType, initData, null);
             this.keyring = new Keyring({
                 type: this.keyringType == "sr25519" ? 'sr25519' : 'sr25519',
                 ss58Format: Number(this.ss58Format),
