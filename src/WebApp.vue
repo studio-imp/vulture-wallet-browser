@@ -1,13 +1,19 @@
 <template>  
   <div class="flexBox" style="width: 100vw; height: 100vh;">
-    <Onboarding/>
+    <Onboarding v-if="state == states.ONBOARDING"/>
+    <AddHardwareWallet v-if="state == states.CREATE_LEDGER_WALLET"/>
   </div>
 </template>
 
-<script>
-import Onboarding from "./components/webAppSpecific/Onboarding.vue"
+<script lang="ts">
+import { ref } from "vue";
+import { defineComponent } from "vue-demi";
+import Onboarding from "./src_web_app/Onboarding.vue";
+import AddHardwareWallet from "./src_web_app/AddHardwareWallet.vue";
 
-export default {
+import { getWebAppState, WebAppStates } from "./src_web_app/utils/webAppState";
+
+export default defineComponent({
   name: "WebApp",
   data(){
     return {
@@ -15,9 +21,25 @@ export default {
     }
   },
   components: {
-    Onboarding
+    AddHardwareWallet,
+    Onboarding,
+  },
+  setup() {
+    let state = ref("LOADING");
+    let states = WebAppStates;
+    
+    getWebAppState().then((webAppState) => {
+      state.value = webAppState;
+    }).catch((error) => {
+      state.value = WebAppStates.ONBOARDING;
+    });
+
+    return {
+      state,
+      states
+    }
   }
-}
+})
 </script>
 
 <style>

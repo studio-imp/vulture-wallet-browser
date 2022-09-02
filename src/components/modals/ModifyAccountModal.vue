@@ -30,7 +30,7 @@
                 <hr class="smallerHr">
 
                 <div class="infoParagraph addressSection">
-                    Deposit Address
+                    Deposit Address:
                     <span style="color: var(--accent_color); font-size: 15px;">{{address}}</span> <span class="fonticon" style="font-size: 20px;">&#xe177;</span>
                     <br>
                     <i>Addresses will vary depending on the selected network.</i>

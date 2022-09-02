@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="buttonRow">
-                    <div class="accountButton" @click="setMenu('AddMnemonicAccount')">
+                    <div class="accountButton" @click="createLedgerWallet()">
                         <div class="buttonTitle">
                             Ledger
                         </div>
@@ -112,11 +112,12 @@ import DefaultInput from "../building_parts/DefaultInput.vue";
 import DropdownSelection from "../building_parts/DropdownSelection.vue";
 import { VultureWallet, createNewAccount} from "../../vulture_backend/wallets/vultureWallet";
 import { getRandomAccountName} from "../../randomNames";
-
+import { openWebApp } from "../../vulture_utils";
 import { defineComponent, PropType, reactive, ref } from 'vue';
 import { DefaultNetworks } from "@/vulture_backend/types/networks/network";
 import { ModalEventSystem } from "@/modalEventSystem";
 import { WalletType } from "@/vulture_backend/wallets/walletType";
+import { setWebAppState, WebAppStates } from "../../src_web_app/utils/webAppState";
 
 export default defineComponent({
   name: "CreateAccountModal",
@@ -157,6 +158,10 @@ export default defineComponent({
         props.vultureWallet.createAccount(accountName, WalletType.MnemonicPhrase);
         quitModal();
     }
+    function createLedgerWallet() {
+        setWebAppState(WebAppStates.CREATE_LEDGER_WALLET);
+        openWebApp();
+    }
 
     return {
         nextAccountIndex,
@@ -164,6 +169,7 @@ export default defineComponent({
         networks,
 
         getRandomAccountName: getRandomAccountName,
+        createLedgerWallet: createLedgerWallet,
         createAccount: createAccount,
         quitModal: quitModal,
         setName: setName,

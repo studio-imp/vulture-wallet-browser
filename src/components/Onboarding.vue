@@ -17,6 +17,7 @@
 
 <script>
 import DefaultButton from "./building_parts/DefaultButton.vue";
+import  { WebAppStates, setWebAppState } from "../src_web_app/utils/webAppState";
 import { openWebApp } from "../vulture_utils";
 export default {
   name: "Onboarding",
@@ -27,6 +28,7 @@ export default {
   },
   methods: {
     createWallet() {
+        setWebAppState(WebAppStates.ONBOARDING);
         openWebApp()
     }
   }
