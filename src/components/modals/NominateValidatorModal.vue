@@ -23,10 +23,10 @@
                 <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'NominationInfo'">
                     <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row;
                     align-items: center; justify-content: center;">
-                        <div style="font-size: 24px; ">
+                        <div style="font-size: 20px; ">
                         Info
                         </div>
-                        <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        <div style="font-size: 20px; margin-left: 5px; margin-top: 3px;" class="fonticon">
                             &#xe88e;
                         </div>
                     </div>
@@ -41,17 +41,17 @@
                         <hr class="seperatorHr">
                         Feel free to read our <a href="https://docs.vulturewallet.net/staking" target="_blank">Staking Guide</a>.
                         <hr class="seperatorHr">
-                        <div class="accentColored" style="text-align: center; font-size: 24px;">Proceed?</div>
+                        <div class="accentColored" style="text-align: center; font-size: 20px;">Proceed?</div>
                     </div>
                 </div>
 
                 <div class="validatorBox" v-if="statusCode == 'SelectValidator'">
                     <div style="display: flex; width: 100%; flex-direction: row;
                     align-items: center; justify-content: center;">
-                        <div style="font-size: 22px;margin: 7px;">
+                        <div style="font-size: 20px;margin: 7px;">
                         Select Validator
                         </div>
-                        <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        <div style="font-size: 20px; margin-left: 5px; margin-top: 3px;" class="fonticon">
                             &#xe177;
                         </div>
                     </div>
@@ -91,10 +91,10 @@
                 <div class="infoSection" style="margin-top: auto; margin-bottom: auto;" v-if="statusCode == 'ConfirmNomination' && selectedValidator != null">
                     <div style="display: flex; width: 100%; margin-bottom: 5px; flex-direction: row;
                     align-items: center; justify-content: center;">
-                        <div style="font-size: 24px; ">
+                        <div style="font-size: 20px; ">
                         <span v-if="currentNominee != ''">New</span> Nominee Info
                         </div>
-                        <div style="font-size: 22px; margin-left: 5px; margin-top: 3px;" class="fonticon">
+                        <div style="font-size: 20px; margin-left: 5px; margin-top: 3px;" class="fonticon">
                             &#xe88e;
                         </div>
                     </div>
@@ -533,7 +533,7 @@ hr {
     width: 100%;
 }
 .sectionDescription {
-    font-size: 22px;
+    font-size: 20px;
     margin-right: auto;
     margin-left: auto;
 }
@@ -551,12 +551,12 @@ hr {
 }
 .infoIcon {
     font-family: fonticonA;
-    font-size: 22px;
+    font-size: 20px;
 }
 .infoParagraph {
     width: 100%;
     text-align: left;
-    font-size: 22px;
+    font-size: 20px;
 }
 .addressSection {
     word-break: break-all;
@@ -599,7 +599,7 @@ hr {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
+    font-size: 20px;
     font-family: fonticonA;
     width: 20px;
     height: 20px;
@@ -637,7 +637,7 @@ hr {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
+    font-size: 20px;
     max-width: 115px;
     width: auto;
     height: 30px;
@@ -673,7 +673,7 @@ hr {
     border-width: 2px;
     border-color: var(--bg_color_2);
     border-style: solid;
-    border-radius: 24px;
+    border-radius: 20px;
     z-index: 2;
 }
 
