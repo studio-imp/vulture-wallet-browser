@@ -8,7 +8,7 @@
                     <div style="margin-bottom: 25px;">
                         Add hardware-wallet account<br>
                     </div>
-                    <DefaultButton :buttonDisabled="true" @button-click="hardwareWallet()" style="margin-bottom: 25px; align-self: center" buttonWidth="270px" buttonHeight="50px" buttonText="Ledger" />
+                    <DefaultButton @button-click="hardwareWallet()" style="margin-bottom: 25px; align-self: center" buttonWidth="270px" buttonHeight="50px" buttonText="Ledger" />
                     <div style="margin-bottom: 25px; font-size: 13px; color: var(--fg_color_2)">
                         Vulture currently supports Ledger hardware-wallets. <br>
                         Feel free to read the <a href="https://docs.vulturewallet.net/hardwareWallets" target="_blank">hardware-wallet</a> guide.
@@ -33,7 +33,8 @@
                         Connect your Ledger<br>
                     </div>
                         <div style="margin-bottom: 25px; font-size: 16px; color: var(--fg_color_2)">
-                            Vulture is multi-chain. You will need to have the ledger-app for each chain you intend to use installed.<br>
+                            Vulture is multi-chain. You will need to have the ledger-app for each network you intend to use <br>
+                            with this account.
                         </div>
                     <div class="outlineBox" style="margin-bottom: 25px;">
                         <!--
@@ -44,8 +45,8 @@
                         </div> 
                         -->
                         <div style="font-size: 16px; color: var(--fg_color_2)">
-                            NOTE: Ledger support for Aleph Zero isn't available yet. You can currently use ledger with: <br>
-                            <span style="color: var(--accent_color)">Ethereum and EVM chains</span>,
+                            Note: Ledger accounts are network-specific, you won't be able to use the account with a network doesn't support ledger.<br>
+                            Feel free to read the <a href="https://docs.vulturewallet.net/hardwareWallets" target="_blank">hardware-wallet</a> guide.
                         </div> 
                         <div v-if="ledgerConnectionStatus == 'No device selected.'" style=" font-size: 16px; color: var(--fg_color_2); margin-top: 10px;">
                             <span style="color: rgb(255,0,80)">Error:</span> Failed connecting to your ledger! Please try again.
@@ -114,6 +115,8 @@ import { createVault, Vault, createNewAccount } from "../vulture_backend/wallets
 import { ref } from 'vue';
 
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import Transport from "@ledgerhq/hw-transport";
+
 import Polkadot from "@ledgerhq/hw-app-polkadot";
 import { DefaultNetworks } from '@/vulture_backend/types/networks/network';
 import { WalletType } from '@/vulture_backend/wallets/walletType';
@@ -132,7 +135,6 @@ export default {
   },
   data() {
     return {
-        onboardingState: "start", // | start, importSeed, createSeed, createPassword, finished | are used.
         hasValidSeed: false,
         seedPhrase: '',
 
@@ -145,10 +147,12 @@ export default {
 
     let ledgerConnectionStatus = ref('none');
 
-    let ledgerTransport;
+    let ledgerTransport: Transport;
 
     let seed = ref(generateMnemonic(256));
     let generatedSeed = ref(seed.value.split(' '));
+
+    let onboardingState = ref('start'); // | start, importSeed, createSeed, createPassword, finished | are used.
 
     //Ledger connection will be abstracted to be part of the vulture_backend once
     //the proof-of-concept has been verified.  
@@ -156,16 +160,18 @@ export default {
         console.log("Attemption Ledger Connection through WebUSB.");
         TransportWebUSB.create().then((transport) => {
             ledgerTransport = transport;
-            /*
+            console.log(ledgerTransport.deviceModel);
+            
             const polkadot = new Polkadot(transport);
             
-            polkadot.getAddress("m/44'/643'0'/0/0", false).then((result) => {
+            
+            polkadot.getAddress("m/44'/354'0'/0/0", true).then((result) => {
                 console.log(result);
             }).catch((error) => {
                 console.log(error);
                 ledgerConnectionStatus.value = "polkadot app not detected";
             });
-             */
+             
             
         }).catch((error) => {
             if(error.message == "No device selected.") {
@@ -177,7 +183,9 @@ export default {
 
     return {
         ledgerConnectionStatus,
+        onboardingState,
         generatedSeed,
+
         connectLedger: connectLedger
     }
   },
