@@ -22,10 +22,10 @@
         </div>
 
         <div class="flexBox outlineSection" style="align-items: center;" v-if="stakingStatus == 'NotStaked'">
-            <div class="flexBox infoRow">
-            <DefaultButton buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Transfer" @click="transferBetweenAccounts()"/>
-            <DefaultButton buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Stake" @click="stakeFunds()"/>
-            <DefaultButton v-if="unlockingAmount > 0" buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Payouts" @click="stakeFunds()"/>
+            <div class="flexBox infoRowButton">
+            <DefaultButton style="margin: 5px;" buttonWidth="120px" buttonHeight="40px" fontSize="20px" buttonText="Transfer" @click="transferBetweenAccounts()"/>
+            <DefaultButton style="margin: 5px;" buttonWidth="120px" buttonHeight="40px" fontSize="20px" buttonText="Stake" @click="stakeFunds()"/>
+            <DefaultButton style="margin: 5px;" v-if="unlockingAmount > 0" buttonWidth="120px" buttonHeight="40px" fontSize="20px" buttonText="Payouts" @click="payouts()"/>
             </div>
         </div>
     
@@ -169,6 +169,9 @@ export default defineComponent({
     function openStakeMenu() {
         props.modalSystem.openModal(ModalEvents.STAKE_MENU, null);
     }
+    function payouts() {
+        props.modalSystem.openModal(ModalEvents.PAYOUTS, null);
+    }
     function transferBetweenAccounts() {
         props.modalSystem.openModal(ModalEvents.TRANSFER_BETWEEN_STAKING_ACCOUNT, null);
     }
@@ -186,7 +189,9 @@ export default defineComponent({
         nominee,
         stakedAmount,
         stakingStatus,
+        unlockingAmount,
 
+        payouts: payouts,
         nominate: nominate,
         stakeFunds: stakeFunds,
         unstakeFunds: unstakeFunds,
@@ -227,6 +232,13 @@ hr {
     vertical-align: middle;
     font-size: 20px;
     margin-right: 5px;
+}
+.infoRowButton {
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
 }
 .infoRow {
     flex-direction: row;
