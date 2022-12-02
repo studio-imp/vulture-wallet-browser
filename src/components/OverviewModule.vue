@@ -104,6 +104,8 @@ export default defineComponent({
 
   user-select: none;
 
+  font-size: 16px;
+
   color: var(--fg_color_2);
 
   transition-duration: 125ms;

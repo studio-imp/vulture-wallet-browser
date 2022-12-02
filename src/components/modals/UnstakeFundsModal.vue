@@ -215,7 +215,7 @@ export default defineComponent({
             isBonded.value = stakingData.isStashAccountBonded;
         }
 
-        if(stakedBalance.value < minimumStakingAmount.value) {
+        if(stakedBalance.value <= 0) {
             statusCode.value = "NothingToUnstake";
         }
 
