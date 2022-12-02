@@ -25,6 +25,7 @@
             <div class="flexBox infoRow">
             <DefaultButton buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Transfer" @click="transferBetweenAccounts()"/>
             <DefaultButton buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Stake" @click="stakeFunds()"/>
+            <DefaultButton v-if="unlockingAmount > 0" buttonWidth="130px" buttonHeight="40px" fontSize="20px" buttonText="Payouts" @click="stakeFunds()"/>
             </div>
         </div>
     
@@ -128,7 +129,7 @@ export default defineComponent({
   setup(props, context) {
 
     let stakingStatus = ref('Loading');
-
+    let unlockingAmount = ref(0);
     let asset = ref(props.vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix);
 
     // --- Staking Data ---
@@ -153,7 +154,7 @@ export default defineComponent({
                 }else {
                     stakingStatus.value = 'NotStaked';
                 }
-
+                unlockingAmount.value = stakingData.unlocking.length;
               break;
             }
             default: {
