@@ -67,7 +67,7 @@
                         Your unstaked funds will not be available immediately
                     </div>
                     <div class="amountStatusText" v-if="transferState == 'ReadyWhole'">
-                        Minimum stake is <span class="accentColored">{{minimumStakingAmount}}</span>, this results in your entire staked amount will be unstaked.
+                        Minimum stake is <span class="accentColored">{{minimumStakingAmount}}</span>, this tx will auto-unstake your entire amount.
                     </div>
                     <div class="amountStatusText" v-if="transferState == 'NotEnoughStaked'">
                         You can't unstake more than you have staked.
