@@ -468,7 +468,7 @@ export class SubstrateActions implements AccountActionHandler {
             if(minNominationAmount != undefined) {
                 minBond = new BigNumber((minNominationAmount.toHuman() as string).replaceAll(',', ''));
             }else {
-                postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
+                postMessage({method: VultureMessage.STAKE_FUNDS, params: {
                     success: false,
                 }});
                 console.error("Failed getting minimum bond amount! This is dangerous.");
@@ -556,59 +556,11 @@ export class SubstrateActions implements AccountActionHandler {
                     });
                 }).catch((error) => {
                     console.error(error);
-                    postMessage({method: VultureMessage.WITHDRAW_ALL_PAYOUTS, params: {
+                    postMessage({method: VultureMessage.STAKE_FUNDS, params: {
                         success: false,
                         status: error
                     }});
                 });
-
-                /* TODO: remove when above is confirmed working
-                  
-                this.networkAPI?.tx.staking.bondExtra(bondData.bondAmountWhole).signAndSend(kp!, ({events = [], status}) => {
-                    if(status.isInBlock) {
-                        events.forEach(({event: {data, method, section}, phase}) => {
-                            if(method == 'ExtrinsicSuccess') {
-                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                                  success: true,
-                                  status: status.type,
-                                  blockHash: status.asInBlock.toHex(),
-                                  method: method,
-                              }});
-                            } else if(method == 'ExtrinsicFailed') {
-                                console.error(status.type);
-                                console.error(method);
-                                console.log(data.toHuman());
-                              postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                                  success: false,
-                                  status: status.type,
-                                  blockHash: status.asInBlock.toHex(),
-                                  method: method,
-                              }});
-                            }
-                        });
-                    }else if(status.isDropped) {
-                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                          success: false,
-                          status: status.type,
-                      }});
-                    }else if(status.isFinalityTimeout) {
-                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                          success: false,
-                          status: status.type,
-                      }});
-                    }else if(status.isInvalid) {
-                      postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                          success: false,
-                          status: status.type,
-                      }});
-                    }
-                }).catch((error) => {
-                    console.error(error);
-                    postMessage({method: VultureMessage.STAKE_FUNDS, params: {
-                        success: false,
-                    }});
-                });
-                 */
 
             }else {
                 // We are not bonded, we will bond for the first time.
@@ -695,7 +647,7 @@ export class SubstrateActions implements AccountActionHandler {
                     }});
                 });
             }else {
-                this.networkAPI!.tx.balances.transferKeepAlive(recipent, amount).paymentInfo(this.keypair!).then((info: any) => {
+                this.networkAPI!.tx.balances.transfer(recipent, amount).paymentInfo(this.keypair!).then((info: any) => {
                     postMessage({method: VultureMessage.ESTIMATE_TX_FEE, params: {
                         success: true,
                         result: info.toJSON(),
@@ -791,47 +743,66 @@ export class SubstrateActions implements AccountActionHandler {
               });
   
             }else {
-              //If the method caller hasn't specified a token, we are sending the native asset of the current network.
-              this.networkAPI!.tx.balances.transferKeepAlive(recipent, amount).signAndSend(kp == null ? this.keypair! : kp, ({events = [], status}) => {
-                  if(status.isInBlock) {
-  
-                      events.forEach(({event: {data, method, section}, phase}) => {
-                          if(method == 'ExtrinsicSuccess') {
-                            postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
-                                success: true,
-                                status: status.type,
-                                blockHash: status.asInBlock.toHex(),
-                                method: method,
-                            }});
-                          } else if(method == 'ExtrinsicFailed') {           
-                            console.error(status.type);
-                            console.error(method);
-                            console.log(data.toHuman());                 
-                            postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
+                //If the method caller hasn't specified a token, we are sending the native asset of the current network.
+
+                this.networkAPI!.tx.balances.transfer(recipent, amount).signAndSend(kp == null ? this.keypair! : kp, ({ events = [], status }) => {
+                    if (status.isInBlock) {
+
+                        events.forEach(({ event: { data, method, section }, phase }) => {
+                            if (method == 'ExtrinsicSuccess') {
+                                postMessage({
+                                    method: VultureMessage.TRANSFER_ASSETS, params: {
+                                        success: true,
+                                        status: status.type,
+                                        blockHash: status.asInBlock.toHex(),
+                                        method: method,
+                                    }
+                                });
+                            } else if (method == 'ExtrinsicFailed') {
+                                console.error(status.type);
+                                console.error(method);
+                                console.log(data.toHuman());
+                                postMessage({
+                                    method: VultureMessage.TRANSFER_ASSETS, params: {
+                                        success: false,
+                                        status: status.type,
+                                        blockHash: status.asInBlock.toHex(),
+                                        method: method,
+                                    }
+                                });
+                            }
+                        });
+                    } else if (status.isDropped) {
+                        postMessage({
+                            method: VultureMessage.TRANSFER_ASSETS, params: {
                                 success: false,
                                 status: status.type,
-                                blockHash: status.asInBlock.toHex(),
-                                method: method,
-                            }});
-                          }
-                      });
-                  }else if(status.isDropped) {
-                    postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
-                        success: false,
-                        status: status.type,
-                    }});
-                  }else if(status.isFinalityTimeout) {
-                    postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
-                        success: false,
-                        status: status.type,
-                    }});
-                  }else if(status.isInvalid) {
-                    postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {
-                        success: false,
-                        status: status.type,
-                    }});
-                  }
-              });
+                            }
+                        });
+                    } else if (status.isFinalityTimeout) {
+                        postMessage({
+                            method: VultureMessage.TRANSFER_ASSETS, params: {
+                                success: false,
+                                status: status.type,
+                            }
+                        });
+                    } else if (status.isInvalid) {
+                        postMessage({
+                            method: VultureMessage.TRANSFER_ASSETS, params: {
+                                success: false,
+                                status: status.type,
+                            }
+                        });
+                    }
+                }).catch((error) => {
+                    postMessage({
+                        method: VultureMessage.TRANSFER_ASSETS, params: {
+                            success: false,
+                            status: error,
+                        }
+                    });
+                });
+
             }
           }else {
               postMessage({method: VultureMessage.TRANSFER_ASSETS, params: {

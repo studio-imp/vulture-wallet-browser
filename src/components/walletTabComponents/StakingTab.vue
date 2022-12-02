@@ -89,17 +89,7 @@
         <div class="flexBox outlineSection" style="align-items: center; width: auto; margin-top: auto;" v-if="stakingStatus != 'NotStaked'">
             <DefaultButton buttonWidth="130px" buttonHeight="35px" fontSize="20px" buttonText="Stake Menu" @click="openStakeMenu()"/>
         </div>
-      <!--
-        
-      <div style="width: 90%;">
-        This is a temporary testing-zone for staking, view info in console! :D
-      </div>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="View Staking Info" @click="getStakingInfoTEST()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Transfer Funds"  @click="transferBetweenAccounts()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Stake Funds"  @click="stakeFunds()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Nominate Validator"  @click="nominate()"/>
-      <DefaultButton buttonWidth="190px" buttonHeight="30px" fontSize="20px" buttonText="Unstake"  @click="unstakeFunds()"/>
-      -->
+
     </div>
     <div v-else class="flexBox stakingBox" style="justify-content: center;">
         <div class="vultureLoaderBig">
@@ -154,12 +144,14 @@ export default defineComponent({
                 stakedAmount.value = Number(stakingData.stakedBalance);
                 nominee.value = stakingData.nominationAddress == null ? '' : stakingData.nominationAddress;
 
-                if(Number(stakingData.stakedBalance) < Number(stakingData.minimumBondAmount)) {
-                    stakingStatus.value = 'NotStaked';
-                } else if(stakingData.nominationAddress == null || stakingData.nominationAddress == '') {
-                    stakingStatus.value = 'NotNominating';
+                if(Number(stakingData.stakedBalance) > 0) {
+                    if(stakingData.nominationAddress == null || stakingData.nominationAddress == '') {
+                        stakingStatus.value = 'NotNominating';
+                    }else {
+                        stakingStatus.value = 'Staked';
+                    }
                 }else {
-                    stakingStatus.value = 'Staked';
+                    stakingStatus.value = 'NotStaked';
                 }
 
               break;

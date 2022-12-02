@@ -32,7 +32,7 @@ export class DefaultNetworks {
         }
     }
     public Polkadot: Network = {
-        networkUri: 'wss://kusama-rpc.polkadot.io',
+        networkUri: 'wss://rpc.polkadot.io',
         networkAssetPrefix: 'DOT',
         networkName: 'Polkadot',
         networkAssetDecimals: 10,
@@ -44,6 +44,20 @@ export class DefaultNetworks {
         networkGradient: {
             hex1: "#e8026d",
             hex2: "#ffa6d0"
+        }
+    }
+    public Westend: Network = {
+        networkUri: 'wss://westend-rpc.polkadot.io',
+        networkAssetPrefix: 'WND',
+        networkName: 'Westend',
+        networkAssetDecimals: 12,
+        networkColor: '#ffb67a',
+        networkType: NetworkType.Substrate,
+        networkFeatures: (NetworkFeatures.NONE),
+        isTestnet: false,
+        networkGradient: {
+            hex1: "#e8026d",
+            hex2: "#ffb67a"
         }
     }
     /* 
@@ -68,8 +82,8 @@ export class DefaultNetworks {
         networkFeatures: (NetworkFeatures.STAKING | NetworkFeatures.SMART_CONTRACTS),
         isTestnet: true,
         networkGradient: {
-            hex1: "#dff9aa",
-            hex2: "#ffe8a6"
+            hex1: "#ffe8a6",
+            hex2: "#dff9aa"
         }
     }
     public allNetworks: Map<string, Network> = new Map([

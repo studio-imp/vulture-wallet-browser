@@ -50,6 +50,10 @@
                     <div v-if="currentTxState == txStates.PENDING">
                         <div class="vultureLoader showLoader"></div>
                     </div>
+                <div class="infoParagraph txError" v-if="currentTxState == txStates.FAILED">
+                    {{txError}}
+                    <span v-if="blockHash != ''">{{blockHash}}</span>
+                </div>
                 </div>
                 <div v-bind:class="currentTxState == txStates.SUCCESS ? 'showBlockId' : 'hideBlockId' " class="infoParagraph">
                     Block ID: <span style="color: var(--accent_color); font-size: 15px;">{{blockHash}}</span> <br>
@@ -102,6 +106,7 @@ export default defineComponent({
     let currentTxState = ref(TxState.NONE);
     let blockHash = ref('');
     let txTimer = ref(0);
+    let txError = ref('');
     let txStates = TxState;
 
     const networks = new DefaultNetworks();
@@ -146,9 +151,11 @@ export default defineComponent({
         }, 10);
         props.vultureWallet.currentWallet.accountEvents.removeAllListeners(VultureMessage.TRANSFER_ASSETS);
         props.vultureWallet.currentWallet.accountEvents.on(VultureMessage.TRANSFER_ASSETS, (params) => {
+            txError.value = params.status;
             if(params.success == false) {
                 currentTxState.value = TxState.FAILED;
                 blockHash.value = params.blockHash;
+                
                 clearInterval(timer);
             } else if(params.status == 'InBlock') {
                 if(params.method == 'ExtrinsicSuccess') {
@@ -173,6 +180,7 @@ export default defineComponent({
             }
         });
 
+        console.log(assetTransferData.amount);
         props.vultureWallet.currentWallet.transferAssets(assetTransferData.recipent, Number(assetTransferData.amount), token == null ? undefined : token);
     }
     let estimateFee = () => {
@@ -189,6 +197,7 @@ export default defineComponent({
     return {
         txFee,
         asset,
+        txError,
         txTimer,
         networks,
         txStates,
@@ -305,7 +314,14 @@ hr {
     border-radius: 24px;
     z-index: 2;
 }
+.txError {
+    height: 100%;
+    width: auto;
+    word-break: break-all;
 
+    font-size: 13px;
+    color: var(--fg_color_2);
+}
 .hideBlockId {
     opacity: 0;
     transition-duration: 180ms;

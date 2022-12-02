@@ -32,12 +32,12 @@
                     </div>
                 </div>
                 <div class="buttonRow">
-                    <div class="accountButton" @click="createLedgerWallet()">
+                    <div class="disabledButton">
                         <div class="buttonTitle">
                             Ledger
                         </div>
                         <div class="tempText">
-                            Use a ledger hardware-wallet
+                            Coming soon...
                         </div>
                         <div class="fonticon">
                             &#xe322;
@@ -281,7 +281,7 @@ hr {
     box-sizing: border-box;
     margin: 5px;
     width: 100%;
-    height:  86px;
+    height:  120px;
     border-style: solid;
     border-width: 2px;
     border-radius: 10px;
