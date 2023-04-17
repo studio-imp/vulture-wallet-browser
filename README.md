@@ -84,4 +84,4 @@ You can help out by tipping, forking the code and creating pull requests *(contr
 
 
 ### hope you have a great time, all the time!~
-*made with love <3 By [Ira](https://twitter/diinkitheimp) and [psycoders.club](https://psycoders.club).*
+*made with love <3 By [Diinki](https://twitter/diinkitheimp) and [psycoders.club](https://psycoders.club).*
