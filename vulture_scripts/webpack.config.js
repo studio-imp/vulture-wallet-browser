@@ -1,74 +1,73 @@
-const path = require('path');
-const webpack = require('webpack');
-
-
+const path = require("path");
+const webpack = require("webpack");
 
 module.exports = {
-    //target: ['node'],
-    resolve: {
+  //target: ['node'],
+  resolve: {
     //modules: [...],
     fallback: {
-        //fs: false,
-        "path": require.resolve('path-browserify'),
-        "stream": require.resolve('stream-browserify'),
-        "crypto": require.resolve('crypto-browserify'),
+      //fs: false,
+      path: require.resolve("path-browserify"),
+      stream: require.resolve("stream-browserify"),
+      crypto: require.resolve("crypto-browserify"),
+      "process/browser": require.resolve("process/browser"),
     },
-    extensions: ['.ts', '.js'],
+    extensions: [".ts", ".js"],
   },
 
-  mode: 'production',
+  mode: "production",
   //devtool: false,
   entry: {
-      accountActionWorker: './src/accountActionWorker.ts',
-      accountInfoWorker: './src/accountInfoWorker.ts'
+    accountActionWorker: "./src/accountActionWorker.ts",
+    accountInfoWorker: "./src/accountInfoWorker.ts",
   },
   output: {
-    filename: '[name]-bundle.js',
-    path: path.resolve(__dirname, '../public'),
+    filename: "[name]-bundle.js",
+    path: path.resolve(__dirname, "../public"),
   },
 
   plugins: [
-      new webpack.ProvidePlugin({
-        process: 'process/browser',
-      }),
-      new webpack.ProvidePlugin({
-        document: 'kill/me',
-      }),
+    new webpack.ProvidePlugin({
+      process: "process/browser",
+    }),
+    new webpack.ProvidePlugin({
+      document: "kill/me",
+    }),
   ],
   experiments: {
     syncWebAssembly: true,
   },
   module: {
     rules: [
-        {
-          test: /\.m?js$/,
-          exclude: /(node_modules|bower_components)/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env']
-            }
-          }
-        },
-        {
-          test: /\.m?js/,
-          type: "javascript/auto",
-        },
-        {
-          test: /\.m?js/,
-          resolve: {
-            fullySpecified: false,
+      {
+        test: /\.m?js$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env"],
           },
         },
-        { 
-          test: /\.ts$/, 
-          use: 'ts-loader',
-          exclude: /node_modules/ 
+      },
+      {
+        test: /\.m?js/,
+        type: "javascript/auto",
+      },
+      {
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
         },
-        {
-            test: /\.wasm$/,
-            type: "asset/inline",
-        },
+      },
+      {
+        test: /\.ts$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+      {
+        test: /\.wasm$/,
+        type: "asset/inline",
+      },
     ],
- }
+  },
 };

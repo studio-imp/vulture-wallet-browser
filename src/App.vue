@@ -1,63 +1,89 @@
 <template>
-<span :style="['--accent_color: ' +  currentAccentColor, '--gradient_1:' + gradientColor1, '--gradient_2:' + gradientColor2]">
-  <div v-if="walletState == state.WALLET">
+  <span
+    :style="[
+      '--accent_color: ' + currentAccentColor,
+      '--gradient_1:' + gradientColor1,
+      '--gradient_2:' + gradientColor2,
+    ]"
+  >
+    <div v-if="walletState == state.WALLET">
+      <OverviewModule
+        v-if="vultureWallet.accountStore != null"
+        :address="address"
+        :assetPrefix="assetPrefix"
+        :assetAmount="assetAmount"
+        :accountName="vultureWallet.currentWallet.accountData.accountName"
+        :isWalletReady="vultureWallet.currentWallet.isReady"
+        :modalSystem="modalSystem"
+      />
 
-  <OverviewModule v-if="vultureWallet.accountStore != null" :address="address"
-  :assetPrefix="assetPrefix"
-  :assetAmount="assetAmount"
-  :accountName="vultureWallet.currentWallet.accountData.accountName"
-  :isWalletReady="vultureWallet.currentWallet.isReady"
-  :modalSystem="modalSystem"/>
-    
-  <Navbar @switch-tab="setTab($event)"/>
+      <Navbar @switch-tab="setTab($event)" />
 
-  <SendTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'send' ? 'show' : 'hide'"
-  @send-button-click="transferAssets($event)"
-  :addressOfTokenToTransfer="addressOfTokenToTransfer"
-  :vultureWallet="vultureWallet"
-  :modalSystem="modalSystem"/>
+      <SendTab
+        v-if="vultureWallet.accountStore != null"
+        style="position: absolute; width: 360px"
+        v-bind:class="currentTab == 'send' ? 'show' : 'hide'"
+        @send-button-click="transferAssets($event)"
+        :addressOfTokenToTransfer="addressOfTokenToTransfer"
+        :vultureWallet="vultureWallet"
+        :modalSystem="modalSystem"
+      />
 
-  <WalletTab v-if="vultureWallet.accountStore != null" style="position: absolute; width: 360px;" v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
-  :vultureWallet="vultureWallet"
-  :isWalletReady="vultureWallet.currentWallet.isReady"
-  :modalSystem="modalSystem"/>
+      <WalletTab
+        v-if="vultureWallet.accountStore != null"
+        style="position: absolute; width: 360px"
+        v-bind:class="currentTab == 'wallet' ? 'show' : 'hide'"
+        :vultureWallet="vultureWallet"
+        :isWalletReady="vultureWallet.currentWallet.isReady"
+        :modalSystem="modalSystem"
+      />
 
-  <AccountsTab v-if="vultureWallet.accountStore != null" v-bind:class="currentTab == 'accounts' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
-  :allAccounts="vultureWallet.accountStore.allAccounts"
-  :vultureWallet="vultureWallet"
-  :modalSystem="modalSystem"/>
+      <AccountsTab
+        v-if="vultureWallet.accountStore != null"
+        v-bind:class="currentTab == 'accounts' ? 'show' : 'hide'"
+        style="position: absolute; width: 360px; height: 345px"
+        :allAccounts="vultureWallet.accountStore.allAccounts"
+        :vultureWallet="vultureWallet"
+        :modalSystem="modalSystem"
+      />
 
-  <SettingsTab v-bind:class="currentTab == 'settings' ? 'show' : 'hide'" style="position: absolute; width: 360px; height: 345px;"
-  :vultureWallet="vultureWallet"
-  :modalSystem="modalSystem"
-  @reset-wallet="resetWallet()"/>
+      <SettingsTab
+        v-bind:class="currentTab == 'settings' ? 'show' : 'hide'"
+        style="position: absolute; width: 360px; height: 345px"
+        :vultureWallet="vultureWallet"
+        :modalSystem="modalSystem"
+        @reset-wallet="resetWallet()"
+      />
 
-  <!-- I know, this is pretty fking stupid because it's so confusing, but until the new modal-system is added this will
+      <!-- I know, this is pretty fking stupid because it's so confusing, but until the new modal-system is added this will
   have to do (v0.1.7 - v0.1.8 era will introduce a new modal system.) -->
 
-  <Modal v-bind:class="currentModal == modals.NONE ? 'hide' : 'show'"
-  :vultureWallet="vultureWallet"
-  :selectedAccountIndex="selectedAccountIndex"
-  :tokenTypeToAdd="tokenTypeToAdd"
-  :modalSystem="modalSystem"
-  :currentModal="currentModal"
-  :addressOfTokenToView="addressOfTokenToView"
-  :addressOfTokenToTransfer="addressOfTokenToTransfer"
-  @on-wallet-reset="onWalletReset()"
-  @select-token="selectToken($event)"
-  @reset-selected-token="resetSelectedToken()"/>
+      <Modal
+        v-bind:class="currentModal == modals.NONE ? 'hide' : 'show'"
+        :vultureWallet="vultureWallet"
+        :selectedAccountIndex="selectedAccountIndex"
+        :tokenTypeToAdd="tokenTypeToAdd"
+        :modalSystem="modalSystem"
+        :currentModal="currentModal"
+        :addressOfTokenToView="addressOfTokenToView"
+        :addressOfTokenToTransfer="addressOfTokenToTransfer"
+        @on-wallet-reset="onWalletReset()"
+        @select-token="selectToken($event)"
+        @reset-selected-token="resetSelectedToken()"
+      />
+    </div>
 
-</div>
+    <div v-if="walletState == state.PASSWORD_LOCKED">
+      <UnlockWallet
+        @decrypted-vault="initWallet($event)"
+        :encryptedVault="vault"
+      />
+    </div>
 
-<div v-if="walletState == state.PASSWORD_LOCKED">
-  <UnlockWallet @decrypted-vault="initWallet($event)" :encryptedVault="vault"/>
-</div>
-
-<div v-if="walletState == state.ONBOARDING">
-  <Onboarding style="position: absolute; width: 360px;"/>
-</div>
-</span>
-
+    <div v-if="walletState == state.ONBOARDING">
+      <Onboarding style="position: absolute; width: 360px" />
+    </div>
+  </span>
 </template>
 
 <script lang="ts">
@@ -72,190 +98,193 @@ import SendTab from "./components/SendTab.vue";
 import Navbar from "./components/Navbar.vue";
 import Modal from "./components/modals/Modal.vue";
 
+import { provide } from "vue";
 
-import { provide } from 'vue';
-
-import { doesWalletExist, VultureWallet, loadVault, Vault, loadAccounts,
-         deleteWallet, VultureAccountStore, AccountData} from "./vulture_backend/wallets/vultureWallet";
+import {
+  doesWalletExist,
+  VultureWallet,
+  loadVault,
+  Vault,
+  loadAccounts,
+  deleteWallet,
+  VultureAccountStore,
+  AccountData,
+} from "./vulture_backend/wallets/vultureWallet";
 import { Modals, WalletStates } from "./types/uiTypes";
 import { ModalEvents, ModalEventSystem } from "./modalEventSystem";
-import { reactive, ref } from '@vue/reactivity';
+import { reactive, ref } from "@vue/reactivity";
 import { useWalletInfo } from "./store/useWalletInfo";
-import { VultureMessage } from './vulture_backend/vultureMessage';
+import { VultureMessage } from "./vulture_backend/vultureMessage";
 
 //openWebApp();
 export default {
-    name: "Vulture Wallet",
-    components: {
-      OverviewModule,
-      DefaultButton,
-      UnlockWallet,
-      AccountsTab,
-      SettingsTab,
-      Onboarding,
-      WalletTab,
-      SendTab,
-      Navbar,
-      Modal
-    },
-    setup() {
+  name: "Vulture Wallet",
+  components: {
+    OverviewModule,
+    DefaultButton,
+    UnlockWallet,
+    AccountsTab,
+    SettingsTab,
+    Onboarding,
+    WalletTab,
+    SendTab,
+    Navbar,
+    Modal,
+  },
+  setup() {
+    // This setup() method *is* very messy, will move things out and do cleaning
+    // Later when I decide to refactor. It is essentially entirely temporary.
 
-      
-      // This setup() method *is* very messy, will move things out and do cleaning
-      // Later when I decide to refactor. It is essentially entirely temporary.
+    let vultureWallet = reactive(new VultureWallet());
+    let walletState = ref(WalletStates.LOADING);
+    let vault = ref("");
 
-      let vultureWallet = reactive(new VultureWallet());
-      let walletState = ref(WalletStates.LOADING);
-      let vault = ref('');
+    // ----- Modal system -----
+    let currentModal = ref(ModalEvents.NONE);
+    let modalSystem = reactive(new ModalEventSystem());
+    modalSystem.modalEvents.on("OpenModal", (data) => {
+      currentModal.value = data.modal;
+    });
 
+    let modals = ModalEvents;
+    let state = WalletStates;
 
-      // ----- Modal system ----- 
-      let currentModal  = ref(ModalEvents.NONE);
-      let modalSystem = reactive(new ModalEventSystem());
-      modalSystem.modalEvents.on("OpenModal", (data) => {
-          currentModal.value = data.modal;
-      });      
+    //Token variables, a bit messy to have this here, will refactor later.
+    let tokenTypeToAdd = ref("");
+    let addressOfTokenToView = ref("");
 
-      let modals = ModalEvents;
-      let state = WalletStates;
+    // Address of token to transfer, empty is the native asset of the selected network.
+    let addressOfTokenToTransfer = ref("");
 
+    /* --- Transfer Asset Variables & Functions --- */
 
-      //Token variables, a bit messy to have this here, will refactor later. 
-      let tokenTypeToAdd = ref('');
-      let addressOfTokenToView = ref('');
+    let currentAccentColor = ref("#98ea79"); // default accent color :p
+    let gradientColor1 = ref("#dff9aa");
+    let gradientColor2 = ref("#ffe8a6");
 
-      // Address of token to transfer, empty is the native asset of the selected network.
-      let addressOfTokenToTransfer = ref('');
-      
+    let selectedAccountIndex = ref(0);
 
-      /* --- Transfer Asset Variables & Functions --- */
+    /* --- Transfer Asset Variables & Functions --- */
 
-
-      let currentAccentColor = ref('#98ea79'); // default accent color :p
-      let gradientColor1 = ref('#dff9aa');
-      let gradientColor2 = ref('#ffe8a6'); 
-
-      let selectedAccountIndex = ref(0);
-
-
-      /* --- Transfer Asset Variables & Functions --- */
-
-
-      let assetAmount = ref('Loading');
-      let assetPrefix = ref('...');
-      let address = ref("LOADING");
-      doesWalletExist().then((value) => {
-            if(value == true) {
-              walletState.value = WalletStates.WALLET;
-              loadVault().then((value: any) => {
-                vault.value = value as any;
-                  walletState.value = WalletStates.PASSWORD_LOCKED;
-              });
-            }else {
-              walletState.value = WalletStates.ONBOARDING;
-            }
-      });
-      
-      async function initWallet(vaultE: Vault) {
-        loadAccounts().then(async (accounts)=> {
-          //vultureWallet = new VultureWallet(vault, accounts as VultureAccountStore);
-          await vultureWallet.initWallet(vaultE, accounts as VultureAccountStore);
-          walletState.value = WalletStates.WALLET;
-          
-          vultureWallet.walletEvents.on(VultureMessage.SUBSCRIBE_TO_ACC_EVENTS, (data) => {
-            assetAmount.value = data.amount;
-            assetPrefix.value = vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
-            currentAccentColor.value = vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
-            gradientColor1.value = vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex1;
-            gradientColor2.value = vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex2;
-
-            address.value = data.address;
-          });
+    let assetAmount = ref("Loading");
+    let assetPrefix = ref("...");
+    let address = ref("LOADING");
+    doesWalletExist().then((value) => {
+      if (value == true) {
+        walletState.value = WalletStates.WALLET;
+        loadVault().then((value: any) => {
+          vault.value = value as any;
+          walletState.value = WalletStates.PASSWORD_LOCKED;
         });
-      }
-
-      /* --- Modal functions --- */
-
-      function resetWallet() {
-        //currentModal.value = modals.RESET_WALLET
-      }
-      function onWalletReset() {
-        //currentModal.value = modals.NONE;
+      } else {
         walletState.value = WalletStates.ONBOARDING;
       }
+    });
 
-      function selectToken(tokenAddress: string) {
-        addressOfTokenToTransfer.value = tokenAddress;
-      }
-      // I Use this function whenever the token should be reset to native, usually called when the user removes a token
-      // from the list (through events).
-      function resetSelectedToken() {
-        addressOfTokenToTransfer.value = '';
-      }
+    async function initWallet(vaultE: Vault) {
+      loadAccounts().then(async (accounts) => {
+        //vultureWallet = new VultureWallet(vault, accounts as VultureAccountStore);
+        await vultureWallet.initWallet(vaultE, accounts as VultureAccountStore);
+        walletState.value = WalletStates.WALLET;
 
-      return {
-        vultureWallet,
-        walletState,
-        currentModal,
-        vault,
-        assetAmount,
-        assetPrefix,
-        address,
+        vultureWallet.walletEvents.on(
+          VultureMessage.SUBSCRIBE_TO_ACC_EVENTS,
+          (data) => {
+            assetAmount.value = data.amount;
+            assetPrefix.value =
+              vultureWallet.accountStore.currentlySelectedNetwork.networkAssetPrefix;
+            currentAccentColor.value =
+              vultureWallet.accountStore.currentlySelectedNetwork.networkColor;
+            gradientColor1.value =
+              vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex1;
+            gradientColor2.value =
+              vultureWallet.accountStore.currentlySelectedNetwork.networkGradient.hex2;
 
-        modals,
-        state,
-  
-        addressOfTokenToView,
-        tokenTypeToAdd,
+            address.value = data.address;
+          }
+        );
+      });
+    }
 
-        modalSystem,
+    /* --- Modal functions --- */
 
+    function resetWallet() {
+      //currentModal.value = modals.RESET_WALLET
+    }
+    function onWalletReset() {
+      //currentModal.value = modals.NONE;
+      walletState.value = WalletStates.ONBOARDING;
+    }
 
-        selectedAccountIndex,
+    function selectToken(tokenAddress: string) {
+      addressOfTokenToTransfer.value = tokenAddress;
+    }
+    // I Use this function whenever the token should be reset to native, usually called when the user removes a token
+    // from the list (through events).
+    function resetSelectedToken() {
+      addressOfTokenToTransfer.value = "";
+    }
 
-        addressOfTokenToTransfer,
+    return {
+      vultureWallet,
+      walletState,
+      currentModal,
+      vault,
+      assetAmount,
+      assetPrefix,
+      address,
 
-        gradientColor1,
-        gradientColor2,
-        currentAccentColor,
+      modals,
+      state,
 
-        initWallet: initWallet,
-        resetWallet: resetWallet,
-        onWalletReset: onWalletReset,
-        selectToken: selectToken,
-        resetSelectedToken: resetSelectedToken,
-      }
+      addressOfTokenToView,
+      tokenTypeToAdd,
+
+      modalSystem,
+
+      selectedAccountIndex,
+
+      addressOfTokenToTransfer,
+
+      gradientColor1,
+      gradientColor2,
+      currentAccentColor,
+
+      initWallet: initWallet,
+      resetWallet: resetWallet,
+      onWalletReset: onWalletReset,
+      selectToken: selectToken,
+      resetSelectedToken: resetSelectedToken,
+    };
+  },
+  data() {
+    //console.log(vault);
+    return {
+      currentTab: "send",
+    };
+  },
+  props: {},
+  methods: {
+    setTab(tab: string) {
+      this.currentTab = tab;
     },
-    data(){
-      
-      //console.log(vault);
-      return {
-        currentTab: 'send',
-      }
-    },
-    props: {
-    },
-    methods: {
-      setTab(tab: string) {
-        this.currentTab = tab;
-      },
-    },
-}
+  },
+};
 </script>
 
 <style>
 @font-face {
-    font-family: fonticonA;
-    src: url("./assets/fonts/MaterialIconsRound-Regular.otf");
+  font-family: fonticonA;
+  src: url("./assets/fonts/MaterialIconsRound-Regular.otf");
 }
 @font-face {
-    font-family: GardensC;
-    src: url("./assets/fonts/Assistant/Assistant-VariableFont_wght.ttf");
+  font-family: GardensC;
+  src: url("./assets/fonts/Assistant/Assistant-VariableFont_wght.ttf");
 }
 @font-face {
-    font-family: ButtonFont;
-    font-weight: 800;
-    src: url("./assets/fonts/GlacialIndifference-Regular.otf");
+  font-family: ButtonFont;
+  font-weight: 800;
+  src: url("./assets/fonts/GlacialIndifference-Regular.otf");
 }
 #app {
   margin: 0px;
@@ -273,12 +302,10 @@ html {
 
   --incorrect_color: rgb(255, 0, 65);
   --warning_color: rgb(255, 130, 58);
-  --info_color:rgb(137, 145, 255);
-  
-  
-  --fg_color: rgb(255,255,255);
-  --fg_color_2: rgb(150, 150, 150);
+  --info_color: rgb(137, 145, 255);
 
+  --fg_color: rgb(255, 255, 255);
+  --fg_color_2: rgb(150, 150, 150);
 
   font-family: GardensC;
   -webkit-font-smoothing: antialiased;
@@ -345,7 +372,7 @@ html {
   display: flex;
   box-sizing: border-box;
   color: var(--fg_color_2);
-  word-wrap:normal;
+  word-wrap: normal;
   word-break: keep-all;
   white-space: normal;
   margin-top: 5px;
@@ -354,7 +381,7 @@ html {
   margin-bottom: 5px;
   margin-top: 5px;
   padding-left: 6px;
-  
+
   border-left-style: solid;
   border-width: 1px;
   border-color: var(--accent_color);
@@ -369,8 +396,9 @@ html {
   border-radius: 50%;
   border: 3px solid;
 
-  border-color: var(--accent_color) var(--bg_color_2) var(--accent_color) var(--bg_color_2);
-  
+  border-color: var(--accent_color) var(--bg_color_2) var(--accent_color)
+    var(--bg_color_2);
+
   animation: vultureLoaderFrames 0.87s infinite;
   box-shadow: 0px 0px 8px black inset;
 }
@@ -393,8 +421,9 @@ html {
   border-radius: 50%;
   border: 3px solid;
 
-  border-color: var(--accent_color) var(--bg_color_2) var(--accent_color) var(--bg_color_2);
-  
+  border-color: var(--accent_color) var(--bg_color_2) var(--accent_color)
+    var(--bg_color_2);
+
   animation: vultureLoaderFrames 0.87s infinite;
   box-shadow: 0px 0px 8px black inset;
 }
@@ -417,9 +446,8 @@ html {
   border-width: 2px;
   border-color: var(--bg_color_2);
 
- 
   position: absolute;
-  box-shadow: 0px 0px 12px rgba(0,0,0,0.3);
+  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.3);
   z-index: 1;
   opacity: 0;
 
@@ -428,17 +456,14 @@ html {
   color: var(--fg_color);
 
   transition-duration: 115ms;
-  transform: scale(0.90,0.90);
-
-
+  transform: scale(0.9, 0.9);
 }
-
 
 .tooltip:hover .tooltipText {
   visibility: visible;
   transition-delay: 0.2s;
   transition-duration: 115ms;
-  transform: scale(1,1);
+  transform: scale(1, 1);
   opacity: 1;
 }
 
@@ -447,7 +472,7 @@ html {
   visibility: hidden;
   transition-delay: 0s;
   transition-duration: 80ms;
-  transform: scale(0.90,0.90);
+  transform: scale(0.9, 0.9);
   opacity: 0;
 }
 @keyframes vultureLoaderFrames {
@@ -476,11 +501,11 @@ a:active {
 }
 
 *::-webkit-scrollbar {
-  width: 3px;         
+  width: 3px;
 }
 *::-webkit-scrollbar-track {
-  box-shadow: 0px 0px 0px rgba(0,0,0,1);
-  background: rgb(16,16,16);
+  box-shadow: 0px 0px 0px rgba(0, 0, 0, 1);
+  background: rgb(16, 16, 16);
   border-radius: 5px;
 }
 
