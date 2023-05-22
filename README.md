@@ -80,7 +80,7 @@ You can help out by tipping, forking the code and creating pull requests *(contr
 
 **AZERO Tipping address:**
 
-`5FUTrKNceXGtG1vjevkyUXtGEPKBMgNXkBAdXajJouAboazi`
+`None Yet`
 
 
 ### hope you have a great time, all the time!~
