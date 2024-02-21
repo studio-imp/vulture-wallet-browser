@@ -19,7 +19,6 @@ ____
 
 ### Things to Note
 
-* Vulture is still early, you can see the roadmap at the [vulture website](https://vulturewallet.net).
 * Vulture is developed by psycoders.club *(previously xavax)*
 * Vulture will support the Ledger hardware wallet in the near future, you will be able to use both non-hardware mnemonic accounts & Ledger accounts simultaneously.
 * Vulture currently only has a browser extension version, but a mobile wallet is in development.
@@ -72,19 +71,3 @@ the latest scripts and place them in the `dist` directory.
 
 Vulture is licensed under the permissive [MIT License](https://mit-license.org/). If you have any questions
 about licensing, feel free to ask on social media, github issues, or send an email to `info@psycoders.club`.
-
-<h1 align="center"> ~ Info ~ </h1>
-
-You can find more info about this project at [vulturewallet.net](https://vulturewallet.net).
-
-Follow [me](https://twitter.com/DiinkiTheImp) on twitter if you wanna, feel free to ask questions.
-
-You can help out by tipping, forking the code and creating pull requests *(contributing)*, giving feedback on any socials, sharing the wallet, and also creating issues on Github if any issues arrise!
-
-**AZERO Tipping address:**
-
-`None Yet`
-
-
-### hope you have a great time, all the time!~
-*made with love <3 By [Diinki](https://twitter/diinkitheimp) and [psycoders.club](https://psycoders.club).*
