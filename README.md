@@ -1,4 +1,7 @@
-<h1 align="center">Vulture Wallet | Browser Version</h1>
+<h1 align="center">⚠️!DEPRECATED! - The vulture project is deprecated ⚠️</h1>
+
+
+<h2 align="center">Vulture Wallet | Browser Version</h1>
 <p align='center'>
 <img src="./public/icons/VultureIcon2.png" alt="Example 1" width="8%"> 
 </p>
