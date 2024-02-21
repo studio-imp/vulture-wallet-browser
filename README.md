@@ -77,11 +77,3 @@ You can find more info about this project at [vulturewallet.net](https://vulture
 Follow [me](https://twitter.com/DiinkiTheImp) on twitter if you wanna, feel free to ask questions.
 
 You can help out by tipping, forking the code and creating pull requests *(contributing)*, giving feedback on any socials, sharing the wallet, and also creating issues on Github if any issues arrise!
-
-**AZERO Tipping address:**
-
-`5FUTrKNceXGtG1vjevkyUXtGEPKBMgNXkBAdXajJouAboazi`
-
-
-### hope you have a great time, all the time!~
-*made with love <3 By [Ira](https://twitter/diinkitheimp) and [psycoders.club](https://psycoders.club).*
